@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 10: Technology Strategy · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() { return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
+
+const BUDGET_TOTAL = 20;
+
+const TECH_CATEGORIES = [
+  {
+    id: "core",
+    label: "Core Infrastructure",
+    icon: "🏗️",
+    description: "Foundational systems: ERP, cloud migration, cybersecurity baseline, data centers.",
+    options: [
+      { id: "core1", label: "Minimum viable upgrade — patch critical systems only", cost: 2, stability: 8, competitive: 2, future: 2 },
+      { id: "core2", label: "Full cloud migration with security hardening", cost: 6, stability: 9, competitive: 5, future: 8 },
+      { id: "core3", label: "Hybrid cloud with on-premise data retention for regulatory compliance", cost: 4, stability: 8, competitive: 4, future: 6 },
+    ],
+  },
+  {
+    id: "customer",
+    label: "Customer-Facing Digital",
+    icon: "📱",
+    description: "Mobile app, website, e-commerce platform, personalization engines.",
+    options: [
+      { id: "cust1", label: "Redesign website and add basic e-commerce capability", cost: 3, stability: 4, competitive: 5, future: 4 },
+      { id: "cust2", label: "Full mobile-first platform with personalization and loyalty integration", cost: 7, stability: 6, competitive: 9, future: 8 },
+      { id: "cust3", label: "Improve existing app UX without platform rebuild", cost: 2, stability: 5, competitive: 4, future: 3 },
+    ],
+  },
+  {
+    id: "data",
+    label: "Data & Analytics",
+    icon: "📊",
+    description: "Business intelligence, customer data platform, predictive analytics, reporting.",
+    options: [
+      { id: "data1", label: "Implement a unified customer data platform and BI dashboards", cost: 4, stability: 5, competitive: 7, future: 8 },
+      { id: "data2", label: "Basic reporting and Excel-linked dashboards only", cost: 1, stability: 3, competitive: 3, future: 2 },
+      { id: "data3", label: "Predictive analytics engine with real-time decision support", cost: 6, stability: 5, competitive: 9, future: 9 },
+    ],
+  },
+  {
+    id: "emerging",
+    label: "Emerging Technology",
+    icon: "🚀",
+    description: "AI/ML pilots, automation, IoT, blockchain exploration.",
+    options: [
+      { id: "em1", label: "Skip for now — focus resources on core and customer-facing", cost: 0, stability: 6, competitive: 2, future: 2 },
+      { id: "em2", label: "Run two small AI pilot projects with defined success metrics", cost: 3, stability: 5, competitive: 6, future: 8 },
+      { id: "em3", label: "Launch a full AI transformation program across operations and marketing", cost: 8, stability: 3, competitive: 8, future: 9 },
+    ],
+  },
+];
+
+const SHOCKS = [
+  {
+    id: "breach",
+    title: "Cybersecurity Incident",
+    detail: "A ransomware attack has compromised two of your supplier integrations and exposed customer email data. The incident response team estimates 72 hours of disruption. Your current security posture determines your exposure.",
+    choices: [
+      { text: "Activate your pre-built incident response playbook and isolate affected systems immediately", score: 5 },
+      { text: "Hire an emergency cybersecurity consultant to assess and respond", score: 3 },
+      { text: "Issue a public statement reassuring customers while internally assessing the damage", score: 2 },
+      { text: "Shut down all digital systems until the scope is determined", score: 1 },
+    ],
+  },
+  {
+    id: "competitor",
+    title: "Competitor Platform Launch",
+    detail: "Your main competitor has launched an AI-powered customer platform that is generating significant media attention. Early reviews suggest meaningfully better personalization than anything you currently offer. How do you respond strategically?",
+    choices: [
+      { text: "Accelerate your own roadmap items in the customer-facing and data categories by reallocating budget", score: 5 },
+      { text: "Acquire a startup with the capability gap your roadmap doesn't cover in time", score: 4 },
+      { text: "Wait and watch — first-mover advantage in tech is often overestimated", score: 2 },
+      { text: "Launch a PR campaign emphasizing your reliability and track record over flashy new features", score: 2 },
+    ],
+  },
+];
+
+function computeRoadmapScore(picks) {
+  let totalCompetitive = 0; let totalFuture = 0; let totalStability = 0;
+  TECH_CATEGORIES.forEach(cat => {
+    const opt = cat.options.find(o => o.id === picks[cat.id]);
+    if (opt) { totalCompetitive += opt.competitive; totalFuture += opt.future; totalStability += opt.stability; }
+  });
+  return { competitive: totalCompetitive, future: totalFuture, stability: totalStability, total: totalCompetitive + totalFuture + totalStability };
+}
+
+function getBudgetUsed(picks) {
+  return TECH_CATEGORIES.reduce((acc, cat) => {
+    const opt = cat.options.find(o => o.id === picks[cat.id]);
+    return acc + (opt ? opt.cost : 0);
+  }, 0);
+}
+
+function getGrade(scores) {
+  if (scores.total >= 65) return { label: "Digital Vanguard", note: "Your roadmap positions the company as a technology leader with strong short-term stability and long-term capability." };
+  if (scores.total >= 50) return { label: "Capable Architect", note: "Your roadmap is balanced and sound, with selective investment in competitive capability." };
+  return { label: "Cautious Builder", note: "Your roadmap prioritizes stability but may underinvest in competitive and future-facing capability." };
+}
+
+function drawCertificate(canvas, studentName, grade, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#f5f7ff"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#1565c0"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#00695c"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#1565c0";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad=ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#1a237e"); grad.addColorStop(1,"#0d1757");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#82b1ff"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#1a237e"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#1565c0"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#1a237e"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#1565c0"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#1a237e"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 10: Technology Strategy",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,342);
+  ctx.strokeStyle="#1565c0"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#1a237e"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#1a237e"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#1a237e"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#1565c0"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#82b1ff"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 10",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#050d2b 0%,#0d1f5c 50%,#050d2b 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"720px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.6)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#1a237e,#0d1757)",padding:"28px 36px 22px",borderBottom:"3px solid #1565c0"},
+  badge:{display:"inline-block",background:"rgba(21,101,192,0.2)",border:"1px solid #1565c0",color:"#82b1ff",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#1a237e,#283593)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnBlue:{background:"linear-gradient(135deg,#1565c0,#1976d2)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#1a237e",border:"2px solid #1a237e",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#1a237e",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [picks, setPicks] = useState({});
+  const [shockIdx, setShockIdx] = useState(0);
+  const [shockAnswers, setShockAnswers] = useState([]);
+  const [shockChosen, setShockChosen] = useState(null);
+  const [shockRevealed, setShockRevealed] = useState(false);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){ const s=computeRoadmapScore(picks); drawCertificate(canvasRef.current,studentName,getGrade(s),completionCode,completionDate); try{localStorage.setItem('smcp_module_10',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){} } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+  function restart() { setPicks({}); setShockIdx(0); setShockAnswers([]); setShockChosen(null); setShockRevealed(false); setScreen("simulation"); }
+  function downloadPNG() { const l=document.createElement("a"); l.download=`Certificate_Module10_${studentName.replace(/\s+/g,"_")}.png`; l.href=canvasRef.current.toDataURL("image/png"); l.click(); }
+  function downloadPDF() { const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  const budgetUsed = getBudgetUsed(picks);
+  const overBudget = budgetUsed > BUDGET_TOTAL;
+  const allPicked = TECH_CATEGORIES.every(c => picks[c.id]);
+
+  function handleShockAnswer(i) {
+    if(shockRevealed) return;
+    setShockChosen(i);
+    setShockRevealed(true);
+  }
+
+  function handleShockNext() {
+    const newAnswers = [...shockAnswers, { idx: shockChosen, score: SHOCKS[shockIdx].choices[shockChosen].score }];
+    setShockAnswers(newAnswers);
+    setShockChosen(null);
+    setShockRevealed(false);
+    if (shockIdx + 1 < SHOCKS.length) { setShockIdx(shockIdx + 1); }
+    else { setScreen("results"); }
+  }
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 10 · TECHNOLOGY STRATEGY</div><h1 style={S.title}>The Digital Roadmap</h1><p style={S.sub}>Build a five-year technology investment strategy and navigate disruption</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to The Digital Roadmap simulation. Please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 10 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}><strong>Harford Group</strong> is a B2B services company with $600M in annual revenue. The board has approved a technology strategy budget of <strong>20 investment points</strong> to be allocated across four technology categories over a five-year planning horizon. Each investment level has a different impact on stability, competitive positioning, and future-readiness.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>For each of the four technology categories, select an investment level that fits within your total budget. After building your roadmap, two unexpected disruptions will test the robustness of your strategy. You will receive a full scorecard at the end.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Build the Roadmap →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="simulation") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}>
+        <div style={S.badge}>STEP 1 · BUILD YOUR TECHNOLOGY ROADMAP</div>
+        <h1 style={S.title}>Allocate Investment Across Four Categories</h1>
+        <p style={S.sub}>Budget: {budgetUsed} / {BUDGET_TOTAL} pts used {overBudget?"⚠️ Over budget":""}</p>
+      </div>
+      <div style={S.body}>
+        {TECH_CATEGORIES.map(cat => (
+          <div key={cat.id} style={{marginBottom:"22px"}}>
+            <p style={{fontWeight:"bold",color:"#1a237e",fontSize:"15px",marginBottom:"4px"}}>{cat.icon} {cat.label}</p>
+            <p style={{fontSize:"12px",color:"#888",fontFamily:"Arial,sans-serif",marginBottom:"10px"}}>{cat.description}</p>
+            {cat.options.map(opt => {
+              const sel = picks[cat.id] === opt.id;
+              return (
+                <div key={opt.id} onClick={()=>setPicks({...picks,[cat.id]:opt.id})} style={{border:`2px solid ${sel?"#1565c0":"#ddd"}`,borderRadius:"2px",padding:"12px 16px",marginBottom:"8px",cursor:"pointer",background:sel?"#e8f0fe":"#fafafa",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span style={{fontSize:"13px",color:"#333",flex:1}}>{opt.label}</span>
+                  <div style={{textAlign:"right",marginLeft:"16px",flexShrink:0}}>
+                    <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>Cost: {opt.cost} pts</div>
+                    <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>Competitive: {opt.competitive}/10</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        {overBudget && <p style={{color:"#c0392b",fontSize:"13px",textAlign:"center"}}>You are over budget. Please revise selections to stay within {BUDGET_TOTAL} points.</p>}
+        {allPicked && !overBudget && <div style={{textAlign:"right",marginTop:"8px"}}><button style={S.btn} onClick={()=>setScreen("shocks")}>Lock Roadmap →</button></div>}
+      </div>
+    </div></div>
+  );
+
+  if(screen==="shocks") {
+    const shock = SHOCKS[shockIdx];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={{background:"linear-gradient(135deg,#1b1b3a,#2c2c6e)",padding:"28px 36px 22px",borderBottom:"3px solid #e53935"}}>
+          <div style={{...S.badge,borderColor:"#e53935",color:"#ef9a9a"}}>DISRUPTION {shockIdx+1} OF 2</div>
+          <h1 style={{color:"#fff",fontSize:"20px",margin:"8px 0 0"}}>⚡ {shock.title}</h1>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>{shock.detail}</p>
+          {shock.choices.map((c,i) => {
+            const sel = shockChosen === i;
+            const best = shockRevealed && c.score === 5 && i !== shockChosen;
+            return (
+              <div key={i} onClick={()=>handleShockAnswer(i)} style={{border:`2px solid ${sel?"#e53935":best?"#27ae60":"#ddd"}`,borderRadius:"2px",padding:"13px 17px",marginBottom:"10px",cursor:shockRevealed?"default":"pointer",background:sel?"#fff3f3":best?"#f0fff4":"#fafafa"}}>
+                <p style={{margin:0,fontSize:"14px",color:"#333"}}>{c.text}</p>
+                {best && <p style={{margin:"6px 0 0",fontSize:"12px",color:"#1a6b3c",fontFamily:"Arial,sans-serif"}}>★ Strongest response</p>}
+              </div>
+            );
+          })}
+          {shockRevealed && <div style={{textAlign:"right",marginTop:"16px"}}><button style={S.btn} onClick={handleShockNext}>{shockIdx+1<SHOCKS.length?"Next Disruption →":"See Results →"}</button></div>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="results") {
+    const scores = computeRoadmapScore(picks);
+    const grade = getGrade(scores);
+    const shockTotal = shockAnswers.reduce((a,s)=>a+s.score,0);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>SIMULATION COMPLETE</div><h1 style={S.title}>{grade.label}</h1></div>
+        <div style={S.body}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"10px",marginBottom:"24px"}}>
+            {[{l:"Competitive",v:scores.competitive+"/40"},{l:"Future-Ready",v:scores.future+"/40"},{l:"Stability",v:scores.stability+"/40"},{l:"Crisis Score",v:shockTotal+"/10"}].map(m=>(
+              <div key={m.l} style={{background:"#f0f4ff",border:"1px solid #c5cae9",borderRadius:"2px",padding:"14px",textAlign:"center"}}>
+                <div style={{fontSize:"18px",fontWeight:"bold",color:"#1a237e"}}>{m.v}</div>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"4px"}}>{m.l}</div>
+              </div>
+            ))}
+          </div>
+          <p style={S.prose}>{grade.note}</p>
+          <p style={S.prose}>Your crisis responses scored <strong>{shockTotal} out of 10</strong>. {shockTotal>=8?"Strong crisis thinking — you responded decisively under pressure.":"There were stronger responses available. Revisit the shock options to see where sharper instincts would have protected the company better."}</p>
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"20px"}}>
+            <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 10 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Technology strategy is not about chasing the latest innovation — it is about making disciplined allocation decisions that balance short-term operational stability with long-term competitive capability, all within real budget constraints. The organizations that fall behind technologically usually do so not from ignorance, but from chronic underinvestment in the wrong categories.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>In any leadership role, you will participate in technology investment conversations. Knowing how to evaluate trade-offs across stability, competitive impact, and future-readiness — and how to articulate those trade-offs to boards and executives who may not be deeply technical — is a skill that makes you more valuable in the room. Technology fluency at the strategic level is now a baseline leadership expectation.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>The investment framework from this simulation applies to personal decisions too. When choosing whether to learn a new skill, adopt a new tool, or invest time in a capability that may not pay off for years, the question is the same: are you optimizing for short-term stability or long-term positioning? Both matter, and the discipline is knowing which deserves priority right now.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnBlue} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 10 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnBlue} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

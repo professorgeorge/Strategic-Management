@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 4: Strategic Business Analysis · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() {
+  return "M4-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+const COMPANY = {
+  name: "Harlow Retail Group",
+  description: "A mid-size specialty home goods retailer with 94 physical stores, an e-commerce site, and $510M in annual revenue. Founded 22 years ago, Harlow has built a loyal customer base through premium product curation. Over the last 18 months, store foot traffic has declined 19%, online sales have grown 31% but from a small base, and two major national competitors have begun price-matching campaigns."
+};
+
+const STAGES = [
+  {
+    id: "swot",
+    title: "Framework 1: SWOT Analysis",
+    question: "Based on Harlow's situation, which SWOT element is most strategically significant and most urgently demands a response?",
+    framework: "SWOT surfaces internal strengths and weaknesses alongside external opportunities and threats.",
+    choices: [
+      { text: "Strength: Harlow's loyal, premium-oriented customer base is a durable competitive advantage that competitors cannot quickly replicate.", score: 4, rationale: "A legitimate strength, but identifying a strength without pairing it with a strategic implication is incomplete analysis. The more urgent SWOT question is how to leverage this strength given the threats and opportunities present." },
+      { text: "Threat: Price-matching campaigns by national competitors are eroding Harlow's ability to sustain premium pricing in physical stores.", score: 3, rationale: "A real threat, but not the most urgent. Price competition from larger players is a known risk in retail. The deeper issue is the structural shift in how Harlow's customers want to shop." },
+      { text: "Opportunity: The 31% e-commerce growth rate, against a small base, signals latent digital demand that Harlow has not yet captured at scale.", score: 5, rationale: "Correct prioritization. An opportunity that aligns with an existing customer strength (loyalty, premium preference) and is growing at 31% is the most strategically significant SWOT finding. The implication: shift investment toward digital capability while the physical channel stabilizes." },
+      { text: "Weakness: The 19% decline in store foot traffic reflects a fundamental structural weakness in Harlow's physical-first business model.", score: 3, rationale: "A valid weakness, but characterizing foot traffic decline as a 'fundamental structural weakness' may overstate it. It is a signal that channel mix is shifting, not necessarily that stores are obsolete." },
+    ],
+  },
+  {
+    id: "pestel",
+    title: "Framework 2: PESTEL Analysis",
+    question: "Using PESTEL, which macro-environmental factor is most likely to reshape Harlow's strategic context over the next three years?",
+    framework: "PESTEL examines Political, Economic, Social, Technological, Environmental, and Legal factors in the broader macro environment.",
+    choices: [
+      { text: "Economic: Rising consumer prices and a softening housing market may reduce discretionary spending on home goods.", score: 3, rationale: "A material near-term factor, but cyclical. Consumer spending on home goods tends to recover with economic conditions. This factor argues for pricing sensitivity, not a strategy redesign." },
+      { text: "Technological: Advances in AI-driven personalization, augmented reality for home visualization, and digital logistics are reshaping how premium retailers attract and retain customers online.", score: 5, rationale: "This is the highest-leverage PESTEL factor for Harlow. Technology is structural, not cyclical, and it is already driving Harlow's 31% online growth. Competitors who master personalization and digital experience at scale will widen the gap. This finding should directly inform Harlow's technology strategy." },
+      { text: "Social: Consumer preference is shifting toward sustainability, and Harlow's product sourcing practices may face scrutiny.", score: 3, rationale: "A growing factor worth monitoring and integrating into product strategy, but it is not the most strategically urgent PESTEL finding for Harlow at this moment." },
+      { text: "Legal: Consumer data privacy regulations are tightening, which may limit Harlow's ability to use customer purchase data for targeted marketing.", score: 2, rationale: "A compliance consideration, but not a strategic reshaper for a home goods retailer. Data privacy regulations affect all retailers equally and can be managed through standard compliance programs." },
+    ],
+  },
+  {
+    id: "porter",
+    title: "Framework 3: Porter's Five Forces",
+    question: "Which of Porter's Five Forces poses the greatest current threat to Harlow's profitability and competitive position?",
+    framework: "Porter's Five Forces assesses industry attractiveness through competitive rivalry, buyer power, supplier power, threat of new entrants, and threat of substitutes.",
+    choices: [
+      { text: "Competitive Rivalry: National chains with price-matching capabilities are intensifying rivalry and compressing margins in the physical retail space.", score: 4, rationale: "Significant, but Harlow's premium positioning partially insulates it from pure price competition. The bigger concern is whether differentiation holds as competitors also move upmarket." },
+      { text: "Threat of Substitutes: Online-only home goods platforms and marketplaces offer comparable products with lower overhead, faster delivery, and richer selection.", score: 5, rationale: "This is the dominant force. Digital-native retailers represent a structural substitute for the physical specialty store model, not just a price threat. They compete on convenience, breadth, and personalization — exactly the dimensions where Harlow's physical format is weakest. This force is reshaping the industry, not just increasing competition within it." },
+      { text: "Buyer Power: Harlow's premium customers are increasingly price-aware and can easily compare products and prices online before purchasing.", score: 3, rationale: "A meaningful force, but Harlow's loyalty base partially mitigates this. True buyer power becomes dangerous when customers are undifferentiated; Harlow's brand relationship reduces but does not eliminate that risk." },
+      { text: "Supplier Power: Premium home goods suppliers may prioritize larger retailers or direct-to-consumer channels, limiting Harlow's product exclusivity.", score: 3, rationale: "Worth monitoring, especially as DTC channels grow. But at $510M in revenue, Harlow has sufficient scale to maintain supplier relationships for the near term." },
+    ],
+  },
+  {
+    id: "valuechain",
+    title: "Framework 4: Value Chain Analysis",
+    question: "Where in Harlow's value chain is the greatest opportunity to improve competitive advantage over the next two years?",
+    framework: "Value Chain Analysis identifies where in an organization's activities value is created, and where competitive advantage can be strengthened or costs reduced.",
+    choices: [
+      { text: "Inbound Logistics: Renegotiating supplier contracts and improving inventory management to reduce overstock and carry costs.", score: 3, rationale: "A meaningful efficiency opportunity, but primarily a cost-reduction move. Improving inbound logistics strengthens margins without strengthening competitive position in the eyes of the customer." },
+      { text: "Marketing and Sales: Investing in digital marketing capabilities, customer data analytics, and personalized outreach to convert the growing online audience.", score: 5, rationale: "The highest-leverage value chain activity for Harlow right now. Given the 31% online growth and the untapped digital demand, improving the ability to attract, understand, and convert online customers creates compounding competitive advantage. This is where value is being created and where Harlow is currently underinvesting." },
+      { text: "Operations: Standardizing store operations and reducing labor costs to improve store-level profitability amid declining foot traffic.", score: 2, rationale: "Necessary but defensive. Cost-cutting in declining physical operations can free cash for reinvestment, but it does not strengthen the competitive position that will determine Harlow's future." },
+      { text: "After-Sales Service: Enhancing the post-purchase experience through improved delivery tracking, returns management, and customer support.", score: 4, rationale: "Genuinely important for retention, especially online. However, after-sales service is a supporting activity. It sustains the relationship after the sale; it does not drive acquisition or differentiation at the top of the funnel." },
+    ],
+  },
+];
+
+const MAX_SCORE = 20;
+
+function getGrade(score) {
+  const pct = (score / MAX_SCORE) * 100;
+  if (pct >= 85) return { label: "Analytical Strategist", desc: "You applied each framework with precision, extracted the most strategically significant insights, and understood how to prioritize across tools." };
+  if (pct >= 65) return { label: "Developing Analyst", desc: "You demonstrated solid analytical instincts. Review the rationale for each decision to sharpen how you prioritize findings within each framework." };
+  return { label: "Analytical Learner", desc: "Business analysis frameworks are most powerful when they inform decisions, not just describe situations. Revisit each framework's logic and retake the simulation." };
+}
+
+function drawCert(canvas, studentName, grade, code, date) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+
+  ctx.fillStyle = "#fcf8f3";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = "#8b4513";
+  ctx.lineWidth = 7;
+  ctx.strokeRect(16, 16, W - 32, H - 32);
+  ctx.strokeStyle = "#c9a84c";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+
+  [[38,38],[W-38,38],[38,H-38],[W-38,H-38]].forEach(([x,y]) => {
+    ctx.fillStyle = "#8b4513";
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+  });
+
+  const hg = ctx.createLinearGradient(0,44,0,118);
+  hg.addColorStop(0,"#3b1f0a"); hg.addColorStop(1,"#5c2e0e");
+  ctx.fillStyle = hg;
+  ctx.fillRect(28,44,W-56,78);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f0c060";
+  ctx.font = "bold 13px Georgia";
+  ctx.fillText("MODULE 4  ·  STRATEGIC BUSINESS ANALYSIS", W/2, 74);
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  ctx.font = "11px Georgia";
+  ctx.fillText("Micro-Simulation  ·  Strategic Management", W/2, 96);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.font = "10px Georgia";
+  ctx.fillText("The Analyst's Toolkit: SWOT · PESTEL · Five Forces · Value Chain", W/2, 112);
+
+  ctx.fillStyle = "#3b1f0a";
+  ctx.font = "bold 26px Georgia";
+  ctx.fillText("Certificate of Completion", W/2, 158);
+
+  ctx.strokeStyle = "#8b4513"; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(W/2-120,170); ctx.lineTo(W/2+120,170); ctx.stroke();
+
+  ctx.fillStyle = "#777"; ctx.font = "13px Georgia";
+  ctx.fillText("This certifies that", W/2, 200);
+
+  ctx.fillStyle = "#3b1f0a"; ctx.font = "bold 29px Georgia";
+  ctx.fillText(studentName, W/2, 242);
+
+  const nw = ctx.measureText(studentName).width;
+  ctx.strokeStyle = "#8b4513"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2-nw/2,250); ctx.lineTo(W/2+nw/2,250); ctx.stroke();
+
+  ctx.fillStyle = "#777"; ctx.font = "13px Georgia";
+  ctx.fillText("has successfully completed the micro-simulation and earned:", W/2, 282);
+
+  ctx.fillStyle = "#3b1f0a"; ctx.font = "bold italic 18px Georgia";
+  ctx.fillText(grade.label, W/2, 315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+
+  ctx.strokeStyle = "#8b4513"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(70,340); ctx.lineTo(W-70,340); ctx.stroke();
+
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(90,382); ctx.lineTo(290,382); ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#3b1f0a"; ctx.font = "bold 13px Georgia";
+  ctx.fillText("Professor Babu George", 90, 398);
+  ctx.fillStyle = "#1565c0"; ctx.font = "12px Georgia";
+  ctx.fillText("linkedin.com/in/beingbabu", 90, 414);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Instructor · Strategic Management", 90, 429);
+
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(W-290,382); ctx.lineTo(W-90,382); ctx.stroke();
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Date of Completion", W-90, 398);
+  ctx.fillStyle = "#3b1f0a"; ctx.font = "bold 12px Georgia";
+  ctx.fillText(date, W-90, 414);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Completion Code: " + code, W-90, 432);
+
+  ctx.textAlign = "center";
+  ctx.beginPath(); ctx.arc(W/2,404,30,0,Math.PI*2);
+  ctx.fillStyle = "#3b1f0a"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,404,28,0,Math.PI*2);
+  ctx.strokeStyle = "#c9a84c"; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = "#f0c060"; ctx.font = "bold 9px Georgia";
+  ctx.fillText("VERIFIED", W/2, 408);
+}
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [stageIdx, setStageIdx] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showRationale, setShowRationale] = useState(false);
+  const [stageScores, setStageScores] = useState([]);
+  const code = useRef(generateCode()).current;
+  const date = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (screen === "certificate" && canvasRef.current) {
+      drawCert(canvasRef.current, studentName, getGrade(score), code, date);
+      try{localStorage.setItem('smcp_module_4',JSON.stringify({name:studentName,code:code,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}
+    }
+  }, [screen]);
+
+  function start() { if (!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+  function choose(idx) { setSelected(idx); setShowRationale(true); }
+  function next() {
+    const s = STAGES[stageIdx].choices[selected].score;
+    setScore(score + s); setStageScores([...stageScores, s]);
+    setSelected(null); setShowRationale(false);
+    if (stageIdx + 1 < STAGES.length) setStageIdx(stageIdx + 1);
+    else setScreen("results");
+  }
+  function restart() { setStageIdx(0); setScore(0); setSelected(null); setShowRationale(false); setStageScores([]); setScreen("simulation"); }
+  function dlPNG() { const a=document.createElement("a"); a.download=`Certificate_Module4_${studentName.replace(/\s+/g,"_")}.png`; a.href=canvasRef.current.toDataURL("image/png"); a.click(); }
+  function dlPDF() { const img=canvasRef.current.toDataURL("image/png"); const html=`<!DOCTYPE html><html><head><title>Certificate</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${img}"/><script>window.onload=()=>window.print();<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  const grade = getGrade(score);
+  const brown = "#3b1f0a";
+  const S = {
+    page:{minHeight:"100vh",background:"linear-gradient(150deg,#1a0a02 0%,#3b1f0a 50%,#1a0a02 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"24px"},
+    card:{background:"#fff",borderRadius:"2px",maxWidth:"660px",width:"100%",boxShadow:"0 20px 55px rgba(0,0,0,0.5)",overflow:"hidden"},
+    hdr:{background:"linear-gradient(135deg,#3b1f0a,#5c2e0e)",padding:"26px 34px 20px",borderBottom:"3px solid #8b4513"},
+    badge:{display:"inline-block",background:"rgba(139,69,19,0.25)",border:"1px solid #8b4513",color:"#f0c060",fontSize:"10px",letterSpacing:"2px",padding:"3px 10px",marginBottom:"9px",fontFamily:"Arial,sans-serif"},
+    h1:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+    sub:{color:"rgba(255,255,255,0.5)",fontSize:"12px",marginTop:"4px",fontFamily:"Arial,sans-serif"},
+    body:{padding:"30px 34px"},
+    prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"13px"},
+    h2:{color:brown,fontSize:"15px",marginBottom:"10px",fontWeight:"bold"},
+    inp:{width:"100%",padding:"12px 14px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+    lbl:{fontSize:"10px",color:"#999",fontFamily:"Arial,sans-serif",letterSpacing:"1px",marginBottom:"6px",display:"block"},
+    btn:{background:`linear-gradient(135deg,${brown},#5c2e0e)`,color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    amber:{background:"linear-gradient(135deg,#8b4513,#b05020)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+    out:{background:"transparent",color:brown,border:`2px solid ${brown}`,padding:"10px 20px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    opt:{width:"100%",background:"#fafafa",border:"1.5px solid #e5e5e5",borderRadius:"2px",padding:"12px 15px",marginBottom:"8px",textAlign:"left",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",color:"#333",lineHeight:1.5,transition:"all 0.15s"},
+    bar:{height:"3px",background:"#eee",marginBottom:"22px",borderRadius:"2px"},
+    fill:{height:"100%",background:"#8b4513",borderRadius:"2px",transition:"width 0.3s"},
+    fwBox:{background:"#fef9f0",border:"1px solid #e8d0a0",borderRadius:"2px",padding:"10px 14px",marginBottom:"16px",fontSize:"12px",color:"#7a5000",fontFamily:"Arial,sans-serif",lineHeight:1.6},
+  };
+
+  if (screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>MODULE 4 · BUSINESS ANALYSIS</div>
+        <h1 style={S.h1}>The Analyst's Toolkit</h1>
+        <p style={S.sub}>Micro-Simulation · Strategic Management</p>
+      </div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome. Please enter your full name as you would like it to appear on your certificate of completion.</p>
+        <label style={S.lbl}>FULL NAME</label>
+        <input style={S.inp} type="text" placeholder="e.g., Amara Diallo" value={nameInput}
+          onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} autoFocus />
+        <div style={{marginTop:"22px",textAlign:"right"}}>
+          <button style={S.btn} onClick={start}>Begin →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>OVERVIEW</div>
+        <h1 style={S.h1}>About This Simulation</h1>
+        <p style={S.sub}>Welcome, {studentName}</p>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Case</h2>
+        <p style={S.prose}><strong>{COMPANY.name}:</strong> {COMPANY.description}</p>
+        <h2 style={S.h2}>What You Will Do</h2>
+        <p style={S.prose}>You will apply four essential strategic analysis frameworks — SWOT, PESTEL, Porter's Five Forces, and Value Chain Analysis — to Harlow's situation. For each framework, you will identify the most strategically significant finding and explain its implication. The goal is not just to know the frameworks, but to use them as instruments of judgment.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>Read the context carefully before each decision. Select the response that reflects the sharpest analytical insight, not simply the most descriptive one. After each choice, you will see a detailed rationale. You may retake this simulation as many times as you wish.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.btn} onClick={()=>setScreen("simulation")}>Start →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="simulation") {
+    const stage = STAGES[stageIdx];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.hdr}>
+          <div style={S.badge}>{stage.title}</div>
+          <h1 style={S.h1}>The Analyst's Toolkit</h1>
+        </div>
+        <div style={S.body}>
+          <div style={S.bar}><div style={{...S.fill,width:`${(stageIdx/STAGES.length)*100}%`}}/></div>
+          <div style={S.fwBox}>🧰 {stage.framework}</div>
+          <p style={{...S.prose,color:brown,fontWeight:"bold",fontSize:"14px",marginBottom:"18px"}}>{stage.question}</p>
+          {!showRationale ? (
+            <div>{stage.choices.map((c,i)=>(
+              <button key={i} style={S.opt}
+                onMouseEnter={e=>{e.currentTarget.style.background="#fdf5e8";e.currentTarget.style.borderColor="#8b4513";}}
+                onMouseLeave={e=>{e.currentTarget.style.background="#fafafa";e.currentTarget.style.borderColor="#e5e5e5";}}
+                onClick={()=>choose(i)}>{c.text}</button>
+            ))}</div>
+          ) : (
+            <div>
+              <div style={{background:STAGES[stageIdx].choices[selected].score>=4?"#f2faf5":"#fffaed",border:`1px solid ${STAGES[stageIdx].choices[selected].score>=4?"#4a9a6f":"#e8c060"}`,borderRadius:"2px",padding:"16px 18px",marginBottom:"16px"}}>
+                <p style={{margin:"0 0 6px",fontSize:"11px",fontWeight:"bold",color:STAGES[stageIdx].choices[selected].score>=4?"#1e5c36":"#7a5c00",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>
+                  {STAGES[stageIdx].choices[selected].score>=4?"✓ STRONG CHOICE":"△ CONSIDER THIS"}
+                </p>
+                <p style={{margin:0,fontSize:"13px",color:"#444",lineHeight:1.6}}>{STAGES[stageIdx].choices[selected].rationale}</p>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <button style={S.amber} onClick={next}>{stageIdx+1<STAGES.length?"Next Framework →":"See Results →"}</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div></div>
+    );
+  }
+
+  if (screen==="results") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>YOUR RESULTS</div>
+        <h1 style={S.h1}>Simulation Complete</h1>
+        <p style={S.sub}>{studentName} · Score: {score}/{MAX_SCORE}</p>
+      </div>
+      <div style={S.body}>
+        <div style={{textAlign:"center",padding:"10px 0 20px"}}>
+          <div style={{fontSize:"34px",marginBottom:"6px"}}>{score/MAX_SCORE>=0.85?"🔬":"🧪"}</div>
+          <div style={{fontSize:"20px",fontWeight:"bold",color:brown,marginBottom:"6px"}}>{grade.label}</div>
+          <div style={{fontSize:"13px",color:"#666",maxWidth:"420px",margin:"0 auto",lineHeight:1.7}}>{grade.desc}</div>
+        </div>
+        <div style={{background:"#fef9f0",border:"1px solid #e8d0a0",borderRadius:"2px",padding:"14px 18px",marginBottom:"22px"}}>
+          <p style={{margin:"0 0 6px",fontSize:"10px",fontWeight:"bold",color:brown,fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>FRAMEWORK BREAKDOWN</p>
+          {stageScores.map((s,i)=>(
+            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"#444",padding:"4px 0",borderBottom:i<stageScores.length-1?"1px solid #e8d0a0":"none"}}>
+              <span>{STAGES[i].id.toUpperCase()}</span>
+              <span style={{fontWeight:"bold",color:s>=4?"#2e7d4f":s>=3?"#b8860b":"#c0392b"}}>{s}/5</span>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:"12px",justifyContent:"space-between"}}>
+          <button style={S.out} onClick={restart}>Retake</button>
+          <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>LEARNING REFLECTION</div>
+        <h1 style={S.h1}>What You Have Learned</h1>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Business analysis frameworks are not checklists — they are lenses. Each one focuses your attention on a specific dimension of competitive reality. The real skill, as this simulation tested, is not naming the right boxes but identifying which findings within each framework are most strategically consequential and what they imply for decision-making.</p>
+        <h2 style={S.h2}>In Your Professional Life</h2>
+        <p style={S.prose}>In any strategy role, you will encounter frameworks being used decoratively — filled in for the sake of appearing thorough, without anyone asking what the findings actually mean for the next decision. You can add significant value by pushing past description to implication. "Our PESTEL shows technology is changing fast" is a description. "Our PESTEL shows we need to build AI-driven personalization within 18 months before competitors do" is an insight.</p>
+        <p style={S.prose}>Using multiple frameworks on the same situation also builds analytical confidence. When SWOT, Five Forces, and PESTEL all point toward the same strategic priority, that convergence gives you stronger grounds for action than any single framework alone.</p>
+        <h2 style={S.h2}>In Your Personal Life</h2>
+        <p style={S.prose}>These frameworks apply informally to personal strategic decisions as well. Before a major career move, you can think in SWOT terms — your skills and gaps, and what the market is offering or threatening. PESTEL thinking applies to any decision affected by the external environment: housing markets, regulatory changes, or social trends shaping your industry. The habit of structured environmental awareness makes you a more grounded decision-maker in any context.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.amber} onClick={()=>setScreen("certificate")}>Get My Certificate →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"760px"}}>
+      <div style={S.hdr}>
+        <div style={S.badge}>CERTIFICATE OF COMPLETION</div>
+        <h1 style={S.h1}>Congratulations, {studentName}</h1>
+        <p style={S.sub}>Download your certificate and save it to your records.</p>
+      </div>
+      <div style={{padding:"26px 34px"}}>
+        <canvas ref={canvasRef} width={700} height={472} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"16px"}}/>
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.amber} onClick={dlPNG}>⬇ Download Image (PNG)</button>
+          <button style={S.btn} onClick={dlPDF}>⬇ Download PDF</button>
+          <button style={S.out} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"11px",color:"#bbb",marginTop:"14px",fontFamily:"Arial,sans-serif"}}>
+          Signed by{" "}<a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a>{" "}· Code: {code}
+        </p>
+      </div>
+    </div></div>
+  );
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

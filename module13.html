@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 13: Futuristic Views on Strategy · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() { return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
+
+const UNCERTAINTIES = [
+  { id:"ai", label:"AI Autonomy Level", low:"AI remains a decision-support tool; humans retain all strategic control", high:"AI systems make autonomous strategic and operational decisions at scale" },
+  { id:"climate", label:"Climate Regulation Intensity", low:"Voluntary sustainability frameworks; light regulatory burden on business", high:"Mandatory carbon pricing, strict supply chain rules, heavy reporting requirements" },
+  { id:"globalization", label:"Globalization Trajectory", low:"Continued fragmentation, reshoring, regional trade blocs dominate", high:"Renewed open trade, global platforms, and cross-border talent flows accelerate" },
+  { id:"trust", label:"Institutional Trust", low:"Public trust in corporations and governments continues to decline", high:"Restored institutional trust drives collaborative public-private action" },
+  { id:"workforce", label:"Workforce Demographics", low:"Aging workforce, talent shortages, and skills gaps intensify", high:"Young, tech-native global workforce ready to fill new roles at scale" },
+];
+
+const SCENARIOS = {
+  "hh": { name:"Open Horizons", tone:"Optimistic", description:"High AI autonomy meets high globalization. Companies operate globally, AI-run processes are standard, and talented humans work on uniquely human problems across borders." },
+  "hl": { name:"The Walled Garden", tone:"Guarded", description:"High AI autonomy in a fragmented world. Nations build AI-enabled walls — digitally sovereign, internally efficient, but isolated from global networks." },
+  "lh": { name:"The Human Network", tone:"Collaborative", description:"Low AI autonomy, high globalization. People and relationships drive strategy. Global but human-centric companies build durable advantage through trust and cultural intelligence." },
+  "ll": { name:"The Fortress Economy", tone:"Defensive", description:"Low AI autonomy, low globalization. Organizations retreat to local markets, efficiency plateaus, and strategic advantage comes from community relationships and operational resilience." },
+};
+
+const MOVES_EXAMPLES = [
+  "Invest in multilingual leadership development to operate across cultural contexts",
+  "Build regulatory monitoring capability to track AI governance in key markets",
+  "Develop modular supply chains that can quickly shift between regional configurations",
+  "Establish a sustainability reporting function ahead of anticipated mandatory disclosure rules",
+  "Create an internal talent marketplace to redeploy skills as roles evolve with automation",
+  "Form alliances with universities to build a pipeline into emerging technical roles",
+  "Invest in brand trust programs that work regardless of institutional environment",
+  "Pilot AI-augmented decision support tools to build organizational readiness",
+];
+
+function drawCertificate(canvas, studentName, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#f5f0ff"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#00695c"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#4a148c"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#00695c";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad=ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#1a0050"); grad.addColorStop(1,"#0d0030");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#ce93d8"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#1a0050"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#00695c"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#1a0050"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#00695c"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#1a0050"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 13: Futuristic Views on Strategy",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText("Scenario Architect 2040",W/2,342);
+  ctx.strokeStyle="#00695c"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#1a0050"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#1a0050"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#1a0050"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#00695c"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#ce93d8"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 13",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#030010 0%,#0a0030 50%,#001a10 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"720px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.7)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#1a0050,#0d0030)",padding:"28px 36px 22px",borderBottom:"3px solid #00695c"},
+  badge:{display:"inline-block",background:"rgba(0,105,92,0.2)",border:"1px solid #00695c",color:"#80cbc4",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#1a0050,#2d0080)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnTeal:{background:"linear-gradient(135deg,#00695c,#00897b)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#1a0050",border:"2px solid #1a0050",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  textarea:{width:"100%",padding:"13px 15px",fontSize:"14px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box",resize:"vertical",minHeight:"80px"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#1a0050",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [axis1, setAxis1] = useState(null);
+  const [axis2, setAxis2] = useState(null);
+  const [narratives, setNarratives] = useState({ hh:"", hl:"", lh:"", ll:"" });
+  const [planningScenario, setPlanningScenario] = useState(null);
+  const [selectedMoves, setSelectedMoves] = useState([]);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){ drawCertificate(canvasRef.current,studentName,completionCode,completionDate); try{localStorage.setItem('smcp_module_13',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){} } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+  function restart() { setAxis1(null); setAxis2(null); setNarratives({hh:"",hl:"",lh:"",ll:""}); setPlanningScenario(null); setSelectedMoves([]); setScreen("uncertainties"); }
+  function downloadPNG() { const l=document.createElement("a"); l.download=`Certificate_Module13_${studentName.replace(/\s+/g,"_")}.png`; l.href=canvasRef.current.toDataURL("image/png"); l.click(); }
+  function downloadPDF() { const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  function toggleMove(m) {
+    setSelectedMoves(prev => prev.includes(m) ? prev.filter(x=>x!==m) : prev.length<3 ? [...prev,m] : prev);
+  }
+
+  const narrativesComplete = Object.values(narratives).every(n=>n.trim().length>20);
+  const ax1 = axis1 ? UNCERTAINTIES.find(u=>u.id===axis1) : null;
+  const ax2 = axis2 ? UNCERTAINTIES.find(u=>u.id===axis2) : null;
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 13 · FUTURISTIC VIEWS ON STRATEGY</div><h1 style={S.title}>Scenario Architect 2040</h1><p style={S.sub}>Build four plausible futures and identify strategic moves for today</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to Scenario Architect 2040. Please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 13 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>What You Will Do</h2>
+        <p style={S.prose}>Futurists and strategic planners use scenario planning to prepare organizations for a range of possible futures rather than betting on a single forecast. In this simulation, you will select two critical uncertainties, build four 2040 scenario narratives based on the extremes of those uncertainties, choose a planning scenario, and identify three strategic moves your organization should make today.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>Work through three steps: first, choose your two axes of uncertainty from a curated list. Then, write a brief narrative for each of the four quadrant scenarios. Finally, select one scenario as your "planning horizon" and pick three strategic moves that make sense given that future. The simulation is designed to develop futures thinking, not test recall — take your time with the narratives.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("uncertainties")}>Choose Uncertainties →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="uncertainties") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>STEP 1 OF 3 · CHOOSE YOUR TWO AXES</div><h1 style={S.title}>Select Two Critical Uncertainties</h1></div>
+      <div style={S.body}>
+        <p style={S.prose}>These two uncertainties will form the axes of your scenario matrix. Choose the two that you believe will have the greatest and most uncertain impact on business strategy over the next 15 years.</p>
+        <div style={{marginBottom:"24px"}}>
+          {["Axis 1 (Horizontal)", "Axis 2 (Vertical)"].map((label,li)=>(
+            <div key={li} style={{marginBottom:"20px"}}>
+              <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"10px",letterSpacing:"0.5px"}}>{label.toUpperCase()}</p>
+              {UNCERTAINTIES.map(u=>{
+                const isA1 = axis1===u.id; const isA2 = axis2===u.id;
+                const taken = (li===0 && axis2===u.id) || (li===1 && axis1===u.id);
+                const selected = li===0 ? isA1 : isA2;
+                return (
+                  <div key={u.id} onClick={()=>{ if(taken) return; if(li===0) setAxis1(u.id); else setAxis2(u.id); }} style={{border:`2px solid ${selected?"#1a0050":taken?"#eee":"#ddd"}`,borderRadius:"2px",padding:"12px 16px",marginBottom:"8px",cursor:taken?"not-allowed":"pointer",background:selected?"#f5f0ff":taken?"#fafafa":"#fff",opacity:taken?0.4:1}}>
+                    <p style={{margin:0,fontWeight:"bold",fontSize:"13px",color:"#333"}}>{u.label}</p>
+                    <p style={{margin:"4px 0 0",fontSize:"12px",color:"#888"}}>{u.low} ↔ {u.high}</p>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        {axis1&&axis2&&<div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("narratives")}>Build Scenarios →</button></div>}
+      </div>
+    </div></div>
+  );
+
+  if(screen==="narratives") {
+    const qLabels = [
+      {key:"hh",h:"High",v:"High",label:SCENARIOS.hh.name},
+      {key:"hl",h:"High",v:"Low",label:SCENARIOS.hl.name},
+      {key:"lh",h:"Low",v:"High",label:SCENARIOS.lh.name},
+      {key:"ll",h:"Low",v:"Low",label:SCENARIOS.ll.name},
+    ];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>STEP 2 OF 3 · WRITE YOUR SCENARIO NARRATIVES</div><h1 style={S.title}>Four Futures of 2040</h1></div>
+        <div style={S.body}>
+          <p style={S.prose}>For each quadrant, write 2–3 sentences describing what the world looks like in that scenario and what it means for organizations like yours. Reference both axes in each narrative.</p>
+          <div style={{background:"#f5f0ff",border:"1px solid #d1b3e0",borderRadius:"2px",padding:"12px 16px",marginBottom:"20px",fontSize:"13px",color:"#444"}}>
+            <strong>Your axes:</strong> {ax1?.label} × {ax2?.label}
+          </div>
+          {qLabels.map(q=>(
+            <div key={q.key} style={{marginBottom:"18px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
+                <span style={{fontWeight:"bold",color:"#1a0050",fontSize:"14px"}}>{SCENARIOS[q.key].name} <span style={{color:"#00695c",fontSize:"12px"}}>({SCENARIOS[q.key].tone})</span></span>
+                <span style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>{ax1?.label}: {q.h==="High"?"High":"Low"} · {ax2?.label}: {q.v==="High"?"High":"Low"}</span>
+              </div>
+              <p style={{fontSize:"12px",color:"#888",marginBottom:"6px",fontStyle:"italic"}}>{SCENARIOS[q.key].description}</p>
+              <textarea style={S.textarea} placeholder="In 2040, this world looks like..." value={narratives[q.key]} onChange={e=>setNarratives({...narratives,[q.key]:e.target.value})} />
+            </div>
+          ))}
+          {narrativesComplete&&<div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("planning")}>Choose Planning Scenario →</button></div>}
+          {!narrativesComplete&&<p style={{fontSize:"12px",color:"#888",textAlign:"center",fontFamily:"Arial,sans-serif"}}>Write at least a sentence for each scenario to continue.</p>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="planning") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>STEP 3 OF 3 · PLANNING SCENARIO & STRATEGIC MOVES</div><h1 style={S.title}>What Should We Do Today?</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>Choose Your Planning Scenario</h2>
+        <p style={S.prose}>Which of the four futures do you think is most likely? Select it as your planning scenario — the future your organization will prepare for most directly.</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"24px"}}>
+          {["hh","hl","lh","ll"].map(k=>(
+            <div key={k} onClick={()=>setPlanningScenario(k)} style={{border:`2px solid ${planningScenario===k?"#1a0050":"#ddd"}`,borderRadius:"2px",padding:"14px",cursor:"pointer",background:planningScenario===k?"#f5f0ff":"#fafafa",textAlign:"center"}}>
+              <div style={{fontWeight:"bold",color:"#1a0050",fontSize:"14px"}}>{SCENARIOS[k].name}</div>
+              <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"3px"}}>{SCENARIOS[k].tone}</div>
+            </div>
+          ))}
+        </div>
+        {planningScenario && <>
+          <h2 style={S.h2}>Select Three Strategic Moves for Today</h2>
+          <p style={S.prose}>Which three actions should your organization take now to be well-positioned for your chosen future? Select exactly three.</p>
+          {MOVES_EXAMPLES.map(m=>{
+            const sel = selectedMoves.includes(m);
+            const maxed = selectedMoves.length===3 && !sel;
+            return (
+              <div key={m} onClick={()=>toggleMove(m)} style={{border:`2px solid ${sel?"#00695c":"#ddd"}`,borderRadius:"2px",padding:"12px 16px",marginBottom:"8px",cursor:maxed?"not-allowed":"pointer",background:sel?"#e8f5e4":"#fafafa",opacity:maxed?0.4:1}}>
+                <span style={{fontSize:"13px",color:"#333"}}>{sel?"✓ ":""}{m}</span>
+              </div>
+            );
+          })}
+          <p style={{fontSize:"12px",color:"#888",fontFamily:"Arial,sans-serif",textAlign:"center"}}>{selectedMoves.length}/3 selected</p>
+          {selectedMoves.length===3&&<div style={{textAlign:"right",marginTop:"8px"}}><button style={S.btn} onClick={()=>setScreen("results")}>See Your Strategy →</button></div>}
+        </>}
+      </div>
+    </div></div>
+  );
+
+  if(screen==="results") {
+    const sc = SCENARIOS[planningScenario];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>SIMULATION COMPLETE</div><h1 style={S.title}>Your 2040 Strategy Brief</h1></div>
+        <div style={S.body}>
+          <div style={{background:"#f5f0ff",border:"2px solid #1a0050",borderRadius:"2px",padding:"18px 22px",marginBottom:"20px"}}>
+            <p style={{margin:"0 0 6px",fontSize:"13px",color:"#888",fontFamily:"Arial,sans-serif"}}>PLANNING SCENARIO</p>
+            <p style={{margin:"0 0 4px",fontWeight:"bold",color:"#1a0050",fontSize:"16px"}}>{sc.name} <span style={{color:"#00695c",fontSize:"13px"}}>({sc.tone})</span></p>
+            <p style={{margin:"8px 0 0",fontSize:"14px",color:"#444",borderLeft:"3px solid #1a0050",paddingLeft:"12px"}}>{narratives[planningScenario]}</p>
+          </div>
+          <h2 style={S.h2}>Three Strategic Moves You've Committed To</h2>
+          {selectedMoves.map((m,i)=>(
+            <div key={i} style={{display:"flex",gap:"12px",alignItems:"flex-start",padding:"12px 16px",background:"#e8f5e4",border:"1px solid #a5d6a7",borderRadius:"2px",marginBottom:"8px"}}>
+              <span style={{fontWeight:"bold",color:"#00695c",fontSize:"16px",marginTop:"-2px"}}>{i+1}.</span>
+              <span style={{fontSize:"14px",color:"#333"}}>{m}</span>
+            </div>
+          ))}
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"24px"}}>
+            <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 13 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>The most sophisticated strategic thinkers do not try to predict the future — they prepare for multiple futures simultaneously. Scenario planning is the structured practice of doing exactly that. By naming four distinct, internally consistent worlds and reasoning about what they require, you train yourself to hold uncertainty productively rather than resolving it prematurely with a single forecast that will almost certainly be wrong in its specifics.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>Scenario planning is used by governments, global corporations, and strategic consulting firms to set long-range direction. As a leader, the skill you practiced here — identifying the two or three uncertainties that matter most, building plausible narratives, and choosing moves that create strategic optionality regardless of how the future unfolds — is one of the most powerful things you can contribute in a planning room.</p>
+        <p style={S.prose}>The three strategic moves you selected also illustrate a key futures planning principle: the best moves are robust across multiple scenarios. Actions that only make sense in one future are bets; actions that build value across most scenarios are investments.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>Scenario thinking is one of the most useful frameworks you can apply in your personal life. What are the two biggest uncertainties shaping your career over the next decade? What does each combination of outcomes look like? Which skills, relationships, and financial preparations create the most value regardless of which world arrives? The method is the same — only the decisions are different.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnTeal} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 13 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnTeal} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 12: Risk Management Strategy · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() { return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
+
+const RISKS = [
+  { id:"r1", category:"Financial", label:"Acquisition integration costs exceed budget by 40%", probability:6, impact:8, mitigations:[
+    { id:"m1a", label:"Establish a contingency reserve of 20% above projected integration costs", effectiveness:8, cost:3 },
+    { id:"m1b", label:"Conduct a detailed integration audit before deal close", effectiveness:7, cost:2 },
+    { id:"m1c", label:"Accept the risk — integration overruns are common and manageable", effectiveness:2, cost:0 },
+  ]},
+  { id:"r2", category:"Talent", label:"Key executive team from acquired company departs within 6 months", probability:7, impact:9, mitigations:[
+    { id:"m2a", label:"Negotiate retention bonuses tied to 18-month vesting for top 15 leaders", effectiveness:9, cost:4 },
+    { id:"m2b", label:"Begin cultural integration workshops immediately post-close", effectiveness:5, cost:2 },
+    { id:"m2c", label:"Identify internal successors for all critical acquired roles before close", effectiveness:7, cost:2 },
+  ]},
+  { id:"r3", category:"Regulatory", label:"Merger triggers antitrust review in two key markets", probability:5, impact:9, mitigations:[
+    { id:"m3a", label:"Engage antitrust counsel and pre-file for regulatory clearance before deal announcement", effectiveness:9, cost:3 },
+    { id:"m3b", label:"Identify potential divestitures in advance to offer regulators if needed", effectiveness:8, cost:2 },
+    { id:"m3c", label:"Proceed and respond reactively if regulators raise concerns", effectiveness:3, cost:0 },
+  ]},
+  { id:"r4", category:"Operational", label:"Systems integration failure disrupts core operations for 30+ days", probability:5, impact:8, mitigations:[
+    { id:"m4a", label:"Run parallel systems for 90 days post-close before full cutover", effectiveness:8, cost:4 },
+    { id:"m4b", label:"Hire a dedicated integration project management office with executive sponsor", effectiveness:7, cost:3 },
+    { id:"m4c", label:"Accelerate systems integration to minimize uncertainty period", effectiveness:3, cost:2 },
+  ]},
+  { id:"r5", category:"Reputational", label:"Public backlash if acquisition is perceived as predatory toward a beloved local brand", probability:4, impact:7, mitigations:[
+    { id:"m5a", label:"Develop a proactive communications plan emphasizing local brand continuity and investment commitment", effectiveness:8, cost:2 },
+    { id:"m5b", label:"Commission external stakeholder research before announcing the deal", effectiveness:6, cost:2 },
+    { id:"m5c", label:"Say nothing until required — public speculation is worse than silence", effectiveness:2, cost:0 },
+  ]},
+];
+
+const MITIGATION_BUDGET = 12;
+
+const TRIGGERED_RISKS = [
+  { riskId:"r3", title:"Antitrust Review Triggered", detail:"Regulators in one of your key markets have formally opened an antitrust inquiry. Your outside counsel estimates a 4-to-6-month review. How well your pre-filing strategy holds now depends entirely on preparation done before this moment.", preemptedLabel:"Strong pre-filing preparation means you have a response playbook ready.", reactiveLabel:"Without pre-filing preparation, you are scrambling to respond reactively — adding cost and delay." },
+  { riskId:"r2", title:"Three Senior Executives Signal Departure", detail:"Within 60 days of deal close, three senior executives from the acquired company — including the head of product — have informally signaled they are exploring external opportunities.", preemptedLabel:"Your retention program is in effect. Conversations are underway and relationships are intact.", reactiveLabel:"No retention plan was in place. These conversations are happening for the first time — and you are already behind." },
+];
+
+function getHeatColor(p, i) {
+  const score = p * i;
+  if (score >= 42) return "#c0392b";
+  if (score >= 28) return "#e67e22";
+  if (score >= 15) return "#f1c40f";
+  return "#27ae60";
+}
+
+function getBudgetUsed(picks) {
+  return Object.entries(picks).reduce((acc,[riskId,mitId]) => {
+    const risk = RISKS.find(r=>r.id===riskId);
+    const mit = risk?.mitigations.find(m=>m.id===mitId);
+    return acc + (mit?.cost||0);
+  },0);
+}
+
+function getMitigationScore(picks) {
+  return Object.entries(picks).reduce((acc,[riskId,mitId]) => {
+    const risk = RISKS.find(r=>r.id===riskId);
+    const mit = risk?.mitigations.find(m=>m.id===mitId);
+    return acc + (mit?.effectiveness||0);
+  },0);
+}
+
+function getGrade(score) {
+  if (score >= 35) return { label: "Strategic Risk Leader", note: "Your mitigation choices are proactive, high-effectiveness, and well-balanced across all risk categories." };
+  if (score >= 26) return { label: "Capable Risk Manager", note: "Your strategy is solid with targeted mitigation on the highest-severity risks." };
+  return { label: "Risk-Aware Learner", note: "You are building your risk management instincts. Review the effectiveness ratings to strengthen your next attempt." };
+}
+
+function drawCertificate(canvas, studentName, grade, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#fff8f5"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#b71c1c"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#4a235a"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#b71c1c";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad=ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#4a235a"); grad.addColorStop(1,"#2d1040");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#ef9a9a"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#4a235a"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#b71c1c"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#4a235a"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#b71c1c"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#4a235a"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 12: Risk Management Strategy",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,342);
+  ctx.strokeStyle="#b71c1c"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#4a235a"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#4a235a"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#4a235a"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#b71c1c"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#ef9a9a"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 12",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#1a0a0a 0%,#2d0a20 50%,#1a0a0a 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"720px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.6)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#4a235a,#2d1040)",padding:"28px 36px 22px",borderBottom:"3px solid #b71c1c"},
+  badge:{display:"inline-block",background:"rgba(183,28,28,0.2)",border:"1px solid #b71c1c",color:"#ef9a9a",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#4a235a,#6a2d7a)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnRed:{background:"linear-gradient(135deg,#b71c1c,#c62828)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#4a235a",border:"2px solid #4a235a",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#4a235a",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [activeRiskIdx, setActiveRiskIdx] = useState(0);
+  const [picks, setPicks] = useState({});
+  const [triggeredIdx, setTriggeredIdx] = useState(0);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){ const sc=getMitigationScore(picks); drawCertificate(canvasRef.current,studentName,getGrade(sc),completionCode,completionDate); try{localStorage.setItem('smcp_module_12',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){} } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+  function restart() { setActiveRiskIdx(0); setPicks({}); setTriggeredIdx(0); setScreen("simulation"); }
+  function downloadPNG() { const l=document.createElement("a"); l.download=`Certificate_Module12_${studentName.replace(/\s+/g,"_")}.png`; l.href=canvasRef.current.toDataURL("image/png"); l.click(); }
+  function downloadPDF() { const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  const budgetUsed = getBudgetUsed(picks);
+  const overBudget = budgetUsed > MITIGATION_BUDGET;
+  const allMitigated = RISKS.every(r=>picks[r.id]);
+  const activeRisk = RISKS[activeRiskIdx];
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 12 · RISK MANAGEMENT STRATEGY</div><h1 style={S.title}>The Risk War Room</h1><p style={S.sub}>Build a risk register and mitigation strategy for a high-stakes acquisition</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to The Risk War Room. Please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 12 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}><strong>Arcturus Holdings</strong> is a mid-market conglomerate completing its largest acquisition to date — a $340M deal for a regional competitor. The board has asked the strategy team to build a risk register and select mitigation strategies across five identified risk areas, within a total mitigation budget of <strong>12 points</strong>. After you build the register, two of the risks will be triggered in real time, and the quality of your preparation will determine the outcome.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>Review each risk's probability and impact score, then select one mitigation strategy per risk. Each mitigation has an effectiveness score and a cost. Stay within your budget, prioritize where it matters most, and see how your preparation holds up when risks materialize.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Enter the War Room →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="simulation") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}>
+        <div style={S.badge}>STEP 1 · RISK REGISTER & MITIGATION</div>
+        <h1 style={S.title}>Select Mitigations for Each Risk</h1>
+        <p style={S.sub}>Budget: {budgetUsed}/{MITIGATION_BUDGET} pts used {overBudget?"⚠️ Over budget":""}</p>
+      </div>
+      <div style={S.body}>
+        <div style={{display:"flex",gap:"6px",marginBottom:"20px",flexWrap:"wrap"}}>
+          {RISKS.map((r,i)=>(
+            <button key={r.id} onClick={()=>setActiveRiskIdx(i)} style={{padding:"6px 12px",fontSize:"12px",fontFamily:"Arial,sans-serif",border:`2px solid ${i===activeRiskIdx?"#4a235a":"#ddd"}`,background:picks[r.id]?"#f0e8ff":i===activeRiskIdx?"#f9f4ff":"#fff",color:"#4a235a",cursor:"pointer",borderRadius:"2px"}}>
+              {r.category} {picks[r.id]?"✓":""}
+            </button>
+          ))}
+        </div>
+        <div style={{background:"#f9f0ff",border:"1px solid #d1b3e0",borderRadius:"2px",padding:"14px 18px",marginBottom:"16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
+            <span style={{fontWeight:"bold",color:"#4a235a",fontSize:"15px"}}>{activeRisk.label}</span>
+            <div style={{display:"flex",gap:"10px"}}>
+              <span style={{fontSize:"12px",padding:"4px 8px",background:getHeatColor(activeRisk.probability,activeRisk.impact),color:"#fff",borderRadius:"2px",fontFamily:"Arial,sans-serif"}}>P:{activeRisk.probability}/10</span>
+              <span style={{fontSize:"12px",padding:"4px 8px",background:getHeatColor(activeRisk.probability,activeRisk.impact),color:"#fff",borderRadius:"2px",fontFamily:"Arial,sans-serif"}}>I:{activeRisk.impact}/10</span>
+            </div>
+          </div>
+          <span style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",background:"#fff",padding:"3px 8px",borderRadius:"10px"}}>{activeRisk.category}</span>
+        </div>
+        {activeRisk.mitigations.map(mit=>{
+          const sel = picks[activeRisk.id]===mit.id;
+          return (
+            <div key={mit.id} onClick={()=>setPicks({...picks,[activeRisk.id]:mit.id})} style={{border:`2px solid ${sel?"#4a235a":"#ddd"}`,borderRadius:"2px",padding:"13px 17px",marginBottom:"10px",cursor:"pointer",background:sel?"#f0e8ff":"#fafafa",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:"13px",color:"#333",flex:1}}>{mit.label}</span>
+              <div style={{textAlign:"right",marginLeft:"14px",flexShrink:0}}>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>Effectiveness: {mit.effectiveness}/10</div>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>Cost: {mit.cost} pts</div>
+              </div>
+            </div>
+          );
+        })}
+        {overBudget && <p style={{color:"#b71c1c",fontSize:"13px",textAlign:"center"}}>Over budget — revise selections to stay within {MITIGATION_BUDGET} points.</p>}
+        {allMitigated && !overBudget && <div style={{textAlign:"right",marginTop:"8px"}}><button style={S.btn} onClick={()=>setScreen("triggers")}>Activate Risks →</button></div>}
+      </div>
+    </div></div>
+  );
+
+  if(screen==="triggers") {
+    const trigger = TRIGGERED_RISKS[triggeredIdx];
+    const chosenMitId = picks[trigger.riskId];
+    const risk = RISKS.find(r=>r.id===trigger.riskId);
+    const mit = risk?.mitigations.find(m=>m.id===chosenMitId);
+    const wellPrepared = (mit?.effectiveness||0) >= 7;
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={{background:"linear-gradient(135deg,#7f0000,#b71c1c)",padding:"28px 36px 22px",borderBottom:"3px solid #ff8f00"}}>
+          <div style={{...S.badge,borderColor:"#ff8f00",color:"#ffe082"}}>RISK TRIGGER {triggeredIdx+1} OF 2</div>
+          <h1 style={{color:"#fff",fontSize:"19px",margin:"8px 0 0"}}>⚡ {trigger.title}</h1>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>{trigger.detail}</p>
+          <div style={{background:wellPrepared?"#f0fff4":"#fff3f3",border:`1px solid ${wellPrepared?"#a5d6a7":"#f5c6cb"}`,borderRadius:"2px",padding:"16px 20px",marginBottom:"20px"}}>
+            <p style={{margin:"0 0 8px",fontWeight:"bold",color:wellPrepared?"#1b5e20":"#b71c1c",fontSize:"14px"}}>{wellPrepared?"✓ Your preparation holds":"✗ You are exposed"}</p>
+            <p style={{margin:"0 0 6px",fontSize:"13px",color:"#444"}}><strong>Your mitigation:</strong> {mit?.label}</p>
+            <p style={{margin:0,fontSize:"13px",color:"#555"}}>{wellPrepared?trigger.preemptedLabel:trigger.reactiveLabel}</p>
+            <p style={{margin:"8px 0 0",fontSize:"12px",color:"#888",fontFamily:"Arial,sans-serif"}}>Mitigation effectiveness: {mit?.effectiveness}/10</p>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <button style={S.btn} onClick={()=>{ if(triggeredIdx+1<TRIGGERED_RISKS.length){ setTriggeredIdx(triggeredIdx+1); } else { setScreen("results"); } }}>
+              {triggeredIdx+1<TRIGGERED_RISKS.length?"Next Risk →":"See Results →"}
+            </button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="results") {
+    const score = getMitigationScore(picks);
+    const grade = getGrade(score);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>SIMULATION COMPLETE</div><h1 style={S.title}>{grade.label}</h1></div>
+        <div style={S.body}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px",marginBottom:"24px"}}>
+            {[{l:"Mitigation Score",v:`${score}/50`},{l:"Budget Used",v:`${budgetUsed}/${MITIGATION_BUDGET} pts`}].map(m=>(
+              <div key={m.l} style={{background:"#f9f0ff",border:"1px solid #d1b3e0",borderRadius:"2px",padding:"16px",textAlign:"center"}}>
+                <div style={{fontSize:"20px",fontWeight:"bold",color:"#4a235a"}}>{m.v}</div>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"4px"}}>{m.l}</div>
+              </div>
+            ))}
+          </div>
+          <p style={S.prose}>{grade.note}</p>
+          <h2 style={S.h2}>Your Risk Register</h2>
+          {RISKS.map(r=>{
+            const mit = r.mitigations.find(m=>m.id===picks[r.id]);
+            return (
+              <div key={r.id} style={{padding:"10px 14px",background:"#fafafa",border:"1px solid #eee",borderRadius:"2px",marginBottom:"8px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"4px"}}>
+                  <span style={{fontSize:"13px",fontWeight:"bold",color:"#4a235a"}}>{r.label}</span>
+                  <span style={{fontSize:"12px",padding:"2px 8px",background:getHeatColor(r.probability,r.impact),color:"#fff",borderRadius:"10px",fontFamily:"Arial,sans-serif"}}>P:{r.probability} I:{r.impact}</span>
+                </div>
+                <span style={{fontSize:"12px",color:"#888",fontFamily:"Arial,sans-serif"}}>Mitigation: {mit?.label} — Effectiveness: {mit?.effectiveness}/10</span>
+              </div>
+            );
+          })}
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"24px"}}>
+            <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 12 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Risk management is not about eliminating uncertainty — it is about making deliberate decisions about which risks to mitigate, which to accept, and how to prepare so that when risks materialize, the organization is not surprised. The difference between a company that weathers a crisis and one that is damaged by it usually comes down to preparation done before the crisis arrives.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>Risk registers are standard tools in M&A, project management, strategy planning, and enterprise risk management. Knowing how to build one — how to score probability and impact, how to select mitigations within constraints, and how to communicate risk posture to boards — is a core leadership competency. Leaders who bring structured risk thinking to decisions command more confidence from boards and investors.</p>
+        <p style={S.prose}>The simulation also illustrated a key insight: reactive risk response is always more expensive than proactive preparation. The same antitrust concern costs far less to address before a deal closes than after regulators formally open an inquiry.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>Risk thinking applies in personal financial decisions, health choices, career transitions, and family planning. Identifying what can go wrong, assessing the probability and impact, and having a response ready transforms anxiety into agency — which is one of the most valuable things any framework can do.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnRed} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 12 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnRed} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 9: Global Strategy · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() { return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
+
+const MARKETS = [
+  {
+    id: "brazil",
+    name: "Brazil",
+    flag: "🇧🇷",
+    profile: { marketSize: 8, regulatoryRisk: 5, competitiveIntensity: 6, culturalDistance: 4, logisticsCost: 5 },
+    context: "Large consumer market with growing middle class. Regulatory environment is complex with import duties up to 35%. Two global competitors already present. Cultural affinity for international brands is strong.",
+  },
+  {
+    id: "vietnam",
+    name: "Vietnam",
+    flag: "🇻🇳",
+    profile: { marketSize: 5, regulatoryRisk: 4, competitiveIntensity: 4, culturalDistance: 7, logisticsCost: 6 },
+    context: "Fast-growing economy with a young, urbanizing population. Government is increasingly business-friendly but foreign ownership rules vary by sector. Low competitive saturation but cultural adaptation will be significant.",
+  },
+  {
+    id: "germany",
+    name: "Germany",
+    flag: "🇩🇪",
+    profile: { marketSize: 7, regulatoryRisk: 2, competitiveIntensity: 9, culturalDistance: 2, logisticsCost: 2 },
+    context: "Mature, high-income market with strong rule of law and transparent regulation. However, competition is intense and German consumers are highly brand-loyal. Premium positioning is essential.",
+  },
+];
+
+const CRITERIA = [
+  { id: "marketSize", label: "Market Size & Growth", description: "Higher = larger, faster-growing addressable market", positiveDirection: true },
+  { id: "regulatoryRisk", label: "Regulatory Risk", description: "Higher = more complex or restrictive regulatory environment", positiveDirection: false },
+  { id: "competitiveIntensity", label: "Competitive Intensity", description: "Higher = more crowded and entrenched competitive landscape", positiveDirection: false },
+  { id: "culturalDistance", label: "Cultural Distance", description: "Higher = greater need for product and marketing adaptation", positiveDirection: false },
+  { id: "logisticsCost", label: "Logistics Cost", description: "Higher = more expensive to move goods and operate", positiveDirection: false },
+];
+
+const ENTRY_MODES = [
+  { id: "export", label: "Direct Export", description: "Sell product from home country to foreign buyers, minimal local presence.", risk: "Low", control: "Low", investment: "Low" },
+  { id: "licensing", label: "Licensing", description: "License brand or technology to a local partner who produces and sells.", risk: "Medium", control: "Low", investment: "Low" },
+  { id: "jv", label: "Joint Venture", description: "Create a shared entity with a local partner for production or distribution.", risk: "Medium", control: "Medium", investment: "Medium" },
+  { id: "wos", label: "Wholly Owned Subsidiary", description: "Establish full operations independently in the target market.", risk: "High", control: "High", investment: "High" },
+];
+
+const SHOCKS = {
+  brazil: { title: "Tariff Shock", detail: "Six months after entry, Brazil increases import duties by 15 percentage points. Your product is now 25% more expensive than local alternatives. How do you adapt?",
+    options: [
+      { text: "Establish local manufacturing to sidestep import duties", score: 5 },
+      { text: "Absorb the cost increase and maintain pricing to protect market share", score: 2 },
+      { text: "Raise prices and reposition as a premium-only brand", score: 3 },
+      { text: "Exit the market and redirect resources to a lower-risk market", score: 1 },
+    ]},
+  vietnam: { title: "Partnership Breakdown", detail: "Your distribution partner unexpectedly terminates the agreement after 8 months, taking key local relationships with them. How do you respond?",
+    options: [
+      { text: "Accelerate transition to a wholly owned subsidiary with direct distribution", score: 4 },
+      { text: "Quickly sign with the next available local distributor", score: 2 },
+      { text: "Use the disruption to pause and reassess the market opportunity", score: 3 },
+      { text: "Exit Vietnam and focus resources on a market with a more stable partner ecosystem", score: 1 },
+    ]},
+  germany: { title: "Brand Challenge", detail: "A well-funded German competitor launches a targeted campaign positioning your brand as 'foreign and inconsistent with German quality standards.' Early consumer surveys show the message is gaining traction. How do you respond?",
+    options: [
+      { text: "Invest in a long-term brand campaign emphasizing your quality credentials and European values", score: 5 },
+      { text: "Lower prices to compete on value rather than premium positioning", score: 2 },
+      { text: "Partner with a respected German institution or certification body to validate quality", score: 4 },
+      { text: "Focus on non-German consumers within Germany (expats, international businesses)", score: 2 },
+    ]},
+};
+
+function calcWeightedScore(weights, market) {
+  return CRITERIA.reduce((acc, c) => {
+    const raw = market.profile[c.id];
+    const adjusted = c.positiveDirection ? raw : (10 - raw);
+    return acc + (adjusted * weights[c.id]) / 10;
+  }, 0);
+}
+
+function drawCertificate(canvas, studentName, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#f5fbff"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#0d6b4e"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#1a3a5c"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#0d6b4e";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad=ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#1a3a5c"); grad.addColorStop(1,"#0f2440");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#80cbc4"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#0d6b4e"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#0d6b4e"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 9: Global Strategy",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText("Market Entry Decision Room",W/2,342);
+  ctx.strokeStyle="#0d6b4e"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#1a3a5c"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#1a3a5c"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#0d6b4e"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#80cbc4"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 9",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#041a2e 0%,#0a3d2b 50%,#041a2e 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"720px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.5)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#1a3a5c,#0f2440)",padding:"28px 36px 22px",borderBottom:"3px solid #0d6b4e"},
+  badge:{display:"inline-block",background:"rgba(13,107,78,0.2)",border:"1px solid #0d6b4e",color:"#80cbc4",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#1a3a5c,#2a5a8c)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnGreen:{background:"linear-gradient(135deg,#0d6b4e,#1a9b72)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#1a3a5c",border:"2px solid #1a3a5c",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#1a3a5c",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+const DEFAULT_WEIGHTS = { marketSize: 5, regulatoryRisk: 5, competitiveIntensity: 5, culturalDistance: 5, logisticsCost: 5 };
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [weights, setWeights] = useState(DEFAULT_WEIGHTS);
+  const [selectedMarket, setSelectedMarket] = useState(null);
+  const [selectedMode, setSelectedMode] = useState(null);
+  const [shockAnswer, setShockAnswer] = useState(null);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){ drawCertificate(canvasRef.current,studentName,completionCode,completionDate); try{localStorage.setItem('smcp_module_9',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){} } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+
+  const scores = MARKETS.map(m => ({ ...m, score: calcWeightedScore(weights, m) }));
+  const topMarket = scores.sort((a,b) => b.score - a.score)[0];
+
+  function restart() {
+    setWeights(DEFAULT_WEIGHTS); setSelectedMarket(null); setSelectedMode(null); setShockAnswer(null);
+    setScreen("simulation");
+  }
+
+  function downloadPNG() { const l=document.createElement("a"); l.download=`Certificate_Module9_${studentName.replace(/\s+/g,"_")}.png`; l.href=canvasRef.current.toDataURL("image/png"); l.click(); }
+  function downloadPDF() { const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 9 · GLOBAL STRATEGY</div><h1 style={S.title}>Market Entry Decision Room</h1><p style={S.sub}>Evaluate, select, and stress-test an international market entry</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to the Market Entry Decision Room. Please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 9 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}><strong>Lumina Consumer Goods</strong> is a premium lifestyle brand with strong home-market performance and ready capital for international expansion. The board has approved entry into one new international market this year. Three candidates have been shortlisted: Brazil, Vietnam, and Germany. Your task is to select the best market and determine the right entry mode, then navigate an unexpected market shock.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>First, you will set your strategic priorities by assigning weights to five evaluation criteria. The simulation will score each market based on your priorities. Then you select a market, choose an entry mode (export, licensing, joint venture, or wholly owned subsidiary), and respond to a real-world market disruption. All choices link together.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Begin Market Analysis →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="simulation") {
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>STEP 1 OF 3 · SET STRATEGIC PRIORITIES</div><h1 style={S.title}>Weight Your Criteria</h1></div>
+        <div style={S.body}>
+          <p style={S.prose}>Drag the sliders to reflect how much each factor matters to Lumina's international strategy. A weight of 10 means it is critical; 1 means it is largely irrelevant.</p>
+          {CRITERIA.map(c => (
+            <div key={c.id} style={{marginBottom:"18px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px"}}>
+                <span style={{fontSize:"14px",color:"#1a3a5c",fontWeight:"bold"}}>{c.label}</span>
+                <span style={{fontSize:"14px",color:"#0d6b4e",fontWeight:"bold"}}>{weights[c.id]}</span>
+              </div>
+              <p style={{fontSize:"12px",color:"#888",margin:"0 0 6px",fontFamily:"Arial,sans-serif"}}>{c.description}</p>
+              <input type="range" min="1" max="10" value={weights[c.id]} onChange={e=>setWeights({...weights,[c.id]:+e.target.value})} style={{width:"100%",accentColor:"#0d6b4e"}} />
+            </div>
+          ))}
+          <h2 style={{...S.h2,marginTop:"24px"}}>Market Scores (based on your weights)</h2>
+          {[...scores].sort((a,b)=>b.score-a.score).map((m,i) => (
+            <div key={m.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",background:i===0?"#f0fff8":"#f8f8f8",border:`1px solid ${i===0?"#0d6b4e":"#eee"}`,borderRadius:"2px",marginBottom:"8px"}}>
+              <span style={{fontSize:"15px"}}>{m.flag} {m.name}</span>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:"16px",fontWeight:"bold",color:i===0?"#0d6b4e":"#555"}}>{m.score.toFixed(1)}</div>
+                <div style={{fontSize:"11px",color:"#aaa",fontFamily:"Arial,sans-serif"}}>{i===0?"★ Top Recommendation":""}</div>
+              </div>
+            </div>
+          ))}
+          <p style={{fontSize:"13px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"8px"}}>Review the scores, then select your chosen market below.</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"10px",marginTop:"12px"}}>
+            {MARKETS.map(m=>(
+              <button key={m.id} onClick={()=>setSelectedMarket(m.id)} style={{background:selectedMarket===m.id?"#1a3a5c":"#f0f4ff",color:selectedMarket===m.id?"#fff":"#1a3a5c",border:"2px solid #1a3a5c",padding:"12px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"}}>
+                {m.flag} {m.name}
+              </button>
+            ))}
+          </div>
+          {selectedMarket && <div style={{textAlign:"right",marginTop:"20px"}}><button style={S.btn} onClick={()=>setScreen("entrymode")}>Select Entry Mode →</button></div>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="entrymode") {
+    const market = MARKETS.find(m=>m.id===selectedMarket);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>STEP 2 OF 3 · ENTRY MODE SELECTION</div><h1 style={S.title}>{market.flag} Entering {market.name}</h1></div>
+        <div style={S.body}>
+          <div style={{background:"#f0f8f5",border:"1px solid #b2dfdb",borderRadius:"2px",padding:"14px 18px",marginBottom:"20px"}}>
+            <p style={{margin:"0 0 6px",fontSize:"13px",fontWeight:"bold",color:"#0d6b4e",fontFamily:"Arial,sans-serif"}}>MARKET CONTEXT</p>
+            <p style={{margin:0,fontSize:"14px",color:"#444"}}>{market.context}</p>
+          </div>
+          <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"14px",letterSpacing:"0.5px"}}>SELECT YOUR ENTRY MODE</p>
+          {ENTRY_MODES.map(mode=>(
+            <div key={mode.id} onClick={()=>setSelectedMode(mode.id)} style={{border:`2px solid ${selectedMode===mode.id?"#0d6b4e":"#ddd"}`,borderRadius:"2px",padding:"14px 18px",marginBottom:"10px",cursor:"pointer",background:selectedMode===mode.id?"#f0fff8":"#fafafa"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <strong style={{fontSize:"14px",color:"#1a3a5c"}}>{mode.label}</strong>
+                <div style={{display:"flex",gap:"12px"}}>
+                  {["risk","control","investment"].map(k=>(
+                    <span key={k} style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>{k.charAt(0).toUpperCase()+k.slice(1)}: <strong style={{color:mode[k]==="High"?"#c0392b":mode[k]==="Medium"?"#e67e22":"#27ae60"}}>{mode[k]}</strong></span>
+                  ))}
+                </div>
+              </div>
+              <p style={{margin:"6px 0 0",fontSize:"13px",color:"#555"}}>{mode.description}</p>
+            </div>
+          ))}
+          {selectedMode && <div style={{textAlign:"right",marginTop:"16px"}}><button style={S.btn} onClick={()=>setScreen("shock")}>Confirm Entry Strategy →</button></div>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="shock") {
+    const shock = SHOCKS[selectedMarket];
+    const market = MARKETS.find(m=>m.id===selectedMarket);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={{background:"linear-gradient(135deg,#8b1a1a,#c0392b)",padding:"28px 36px 22px",borderBottom:"3px solid #f39c12"}}>
+          <div style={{...S.badge,borderColor:"#f39c12",color:"#fde68a"}}>STEP 3 OF 3 · MARKET SHOCK</div>
+          <h1 style={{color:"#fff",fontSize:"20px",margin:"8px 0 0"}}>⚡ {shock.title} — {market.flag} {market.name}</h1>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>{shock.detail}</p>
+          <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"14px",letterSpacing:"0.5px"}}>HOW DO YOU ADAPT?</p>
+          {shock.options.map((opt,i)=>{
+            const revealed = shockAnswer !== null;
+            const chosen = shockAnswer === i;
+            const best = revealed && opt.score === 5 && i !== shockAnswer;
+            return (
+              <div key={i} onClick={()=>{ if(shockAnswer===null) setShockAnswer(i); }} style={{border:`2px solid ${chosen?"#c0392b":best?"#27ae60":"#ddd"}`,borderRadius:"2px",padding:"14px 18px",marginBottom:"10px",cursor:revealed?"default":"pointer",background:chosen?"#fff3f3":best?"#f0fff4":"#fafafa"}}>
+                <p style={{margin:0,fontSize:"14px",color:"#333"}}>{opt.text}</p>
+                {best && <p style={{margin:"6px 0 0",fontSize:"12px",color:"#1a6b3c",fontFamily:"Arial,sans-serif"}}>★ Strongest strategic response</p>}
+              </div>
+            );
+          })}
+          {shockAnswer !== null && <div style={{textAlign:"right",marginTop:"16px"}}><button style={S.btn} onClick={()=>setScreen("results")}>See Full Results →</button></div>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="results") {
+    const market = MARKETS.find(m=>m.id===selectedMarket);
+    const mode = ENTRY_MODES.find(m=>m.id===selectedMode);
+    const shock = SHOCKS[selectedMarket];
+    const shockScore = shock.options[shockAnswer].score;
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>SIMULATION COMPLETE</div><h1 style={S.title}>Your Global Entry Strategy</h1></div>
+        <div style={S.body}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"12px",marginBottom:"24px"}}>
+            {[{label:"Target Market",val:`${market.flag} ${market.name}`},{label:"Entry Mode",val:mode.label},{label:"Crisis Response",val:`${shockScore}/5`}].map(m=>(
+              <div key={m.label} style={{background:"#f8f8f8",border:"1px solid #eee",borderRadius:"2px",padding:"16px",textAlign:"center"}}>
+                <div style={{fontSize:"16px",fontWeight:"bold",color:"#1a3a5c"}}>{m.val}</div>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"4px"}}>{m.label}</div>
+              </div>
+            ))}
+          </div>
+          <p style={S.prose}>Your weighted analysis led you to select <strong>{market.name}</strong>, entering via <strong>{mode.label}</strong>. This combination reflects your strategic priorities and your assessment of the market's risk-reward profile.</p>
+          <p style={S.prose}>When the market shock hit, your response scored <strong>{shockScore} out of 5</strong>. {shockScore>=4?"Your adaptation preserved your strategic position and demonstrated the kind of resilience that separates strong global strategies from fragile ones.":"There were stronger responses available. Revisit the shock options to see how a different adaptation could have better protected your market position."}</p>
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"20px"}}>
+            <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 9 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Global strategy is not one decision — it is a sequence of interdependent decisions, each of which constrains the next. The market you choose determines what entry mode is viable. The entry mode determines your exposure when shocks arrive. This simulation put that chain into practice in a compressed but realistic way.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>Even in roles that are not explicitly international, the analytical tools you used here — weighted criteria models, entry mode selection, strategic adaptation under uncertainty — apply wherever you must evaluate multiple options across multiple dimensions with incomplete information. This is the daily reality of strategy.</p>
+        <p style={S.prose}>If you work in or with companies pursuing international growth, you can now contribute structured thinking to market selection conversations, rather than relying on intuition or defaulting to the largest market or the most familiar one.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>Weighted criteria decision-making is one of the most transferable intellectual tools you will ever learn. Where should you pursue a graduate degree? Where should your family relocate? What career opportunity should you accept? The same structured approach — identify criteria, weight them by what actually matters to you, score the options — removes the noise and brings clarity to complex personal decisions.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnGreen} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 9 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnGreen} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

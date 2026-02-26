@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 11: AI and Business Strategy · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() { return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
+
+const AI_CASES = [
+  {
+    id: "demand",
+    title: "AI Demand Forecasting",
+    department: "Operations",
+    description: "Use machine learning to predict product demand across 400 SKUs, reducing overstock and stockouts. Requires 18 months of clean sales data, which the company has.",
+    feasibility: 8, strategicValue: 8,
+    riskProfile: { data: "Low — data is clean and available", ethics: "Low — no personal data involved", orgReadiness: "Medium — operations team needs upskilling" },
+    correct2x2: "high-high",
+  },
+  {
+    id: "chatbot",
+    title: "Customer Service AI Chatbot",
+    department: "Customer Experience",
+    description: "Deploy an LLM-powered chatbot to handle 60% of tier-1 support inquiries, reducing headcount need in the contact center by an estimated 12 FTEs.",
+    feasibility: 7, strategicValue: 6,
+    riskProfile: { data: "Medium — customer conversation data requires privacy review", ethics: "Medium — headcount reduction needs transparent change management", orgReadiness: "High — CX team is digitally mature" },
+    correct2x2: "high-medium",
+  },
+  {
+    id: "hiring",
+    title: "AI-Assisted Resume Screening",
+    department: "Human Resources",
+    description: "Use an AI model to rank and filter incoming job applications. The vendor claims 3x faster screening. However, the model was trained on historical hire data that may reflect past biases.",
+    feasibility: 6, strategicValue: 5,
+    riskProfile: { data: "High — candidate data is sensitive and regulated", ethics: "High — bias risk in historical training data is significant", orgReadiness: "Low — HR team has flagged concerns" },
+    correct2x2: "medium-low",
+  },
+  {
+    id: "pricing",
+    title: "Dynamic AI Pricing Engine",
+    department: "Revenue Management",
+    description: "Implement real-time AI-driven pricing that adjusts prices based on demand signals, competitor pricing, and customer segments. High competitive upside but customer perception risk.",
+    feasibility: 7, strategicValue: 9,
+    riskProfile: { data: "Medium — requires competitor data sourcing strategy", ethics: "Medium — risk of price discrimination perception", orgReadiness: "High — revenue team is analytically strong" },
+    correct2x2: "high-high",
+  },
+  {
+    id: "fraud",
+    title: "AI Fraud Detection",
+    department: "Finance",
+    description: "Deploy a real-time ML model to flag suspicious transactions. Current rule-based system catches 68% of fraud; AI is projected to reach 94%. Implementation is technically complex.",
+    feasibility: 5, strategicValue: 7,
+    riskProfile: { data: "Medium — financial transaction data well-governed", ethics: "Low — false positives are a nuisance, not a rights issue", orgReadiness: "Low — finance team requires significant technical partnering" },
+    correct2x2: "medium-high",
+  },
+];
+
+const ETHICS_SCENARIO = {
+  description: "The AI hiring screening tool (Case 3) has passed legal review, and the vendor has offered a 40% discount making it extremely cost-attractive. Your CHRO is enthusiastic. However, your data science team has found that the model shows a statistically significant bias against candidates from two underrepresented groups. The vendor says they will 'address it in a future update.'",
+  options: [
+    { text: "Deploy now with the discount — legal cleared it, and waiting means competitors move first.", score: 1, feedback: "Weak. Legal clearance does not mean ethical clearance, and statistical bias is a documented risk. Deploying a biased AI tool exposes the company to reputational damage, future regulatory risk, and — most importantly — harm to real candidates." },
+    { text: "Do not deploy. The statistical bias is disqualifying until the vendor resolves it with evidence.", score: 5, feedback: "Correct. Fairness is not optional in AI systems affecting people's livelihoods. Waiting for evidence of bias resolution before deployment is the ethically and strategically responsible position." },
+    { text: "Deploy in a limited pilot, monitor outcomes carefully, and require the vendor to fix bias within 90 days.", score: 3, feedback: "Partially defensible but still risks harm to candidates screened during the pilot period. A time-limited conditional hold with a clear remediation requirement is better than indefinite delay but worse than requiring the fix before any deployment." },
+    { text: "Use the tool but override its rankings manually for flagged demographic groups.", score: 2, feedback: "Well-intentioned but operationally unsustainable and legally complex. Manual overrides introduce inconsistency and may create new discrimination claims. The right answer is fixing the underlying model." },
+  ],
+};
+
+function getPlacement(f, v) {
+  const fHigh = f >= 6; const vHigh = v >= 6;
+  if (fHigh && vHigh) return "high-high";
+  if (fHigh && !vHigh) return "high-medium";
+  if (!fHigh && vHigh) return "medium-high";
+  return "medium-low";
+}
+
+function getGrade(correct, ethicsScore) {
+  const pct = (correct / AI_CASES.length) * 100;
+  if (pct >= 80 && ethicsScore >= 4) return { label: "AI Strategy Leader", note: "Your analytical accuracy and ethical judgment are both strong." };
+  if (pct >= 60) return { label: "AI Strategy Practitioner", note: "You have solid analytical instincts. Continue developing ethical AI judgment." };
+  return { label: "AI Strategy Learner", note: "You are building your AI evaluation instincts. Revisit the placement criteria and ethics case." };
+}
+
+function drawCertificate(canvas, studentName, grade, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#f8f5ff"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#4527a0"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#00796b"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#4527a0";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad=ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#311b92"); grad.addColorStop(1,"#1a0f5c");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#b39ddb"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#311b92"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#4527a0"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#311b92"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#4527a0"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#311b92"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 11: AI and Business Strategy",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,342);
+  ctx.strokeStyle="#4527a0"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#311b92"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#311b92"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#311b92"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#4527a0"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#b39ddb"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 11",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#0d0520 0%,#1a0a40 60%,#0d0520 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"720px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.6)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#311b92,#1a0f5c)",padding:"28px 36px 22px",borderBottom:"3px solid #4527a0"},
+  badge:{display:"inline-block",background:"rgba(69,39,160,0.2)",border:"1px solid #4527a0",color:"#b39ddb",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#311b92,#4527a0)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnViolet:{background:"linear-gradient(135deg,#6200ea,#7c4dff)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#311b92",border:"2px solid #311b92",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#311b92",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+const QUADRANTS = [
+  { id:"high-high", label:"Prioritize", color:"#1b5e20", bg:"#e8f5e9", sub:"High Feasibility · High Value" },
+  { id:"medium-high", label:"Invest Selectively", color:"#1565c0", bg:"#e3f2fd", sub:"Low Feasibility · High Value" },
+  { id:"high-medium", label:"Quick Wins", color:"#e65100", bg:"#fff3e0", sub:"High Feasibility · Low Value" },
+  { id:"medium-low", label:"Deprioritize", color:"#b71c1c", bg:"#ffebee", sub:"Low Feasibility · Low Value" },
+];
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [caseIdx, setCaseIdx] = useState(0);
+  const [placements, setPlacements] = useState({});
+  const [revealed, setRevealed] = useState({});
+  const [ethicsAnswer, setEthicsAnswer] = useState(null);
+  const [ethicsRevealed, setEthicsRevealed] = useState(false);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  const currentCase = AI_CASES[caseIdx];
+  const isLastCase = caseIdx === AI_CASES.length - 1;
+  const allPlaced = AI_CASES.every(c => placements[c.id]);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){
+    const correct = AI_CASES.filter(c=>placements[c.id]===c.correct2x2).length;
+    const ethicsScore = ethicsAnswer !== null ? ETHICS_SCENARIO.options[ethicsAnswer].score : 0;
+    drawCertificate(canvasRef.current,studentName,getGrade(correct,ethicsScore),completionCode,completionDate);
+    try{localStorage.setItem('smcp_module_11',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}
+  } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+  function restart() { setCaseIdx(0); setPlacements({}); setRevealed({}); setEthicsAnswer(null); setEthicsRevealed(false); setScreen("simulation"); }
+  function downloadPNG() { const l=document.createElement("a"); l.download=`Certificate_Module11_${studentName.replace(/\s+/g,"_")}.png`; l.href=canvasRef.current.toDataURL("image/png"); l.click(); }
+  function downloadPDF() { const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  function placeCase(quadrantId) {
+    const newPlacements = {...placements, [currentCase.id]: quadrantId};
+    const newRevealed = {...revealed, [currentCase.id]: true};
+    setPlacements(newPlacements);
+    setRevealed(newRevealed);
+  }
+
+  function nextCase() {
+    if(!isLastCase) { setCaseIdx(caseIdx+1); }
+    else { setScreen("ethics"); }
+  }
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 11 · AI AND BUSINESS STRATEGY</div><h1 style={S.title}>The AI Opportunity Scan</h1><p style={S.sub}>Evaluate, prioritize, and stress-test AI use cases for a real business</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to The AI Opportunity Scan. Please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 11 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}><strong>Kestrel Logistics</strong> is evaluating five AI investment proposals across different business units. Your job as Chief Strategy Officer is to assess each proposal and place it on a 2x2 prioritization matrix based on feasibility and strategic value, then make a high-stakes ethical decision about one of the cases.</p>
+        <h2 style={S.h2}>The 2x2 Matrix</h2>
+        <p style={S.prose}>The matrix has four quadrants: <strong>Prioritize</strong> (high feasibility, high value), <strong>Invest Selectively</strong> (low feasibility, high value — worth doing eventually with investment), <strong>Quick Wins</strong> (high feasibility, low value — worth doing cheaply), and <strong>Deprioritize</strong> (low feasibility, low value — not worth pursuing now).</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>For each AI case, read the profile carefully, then place it in the correct quadrant. Immediate feedback will follow. After all five cases, you will face an ethical judgment scenario. The simulation is designed to be taken as many times as you like.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Begin the Scan →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="simulation") {
+    const c = currentCase;
+    const isPlaced = !!placements[c.id];
+    const isRevealed = !!revealed[c.id];
+    const chosen = placements[c.id];
+    const correct = c.correct2x2;
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}>
+          <div style={S.badge}>CASE {caseIdx+1} OF {AI_CASES.length} · {c.department.toUpperCase()}</div>
+          <h1 style={S.title}>{c.title}</h1>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>{c.description}</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"10px",marginBottom:"18px"}}>
+            {[{l:"Feasibility",v:c.feasibility+"/10"},{l:"Strategic Value",v:c.strategicValue+"/10"},{l:"Org Readiness",v:c.riskProfile.orgReadiness}].map(m=>(
+              <div key={m.l} style={{background:"#f4f0ff",border:"1px solid #d1c4e9",borderRadius:"2px",padding:"12px",textAlign:"center"}}>
+                <div style={{fontSize:"16px",fontWeight:"bold",color:"#311b92"}}>{m.v}</div>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"3px"}}>{m.l}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{background:"#fafafa",border:"1px solid #eee",borderRadius:"2px",padding:"12px 16px",marginBottom:"18px"}}>
+            <p style={{margin:"0 0 6px",fontSize:"12px",fontWeight:"bold",color:"#666",fontFamily:"Arial,sans-serif"}}>RISK PROFILE</p>
+            <p style={{margin:"0 0 4px",fontSize:"13px",color:"#444"}}><strong>Data:</strong> {c.riskProfile.data}</p>
+            <p style={{margin:"0 0 4px",fontSize:"13px",color:"#444"}}><strong>Ethics:</strong> {c.riskProfile.ethics}</p>
+          </div>
+          {!isPlaced && (
+            <>
+              <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"12px",letterSpacing:"0.5px"}}>PLACE THIS USE CASE IN THE MATRIX</p>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}}>
+                {QUADRANTS.map(q => (
+                  <div key={q.id} onClick={()=>placeCase(q.id)} style={{background:q.bg,border:`2px solid ${q.color}`,borderRadius:"2px",padding:"16px",cursor:"pointer",textAlign:"center"}}>
+                    <div style={{fontWeight:"bold",color:q.color,fontSize:"14px"}}>{q.label}</div>
+                    <div style={{fontSize:"11px",color:"#888",marginTop:"4px",fontFamily:"Arial,sans-serif"}}>{q.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {isRevealed && (
+            <div style={{marginTop:"16px",padding:"14px 18px",background:chosen===correct?"#f0fff4":"#fff3f3",border:`1px solid ${chosen===correct?"#a5d6a7":"#f5c6cb"}`,borderRadius:"2px"}}>
+              <p style={{margin:"0 0 6px",fontSize:"13px",fontWeight:"bold",color:chosen===correct?"#1b5e20":"#c0392b"}}>
+                {chosen===correct?"✓ Correct placement!":"✗ Not quite."} Correct quadrant: <strong>{QUADRANTS.find(q=>q.id===correct)?.label}</strong>
+              </p>
+              <p style={{margin:0,fontSize:"13px",color:"#444"}}>Feasibility {c.feasibility}/10, Strategic Value {c.strategicValue}/10 — {c.feasibility>=6?"high feasibility":"lower feasibility"} and {c.strategicValue>=6?"high strategic value":"lower strategic value"} places this use case in the <strong>{QUADRANTS.find(q=>q.id===correct)?.label}</strong> quadrant.</p>
+              <div style={{textAlign:"right",marginTop:"12px"}}><button style={S.btn} onClick={nextCase}>{isLastCase?"Ethics Scenario →":"Next Case →"}</button></div>
+            </div>
+          )}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="ethics") {
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={{background:"linear-gradient(135deg,#b71c1c,#c62828)",padding:"28px 36px 22px",borderBottom:"3px solid #ff8f00"}}>
+          <div style={{...S.badge,borderColor:"#ff8f00",color:"#ffe082"}}>ETHICAL JUDGMENT SCENARIO</div>
+          <h1 style={{color:"#fff",fontSize:"19px",margin:"8px 0 0"}}>The AI Hiring Dilemma</h1>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>{ETHICS_SCENARIO.description}</p>
+          <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"14px",letterSpacing:"0.5px"}}>WHAT DO YOU DO?</p>
+          {ETHICS_SCENARIO.options.map((opt,i)=>{
+            const sel = ethicsAnswer===i;
+            const best = ethicsRevealed && opt.score===5 && i!==ethicsAnswer;
+            return (
+              <div key={i} onClick={()=>{ if(!ethicsRevealed){ setEthicsAnswer(i); setEthicsRevealed(true); } }} style={{border:`2px solid ${sel?"#b71c1c":best?"#1b5e20":"#ddd"}`,borderRadius:"2px",padding:"13px 17px",marginBottom:"10px",cursor:ethicsRevealed?"default":"pointer",background:sel?"#fff3f3":best?"#f0fff4":"#fafafa"}}>
+                <p style={{margin:0,fontSize:"14px",color:"#333"}}>{opt.text}</p>
+                {sel && <p style={{margin:"8px 0 0",fontSize:"13px",color:opt.score===5?"#1b5e20":opt.score>=3?"#8a6d00":"#c0392b"}}><strong>Feedback:</strong> {opt.feedback}</p>}
+                {best && <p style={{margin:"6px 0 0",fontSize:"12px",color:"#1b5e20",fontFamily:"Arial,sans-serif"}}>★ Strongest ethical response</p>}
+              </div>
+            );
+          })}
+          {ethicsRevealed && <div style={{textAlign:"right",marginTop:"16px"}}><button style={S.btn} onClick={()=>setScreen("results")}>See Results →</button></div>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="results") {
+    const correct = AI_CASES.filter(c=>placements[c.id]===c.correct2x2).length;
+    const ethicsScore = ethicsAnswer !== null ? ETHICS_SCENARIO.options[ethicsAnswer].score : 0;
+    const grade = getGrade(correct, ethicsScore);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}><div style={S.badge}>SIMULATION COMPLETE</div><h1 style={S.title}>{grade.label}</h1></div>
+        <div style={S.body}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px",marginBottom:"24px"}}>
+            {[{l:"Placement Accuracy",v:`${correct}/${AI_CASES.length} correct`},{l:"Ethics Score",v:`${ethicsScore}/5`}].map(m=>(
+              <div key={m.l} style={{background:"#f4f0ff",border:"1px solid #d1c4e9",borderRadius:"2px",padding:"16px",textAlign:"center"}}>
+                <div style={{fontSize:"20px",fontWeight:"bold",color:"#311b92"}}>{m.v}</div>
+                <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"4px"}}>{m.l}</div>
+              </div>
+            ))}
+          </div>
+          <p style={S.prose}>{grade.note}</p>
+          <h2 style={S.h2}>Case Placements</h2>
+          {AI_CASES.map(c=>{
+            const placed = placements[c.id];
+            const isCorrect = placed === c.correct2x2;
+            const q = QUADRANTS.find(q=>q.id===c.correct2x2);
+            return (
+              <div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#fafafa",border:"1px solid #eee",borderRadius:"2px",marginBottom:"8px"}}>
+                <span style={{fontSize:"13px",color:"#333"}}>{c.title}</span>
+                <span style={{fontSize:"12px",color:isCorrect?"#1b5e20":"#c0392b",fontFamily:"Arial,sans-serif"}}>{isCorrect?"✓":"✗"} {q?.label}</span>
+              </div>
+            );
+          })}
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"24px"}}>
+            <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 11 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>AI investment decisions are not primarily technical — they are strategic. The most important questions are not "can we build this?" but "should we build this, and will it create the kind of value that matters to our strategy?" This simulation trained the skill of evaluating AI use cases across feasibility, strategic value, risk, and ethics simultaneously.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>As a leader, you will regularly encounter AI proposals from vendors, internal teams, and consultants. The ability to quickly assess where a use case belongs on the feasibility-value matrix — and to identify ethical red flags before they become organizational liabilities — will distinguish you from leaders who either adopt AI uncritically or resist it reflexively.</p>
+        <p style={S.prose}>The AI hiring scenario in particular reflects a real pattern: the pressure to move fast and the temptation to defer ethical concerns to the vendor. Leaders who normalize ethical scrutiny before deployment protect their organizations and, more importantly, the people their systems affect.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>As AI becomes embedded in everyday life — in credit decisions, healthcare recommendations, hiring, and content — understanding how these systems are built and where bias enters helps you ask better questions as a citizen and consumer, not just as a business professional.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnViolet} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 11 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnViolet} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

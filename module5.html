@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 5: Strategy Implementation · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() { return "M5-" + Math.random().toString(36).substring(2,8).toUpperCase(); }
+
+const STAGES = [
+  {
+    id:"allocate",
+    title:"Step 1: Allocate the Budget",
+    prompt:"Vantage Health, a regional healthcare services company, has approved a new three-year strategy focused on three goals: expand telehealth capacity, improve care coordination for chronic patients, and build a clinical talent pipeline. You have $4.2M to allocate across these three initiatives. Which allocation is most strategically sound?",
+    choices:[
+      {text:"$2.8M telehealth · $0.9M care coordination · $0.5M talent pipeline",score:3,rationale:"Telehealth is overweighted relative to its implementation readiness. Without a stronger talent pipeline, the expanded telehealth capacity will face staffing shortfalls within 18 months."},
+      {text:"$1.8M telehealth · $1.4M care coordination · $1.0M talent pipeline",score:5,rationale:"Well-balanced and strategically coherent. Telehealth receives the largest share, reflecting its primacy in the strategy, while the care coordination and talent investments are large enough to be meaningful. This avoids the common mistake of underfunding the people and coordination infrastructure that makes growth possible."},
+      {text:"$0.8M telehealth · $0.8M care coordination · $2.6M talent pipeline",score:2,rationale:"Overrotated toward talent. Building a talent pipeline is foundational, but it takes 12–24 months to yield results, and underinvesting in the primary strategic thrust (telehealth) will stall progress in the near term."},
+      {text:"$1.4M telehealth · $1.4M care coordination · $1.4M talent pipeline",score:3,rationale:"Appears balanced but is actually a strategic evasion. Equal allocation signals an unwillingness to make prioritization decisions. Strategy requires choosing, and equal funding implies all three initiatives are equally important — which undermines the logic of the strategy itself."},
+    ],
+  },
+  {
+    id:"sequence",
+    title:"Step 2: Sequence the Work",
+    prompt:"Which launch sequence for the three initiatives is most strategically defensible?",
+    choices:[
+      {text:"Launch all three simultaneously to create organizational momentum and signal commitment across the strategy.",score:2,rationale:"High execution risk. Launching three major initiatives simultaneously overloads the organization, dilutes leadership attention, and makes it harder to learn and adjust. Momentum is better built through early wins, not breadth."},
+      {text:"Start with the talent pipeline in months 1–6, activate care coordination in months 4–10, and scale telehealth from month 8 onward.",score:5,rationale:"Strategically correct sequencing. The talent pipeline is foundational — it supports both other initiatives. Activating care coordination next builds the process infrastructure that telehealth will depend on. Scaling telehealth last means it launches with the people and systems in place to sustain it."},
+      {text:"Launch telehealth first since it is the highest-visibility initiative and will generate early stakeholder enthusiasm.",score:3,rationale:"Understandable but risky. Launching the most complex initiative first, before foundational infrastructure is in place, increases the chance of a visible stumble that damages momentum and stakeholder confidence."},
+      {text:"Sequence based on which initiative can be completed fastest, to show early progress to the board.",score:1,rationale:"This optimizes for appearance rather than strategic logic. Implementation sequence should follow dependency structure, not speed. Showing quick wins is valuable, but not at the cost of setting up later initiatives for failure."},
+    ],
+  },
+  {
+    id:"disruption1",
+    title:"Step 3: Handle a Disruption",
+    prompt:"Three months into implementation, your lead telehealth implementation vendor announces a 6-month delay due to a software platform issue. The board is watching closely. How do you respond?",
+    choices:[
+      {text:"Immediately brief the board, present a revised timeline, and use the delay period to accelerate care coordination and talent pipeline work.",score:5,rationale:"Excellent. Transparent communication with the board preserves credibility. Redirecting the freed capacity toward other initiatives turns a setback into productive momentum. This is the hallmark of strong implementation leadership."},
+      {text:"Wait to see if the vendor resolves the issue in 4–6 weeks before notifying the board, to avoid unnecessary concern.",score:1,rationale:"Dangerous. Delaying disclosure to the board on a known material risk violates governance expectations and, when the delay becomes apparent, will raise questions about why it was not reported sooner."},
+      {text:"Immediately replace the vendor with a competitor, even if it means accepting a higher cost and a different platform architecture.",score:2,rationale:"Reactive and potentially costly. Vendor replacement mid-implementation adds integration risk and may not actually reduce the timeline. Exploring alternatives is appropriate, but immediate replacement without assessment is impulsive."},
+      {text:"Pause all three initiatives until the telehealth issue is resolved, to avoid creating dependencies on a delayed foundation.",score:1,rationale:"Strategically unnecessary. The talent pipeline and care coordination work do not depend on the telehealth platform being live. Pausing them sacrifices productive time for no strategic gain."},
+    ],
+  },
+  {
+    id:"disruption2",
+    title:"Step 4: Handle a Second Disruption",
+    prompt:"Month 7: A key clinical operations director — the internal champion for the care coordination initiative — resigns unexpectedly. The initiative is 40% complete. What is your move?",
+    choices:[
+      {text:"Immediately appoint an interim leader from within the team, document the initiative's current state, and begin an external search for a permanent replacement.",score:5,rationale:"Sound and comprehensive. Appointing an interim leader prevents momentum loss. Documenting the current state protects institutional knowledge. Beginning the external search immediately — not after a waiting period — recognizes that finding the right person takes time in a competitive talent market."},
+      {text:"Pause the care coordination initiative until a permanent replacement is found, to avoid strategic drift without leadership.",score:2,rationale:"Unnecessarily cautious. A 40%-complete initiative with a capable team does not need to halt because one leader departs. Pausing signals organizational fragility and may disengage the team members who remain."},
+      {text:"Redistribute the director's responsibilities among the existing team without appointing an interim lead.",score:2,rationale:"Creates accountability gaps. Without a named owner, decisions slow, conflicts go unresolved, and momentum decays. Distributed responsibility without clear authority is rarely effective on complex strategic initiatives."},
+      {text:"Accelerate the initiative timeline to reach 70% completion before searching for a replacement, to reduce the risk of direction changes under new leadership.",score:3,rationale:"Creative but risky. Accelerating without leadership creates quality risk and team fatigue. And reaching 70% completion before a new leader arrives may create resentment if the incoming director wants to adjust the approach."},
+    ],
+  },
+];
+
+const MAX_SCORE = 20;
+function getGrade(s){const p=s/MAX_SCORE*100;if(p>=85)return{label:"Implementation Leader",desc:"You sequenced correctly, allocated thoughtfully, and responded to disruptions with clarity and transparency."};if(p>=65)return{label:"Developing Implementer",desc:"You demonstrated solid instincts. Review the rationale for disruption responses to sharpen your adaptive leadership skills."};return{label:"Implementation Learner",desc:"Strong implementation requires both planning rigor and adaptive judgment. Revisit the feedback and retake the simulation."};}
+
+function drawCert(canvas,name,grade,code,date){
+  const ctx=canvas.getContext("2d"),W=canvas.width,H=canvas.height;
+  ctx.fillStyle="#f5f5fa";ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="#5d3a8e";ctx.lineWidth=7;ctx.strokeRect(16,16,W-32,H-32);
+  ctx.strokeStyle="#c9a84c";ctx.lineWidth=2;ctx.strokeRect(28,28,W-56,H-56);
+  [[38,38],[W-38,38],[38,H-38],[W-38,H-38]].forEach(([x,y])=>{ctx.fillStyle="#5d3a8e";ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();});
+  const hg=ctx.createLinearGradient(0,44,0,118);hg.addColorStop(0,"#2d1a5c");hg.addColorStop(1,"#1a0f3a");
+  ctx.fillStyle=hg;ctx.fillRect(28,44,W-56,78);
+  ctx.textAlign="center";
+  ctx.fillStyle="#c4a8f0";ctx.font="bold 13px Georgia";ctx.fillText("MODULE 5  ·  STRATEGY IMPLEMENTATION",W/2,74);
+  ctx.fillStyle="rgba(255,255,255,0.6)";ctx.font="11px Georgia";ctx.fillText("Micro-Simulation  ·  Strategic Management",W/2,96);
+  ctx.fillStyle="rgba(255,255,255,0.3)";ctx.font="10px Georgia";ctx.fillText("From Plan to Action",W/2,112);
+  ctx.fillStyle="#2d1a5c";ctx.font="bold 26px Georgia";ctx.fillText("Certificate of Completion",W/2,158);
+  ctx.strokeStyle="#5d3a8e";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(W/2-120,170);ctx.lineTo(W/2+120,170);ctx.stroke();
+  ctx.fillStyle="#777";ctx.font="13px Georgia";ctx.fillText("This certifies that",W/2,200);
+  ctx.fillStyle="#2d1a5c";ctx.font="bold 29px Georgia";ctx.fillText(name,W/2,242);
+  const nw=ctx.measureText(name).width;ctx.strokeStyle="#5d3a8e";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-nw/2,250);ctx.lineTo(W/2+nw/2,250);ctx.stroke();
+  ctx.fillStyle="#777";ctx.font="13px Georgia";ctx.fillText("has successfully completed the micro-simulation and earned:",W/2,282);
+  ctx.fillStyle="#2d1a5c";ctx.font="bold italic 18px Georgia";ctx.fillText(grade.label,W/2,315);ctx.fillStyle="rgba(100,100,120,0.75)";ctx.font="italic 11px Georgia";ctx.textAlign="center";ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program",W/2,337);
+  ctx.strokeStyle="#5d3a8e";ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(70,340);ctx.lineTo(W-70,340);ctx.stroke();
+  ctx.strokeStyle="#ccc";ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(90,382);ctx.lineTo(290,382);ctx.stroke();
+  ctx.textAlign="left";ctx.fillStyle="#2d1a5c";ctx.font="bold 13px Georgia";ctx.fillText("Professor Babu George",90,398);
+  ctx.fillStyle="#1565c0";ctx.font="12px Georgia";ctx.fillText("linkedin.com/in/beingbabu",90,414);
+  ctx.fillStyle="#888";ctx.font="11px Georgia";ctx.fillText("Instructor · Strategic Management",90,429);
+  ctx.strokeStyle="#ccc";ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(W-290,382);ctx.lineTo(W-90,382);ctx.stroke();
+  ctx.textAlign="right";ctx.fillStyle="#888";ctx.font="11px Georgia";ctx.fillText("Date of Completion",W-90,398);
+  ctx.fillStyle="#2d1a5c";ctx.font="bold 12px Georgia";ctx.fillText(date,W-90,414);
+  ctx.fillStyle="#888";ctx.font="11px Georgia";ctx.fillText("Completion Code: "+code,W-90,432);
+  ctx.textAlign="center";ctx.beginPath();ctx.arc(W/2,404,30,0,Math.PI*2);ctx.fillStyle="#2d1a5c";ctx.fill();
+  ctx.beginPath();ctx.arc(W/2,404,28,0,Math.PI*2);ctx.strokeStyle="#c9a84c";ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle="#c4a8f0";ctx.font="bold 9px Georgia";ctx.fillText("VERIFIED",W/2,408);
+}
+
+function AppComponent(){
+  const[screen,setScreen]=useState("welcome");
+  const[nameInput,setNameInput]=useState("");
+  const[studentName,setStudentName]=useState("");
+  const[stageIdx,setStageIdx]=useState(0);
+  const[score,setScore]=useState(0);
+  const[selected,setSelected]=useState(null);
+  const[showR,setShowR]=useState(false);
+  const[stageScores,setStageScores]=useState([]);
+  const code=useRef(generateCode()).current;
+  const date=useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef=useRef(null);
+
+  useEffect(()=>{if(screen==="certificate"&&canvasRef.current)drawCert(canvasRef.current,studentName,getGrade(score),code,date);try{localStorage.setItem('smcp_module_5',JSON.stringify({name:studentName,code:code,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}},[screen]);
+
+  const start=()=>{if(!nameInput.trim())return;setStudentName(nameInput.trim());setScreen("overview");};
+  const choose=i=>{setSelected(i);setShowR(true);};
+  const next=()=>{const s=STAGES[stageIdx].choices[selected].score;setScore(score+s);setStageScores([...stageScores,s]);setSelected(null);setShowR(false);if(stageIdx+1<STAGES.length)setStageIdx(stageIdx+1);else setScreen("results");};
+  const restart=()=>{setStageIdx(0);setScore(0);setSelected(null);setShowR(false);setStageScores([]);setScreen("simulation");};
+  const dlPNG=()=>{const a=document.createElement("a");a.download=`Certificate_Module5_${studentName.replace(/\s+/g,"_")}.png`;a.href=canvasRef.current.toDataURL("image/png");a.click();};
+  const dlPDF=()=>{const img=canvasRef.current.toDataURL("image/png");const html=`<!DOCTYPE html><html><head><title>Certificate</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${img}"/><script>window.onload=()=>window.print();<\/script></body></html>`;window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank");};
+
+  const grade=getGrade(score);
+  const purple="#2d1a5c";
+  const S={
+    page:{minHeight:"100vh",background:"linear-gradient(150deg,#0e0720 0%,#2d1a5c 50%,#0e0720 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"24px"},
+    card:{background:"#fff",borderRadius:"2px",maxWidth:"660px",width:"100%",boxShadow:"0 20px 55px rgba(0,0,0,0.5)",overflow:"hidden"},
+    hdr:{background:`linear-gradient(135deg,${purple},#1a0f3a)`,padding:"26px 34px 20px",borderBottom:"3px solid #5d3a8e"},
+    badge:{display:"inline-block",background:"rgba(93,58,142,0.2)",border:"1px solid #5d3a8e",color:"#c4a8f0",fontSize:"10px",letterSpacing:"2px",padding:"3px 10px",marginBottom:"9px",fontFamily:"Arial,sans-serif"},
+    h1:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+    sub:{color:"rgba(255,255,255,0.5)",fontSize:"12px",marginTop:"4px",fontFamily:"Arial,sans-serif"},
+    body:{padding:"30px 34px"},
+    prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"13px"},
+    h2:{color:purple,fontSize:"15px",marginBottom:"10px",fontWeight:"bold"},
+    inp:{width:"100%",padding:"12px 14px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+    lbl:{fontSize:"10px",color:"#999",fontFamily:"Arial,sans-serif",letterSpacing:"1px",marginBottom:"6px",display:"block"},
+    btn:{background:`linear-gradient(135deg,${purple},#4a2a8e)`,color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    purple:{background:"linear-gradient(135deg,#5d3a8e,#7a50b0)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+    out:{background:"transparent",color:purple,border:`2px solid ${purple}`,padding:"10px 20px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    opt:{width:"100%",background:"#fafafa",border:"1.5px solid #e5e5e5",borderRadius:"2px",padding:"12px 15px",marginBottom:"8px",textAlign:"left",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",color:"#333",lineHeight:1.5,transition:"all 0.15s"},
+    bar:{height:"3px",background:"#eee",marginBottom:"22px",borderRadius:"2px"},
+    fill:{height:"100%",background:"#5d3a8e",borderRadius:"2px",transition:"width 0.3s"},
+  };
+
+  if(screen==="welcome")return(<div style={S.page}><div style={S.card}><div style={S.hdr}><div style={S.badge}>MODULE 5 · STRATEGY IMPLEMENTATION</div><h1 style={S.h1}>From Plan to Action</h1><p style={S.sub}>Micro-Simulation · Strategic Management</p></div><div style={S.body}><p style={S.prose}>Welcome. Please enter your full name as you would like it to appear on your certificate of completion.</p><label style={S.lbl}>FULL NAME</label><input style={S.inp} type="text" placeholder="e.g., David Mensah" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} autoFocus/><div style={{marginTop:"22px",textAlign:"right"}}><button style={S.btn} onClick={start}>Begin →</button></div></div></div></div>);
+
+  if(screen==="overview")return(<div style={S.page}><div style={S.card}><div style={S.hdr}><div style={S.badge}>OVERVIEW</div><h1 style={S.h1}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div><div style={S.body}><h2 style={S.h2}>The Scenario</h2><p style={S.prose}>Vantage Health has approved a three-year strategy with three pillars: expand telehealth capacity, improve care coordination for chronic patients, and build a clinical talent pipeline. You are the Chief Strategy Officer responsible for implementation. You have $4.2M, a leadership team, and approximately 24 months before the board expects material results.</p><h2 style={S.h2}>What You Will Do</h2><p style={S.prose}>You will make four implementation decisions: resource allocation, initiative sequencing, and responses to two mid-course disruptions. Each decision tests a core dimension of implementation leadership — how to prioritize resources, structure timing, communicate transparently, and adapt without losing strategic direction.</p><h2 style={S.h2}>How to Complete It</h2><p style={S.prose}>Select the response that reflects your best implementation judgment at each stage. You will receive detailed rationale after each choice. You may retake the simulation as many times as you wish.</p><div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Start →</button></div></div></div></div>);
+
+  if(screen==="simulation"){const stage=STAGES[stageIdx];return(<div style={S.page}><div style={S.card}><div style={S.hdr}><div style={S.badge}>{stage.title}</div><h1 style={S.h1}>From Plan to Action</h1></div><div style={S.body}><div style={S.bar}><div style={{...S.fill,width:`${stageIdx/STAGES.length*100}%`}}/></div><p style={{...S.prose,color:purple,fontWeight:"bold",fontSize:"14px",marginBottom:"18px"}}>{stage.prompt}</p>{!showR?(<div>{stage.choices.map((c,i)=>(<button key={i} style={S.opt} onMouseEnter={e=>{e.currentTarget.style.background="#f0ecfb";e.currentTarget.style.borderColor="#5d3a8e";}} onMouseLeave={e=>{e.currentTarget.style.background="#fafafa";e.currentTarget.style.borderColor="#e5e5e5";}} onClick={()=>choose(i)}>{c.text}</button>))}</div>):(<div><div style={{background:STAGES[stageIdx].choices[selected].score>=4?"#f2faf5":"#fffaed",border:`1px solid ${STAGES[stageIdx].choices[selected].score>=4?"#4a9a6f":"#e8c060"}`,borderRadius:"2px",padding:"16px 18px",marginBottom:"16px"}}><p style={{margin:"0 0 6px",fontSize:"11px",fontWeight:"bold",color:STAGES[stageIdx].choices[selected].score>=4?"#1e5c36":"#7a5c00",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>{STAGES[stageIdx].choices[selected].score>=4?"✓ STRONG CHOICE":"△ CONSIDER THIS"}</p><p style={{margin:0,fontSize:"13px",color:"#444",lineHeight:1.6}}>{STAGES[stageIdx].choices[selected].rationale}</p></div><div style={{textAlign:"right"}}><button style={S.purple} onClick={next}>{stageIdx+1<STAGES.length?"Next Step →":"See Results →"}</button></div></div>)}</div></div></div>);}
+
+  if(screen==="results")return(<div style={S.page}><div style={S.card}><div style={S.hdr}><div style={S.badge}>YOUR RESULTS</div><h1 style={S.h1}>Simulation Complete</h1><p style={S.sub}>{studentName} · Score: {score}/{MAX_SCORE}</p></div><div style={S.body}><div style={{textAlign:"center",padding:"10px 0 20px"}}><div style={{fontSize:"34px",marginBottom:"6px"}}>{score/MAX_SCORE>=0.85?"🏗️":"🔧"}</div><div style={{fontSize:"20px",fontWeight:"bold",color:purple,marginBottom:"6px"}}>{grade.label}</div><div style={{fontSize:"13px",color:"#666",maxWidth:"420px",margin:"0 auto",lineHeight:1.7}}>{grade.desc}</div></div><div style={{background:"#f4f0fb",border:"1px solid #d0c0e8",borderRadius:"2px",padding:"14px 18px",marginBottom:"22px"}}><p style={{margin:"0 0 6px",fontSize:"10px",fontWeight:"bold",color:purple,fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>STAGE BREAKDOWN</p>{stageScores.map((s,i)=>(<div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"#444",padding:"4px 0",borderBottom:i<stageScores.length-1?"1px solid #d0c0e8":"none"}}><span>{STAGES[i].id.charAt(0).toUpperCase()+STAGES[i].id.slice(1)}</span><span style={{fontWeight:"bold",color:s>=4?"#2e7d4f":s>=3?"#b8860b":"#c0392b"}}>{s}/5</span></div>))}</div><div style={{display:"flex",gap:"12px",justifyContent:"space-between"}}><button style={S.out} onClick={restart}>Retake</button><button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button></div></div></div></div>);
+
+  if(screen==="reflection")return(<div style={S.page}><div style={S.card}><div style={S.hdr}><div style={S.badge}>LEARNING REFLECTION</div><h1 style={S.h1}>What You Have Learned</h1></div><div style={S.body}><h2 style={S.h2}>The Core Insight</h2><p style={S.prose}>Strategy implementation fails more often than strategy design. The most common reasons are misaligned resource allocation, poor sequencing of interdependent initiatives, and inadequate leadership during disruption. This simulation placed you at each of those inflection points to test your judgment under realistic conditions.</p><h2 style={S.h2}>In Your Professional Life</h2><p style={S.prose}>When you join or lead implementation efforts, you will notice that the plans presented to leadership often look coherent on paper but unravel in execution. The most valuable skill you can develop is the ability to see initiative dependencies before they become problems — to ask "what does this depend on, and have we sequenced accordingly?"</p><p style={S.prose}>Disruption handling is equally critical. Leaders who communicate problems early and redirect capacity constructively maintain trust with stakeholders and preserve strategic momentum. Leaders who hide problems or pause everything undermine both.</p><h2 style={S.h2}>In Your Personal Life</h2><p style={S.prose}>Implementation discipline applies to any multi-part personal goal — a career transition, a financial plan, or a major life project. The same principles hold: sequence by dependency, allocate your time and energy to the highest-leverage activities, and when something disrupts the plan, communicate early and redirect rather than stall.</p><div style={{textAlign:"right"}}><button style={S.purple} onClick={()=>setScreen("certificate")}>Get My Certificate →</button></div></div></div></div>);
+
+  if(screen==="certificate")return(<div style={S.page}><div style={{...S.card,maxWidth:"760px"}}><div style={S.hdr}><div style={S.badge}>CERTIFICATE OF COMPLETION</div><h1 style={S.h1}>Congratulations, {studentName}</h1><p style={S.sub}>Download your certificate and save it to your records.</p></div><div style={{padding:"26px 34px"}}><canvas ref={canvasRef} width={700} height={472} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"16px"}}/><div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}><button style={S.purple} onClick={dlPNG}>⬇ Download Image (PNG)</button><button style={S.btn} onClick={dlPDF}>⬇ Download PDF</button><button style={S.out} onClick={restart}>Retake Simulation</button></div><p style={{textAlign:"center",fontSize:"11px",color:"#bbb",marginTop:"14px",fontFamily:"Arial,sans-serif"}}>Signed by{" "}<a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a>{" "}· Code: {code}</p></div></div></div>);
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

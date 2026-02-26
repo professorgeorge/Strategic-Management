@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 2: Strategic Thinking · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() {
+  return "M2-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+const STAGES = [
+  {
+    prompt: "Before deciding anything, you need to frame the strategic challenge correctly. Meridian Foods, a $420M regional food company, faces three simultaneous pressures: a venture-backed digital competitor winning younger consumers, a margin compressed from 38% to 29% by rising input costs, and 18% mid-management turnover in 18 months. As incoming interim CEO, how do you define the core problem?",
+    choices: [
+      { text: "Meridian is primarily facing a competitive threat and must respond to the digital disruptor before losing further market share.", score: 2, rationale: "Narrow framing. Focusing only on the competitor misses the cost and talent issues that will undermine any competitive response. All three pressures must be in view." },
+      { text: "Meridian faces simultaneous pressure on its competitive position, cost structure, and organizational capability — each of which constrains the others.", score: 5, rationale: "Excellent. This is integrated framing. The three pressures are interdependent: you cannot compete without margin, and you cannot execute without talent. Seeing the whole system is the first act of strategic thinking." },
+      { text: "Meridian's cost crisis is the most urgent issue. A company that runs out of margin cannot do anything else.", score: 3, rationale: "Partially correct. Financial sustainability is foundational, but treating this purely as a cost problem ignores the structural reasons behind the pressure and the competitive context." },
+      { text: "The real problem is culture. Fix the talent issue and everything else becomes manageable.", score: 2, rationale: "Overrotated. People matter, but culture is a means, not the strategic problem itself. This framing can lead to an inward-looking response when the company faces serious external threat." },
+    ],
+  },
+  {
+    prompt: "You have limited bandwidth. Your leadership team can execute two major initiatives in 60 days without overloading the organization. Which do you prioritize first?",
+    choices: [
+      { text: "Launch a direct counter to the competitor — accelerate a digital subscription product and begin a marketing campaign targeting younger consumers.", score: 2, rationale: "High risk, low readiness. With margin compressed and key product development roles unfilled, you do not have the resources or talent to execute a credible product launch in 60 days." },
+      { text: "Stabilize the cost structure first (supplier renegotiation, SKU rationalization), then address the talent gap by clarifying career paths and improving culture signals.", score: 5, rationale: "Strategically sound. Fixing the internal foundation before making external moves is the right sequencing. Competitive investment requires margin to fund it." },
+      { text: "Address the talent crisis exclusively — you cannot implement any strategy without capable people.", score: 3, rationale: "People matter, but talent initiatives take 6–18 months to yield results. Without stabilizing the cost structure, the company's financial position will deteriorate while you wait for culture to improve." },
+      { text: "Ask the board for 90 more days of data before committing to a priority.", score: 1, rationale: "Weak. The board expects a framework in 60 days. Strategic thinking means making reasoned calls under uncertainty, not waiting for certainty that will not arrive." },
+    ],
+  },
+  {
+    prompt: "A junior strategist suggests: 'Let's benchmark what three other food companies did when they faced a D2C disruptor and copy the best-performing response.' How do you respond?",
+    choices: [
+      { text: "That's a solid idea. Benchmarking is efficient and reduces strategic risk.", score: 1, rationale: "Dangerous. Benchmarking is a useful input, not a strategy. Copying what worked elsewhere ignores Meridian's specific margin position, talent gaps, and market context." },
+      { text: "Benchmarking is one useful data point, but we need to filter those cases through Meridian's specific situation before drawing conclusions.", score: 5, rationale: "Exactly right. Pattern recognition from analogous cases is a legitimate strategic tool, but it must be contextualized. Strategic thinking means transferring insight, not copying playbooks." },
+      { text: "Reject the idea. Meridian is unique and industry examples won't apply here.", score: 2, rationale: "Too dismissive. Relevant cases from comparable companies can offer genuine insight. Rejecting all external learning is as weak as blindly copying it." },
+      { text: "Ask the strategist to expand the benchmark to ten companies and present findings next quarter.", score: 2, rationale: "Adds delay without adding strategic value. More data won't solve the framing problem, and waiting until next quarter misses the 60-day window." },
+    ],
+  },
+  {
+    prompt: "The board asks: 'Where should Meridian be in five years?' You have two minutes in the meeting. What is your answer?",
+    choices: [
+      { text: "Meridian should aim to be the leading regional food brand, with margins restored to 38% and full market share recovery.", score: 3, rationale: "Reasonable financial targets, but this describes a recovered version of the past, not a strategic position in a future that may look quite different." },
+      { text: "In five years, Meridian should be the most trusted food brand for health-conscious consumers in the region, with a hybrid retail-digital model and a talent pipeline that regenerates leadership organically.", score: 5, rationale: "Strong. This articulates who the company serves, how it competes, and what internal capability it builds. It connects today's decisions to a coherent long-term direction." },
+      { text: "It's too early to define a five-year vision — we need to stabilize operations first.", score: 1, rationale: "Strategic thinking holds near-term and long-term simultaneously. Refusing to articulate direction leaves the organization without a compass during the very crisis that demands one." },
+      { text: "The competitor has shown the future is digital. Meridian should become a fully D2C company within five years.", score: 2, rationale: "Reactive mimicry. Following a competitor's model ignores whether that model fits Meridian's strengths. Strategy should be built from your own position, not from imitation." },
+    ],
+  },
+];
+
+const MAX_SCORE = 20;
+
+function getGrade(score) {
+  const pct = (score / MAX_SCORE) * 100;
+  if (pct >= 85) return { label: "Strategic Thinker", desc: "Your thinking is integrated, long-view, and context-sensitive. You instinctively see the system rather than isolated parts." };
+  if (pct >= 65) return { label: "Developing Strategist", desc: "You have solid instincts with room to deepen your systems thinking and long-view orientation." };
+  return { label: "Strategic Learner", desc: "You are building foundational strategic thinking habits. Revisit the rationale for each choice and try again." };
+}
+
+function drawCert(canvas, studentName, grade, code, date) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+
+  ctx.fillStyle = "#f8faf5";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = "#2e7d4f";
+  ctx.lineWidth = 7;
+  ctx.strokeRect(16, 16, W - 32, H - 32);
+  ctx.strokeStyle = "#1a3a5c";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+
+  [[38,38],[W-38,38],[38,H-38],[W-38,H-38]].forEach(([x,y]) => {
+    ctx.fillStyle = "#2e7d4f";
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+  });
+
+  const hg = ctx.createLinearGradient(0,44,0,118);
+  hg.addColorStop(0,"#1a3a5c"); hg.addColorStop(1,"#0d2137");
+  ctx.fillStyle = hg;
+  ctx.fillRect(28,44,W-56,78);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#7ecfa0";
+  ctx.font = "bold 13px Georgia";
+  ctx.fillText("MODULE 2  ·  STRATEGIC THINKING", W/2, 74);
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  ctx.font = "11px Georgia";
+  ctx.fillText("Micro-Simulation  ·  Strategic Management", W/2, 96);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.font = "10px Georgia";
+  ctx.fillText("The CEO's Dilemma", W/2, 112);
+
+  ctx.fillStyle = "#1a3a5c";
+  ctx.font = "bold 26px Georgia";
+  ctx.fillText("Certificate of Completion", W/2, 158);
+
+  ctx.strokeStyle = "#2e7d4f";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(W/2-120,170); ctx.lineTo(W/2+120,170); ctx.stroke();
+
+  ctx.fillStyle = "#777";
+  ctx.font = "13px Georgia";
+  ctx.fillText("This certifies that", W/2, 200);
+
+  ctx.fillStyle = "#1a3a5c";
+  ctx.font = "bold 29px Georgia";
+  ctx.fillText(studentName, W/2, 242);
+
+  const nw = ctx.measureText(studentName).width;
+  ctx.strokeStyle = "#2e7d4f"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2-nw/2,250); ctx.lineTo(W/2+nw/2,250); ctx.stroke();
+
+  ctx.fillStyle = "#777";
+  ctx.font = "13px Georgia";
+  ctx.fillText("has successfully completed the micro-simulation and", W/2, 278);
+  ctx.fillText("demonstrated the following performance rating:", W/2, 297);
+
+  ctx.fillStyle = "#1a3a5c";
+  ctx.font = "bold italic 18px Georgia";
+  ctx.fillText(grade.label, W/2, 327);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 349);
+
+  ctx.strokeStyle = "#2e7d4f"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(70,350); ctx.lineTo(W-70,350); ctx.stroke();
+
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(90,390); ctx.lineTo(290,390); ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#1a3a5c"; ctx.font = "bold 13px Georgia";
+  ctx.fillText("Professor Babu George", 90, 406);
+  ctx.fillStyle = "#1565c0"; ctx.font = "12px Georgia";
+  ctx.fillText("linkedin.com/in/beingbabu", 90, 422);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Instructor · Strategic Management", 90, 437);
+
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(W-290,390); ctx.lineTo(W-90,390); ctx.stroke();
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Date of Completion", W-90, 406);
+  ctx.fillStyle = "#1a3a5c"; ctx.font = "bold 12px Georgia";
+  ctx.fillText(date, W-90, 422);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Completion Code: " + code, W-90, 440);
+
+  ctx.textAlign = "center";
+  ctx.beginPath(); ctx.arc(W/2,412,30,0,Math.PI*2);
+  ctx.fillStyle = "#1a3a5c"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,412,28,0,Math.PI*2);
+  ctx.strokeStyle = "#2e7d4f"; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = "#7ecfa0"; ctx.font = "bold 9px Georgia";
+  ctx.fillText("VERIFIED", W/2, 416);
+}
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [stageIdx, setStageIdx] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showRationale, setShowRationale] = useState(false);
+  const [stageScores, setStageScores] = useState([]);
+  const code = useRef(generateCode()).current;
+  const date = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (screen === "certificate" && canvasRef.current) {
+      drawCert(canvasRef.current, studentName, getGrade(score), code, date);
+      try{localStorage.setItem('smcp_module_2',JSON.stringify({name:studentName,code:code,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}
+    }
+  }, [screen]);
+
+  function start() {
+    if (!nameInput.trim()) return;
+    setStudentName(nameInput.trim());
+    setScreen("overview");
+  }
+
+  function choose(idx) {
+    setSelected(idx);
+    setShowRationale(true);
+  }
+
+  function next() {
+    const s = STAGES[stageIdx].choices[selected].score;
+    const newScore = score + s;
+    const newScores = [...stageScores, s];
+    setScore(newScore);
+    setStageScores(newScores);
+    setSelected(null);
+    setShowRationale(false);
+    if (stageIdx + 1 < STAGES.length) {
+      setStageIdx(stageIdx + 1);
+    } else {
+      setScreen("results");
+    }
+  }
+
+  function restart() {
+    setStageIdx(0); setScore(0); setSelected(null);
+    setShowRationale(false); setStageScores([]);
+    setScreen("simulation");
+  }
+
+  function dlPNG() {
+    const a = document.createElement("a");
+    a.download = `Certificate_Module2_${studentName.replace(/\s+/g,"_")}.png`;
+    a.href = canvasRef.current.toDataURL("image/png"); a.click();
+  }
+
+  function dlPDF() {
+    const img = canvasRef.current.toDataURL("image/png");
+    const html = `<!DOCTYPE html><html><head><title>Certificate</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${img}"/><script>window.onload=()=>window.print();<\/script></body></html>`;
+    window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank");
+  }
+
+  const grade = getGrade(score);
+
+  const S = {
+    page:{minHeight:"100vh",background:"linear-gradient(150deg,#071a0e 0%,#0e3a1e 45%,#071a0e 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"24px"},
+    card:{background:"#fff",borderRadius:"2px",maxWidth:"660px",width:"100%",boxShadow:"0 20px 55px rgba(0,0,0,0.5)",overflow:"hidden"},
+    hdr:{background:"linear-gradient(135deg,#1a3a5c,#0d2137)",padding:"26px 34px 20px",borderBottom:"3px solid #2e7d4f"},
+    badge:{display:"inline-block",background:"rgba(46,125,79,0.2)",border:"1px solid #2e7d4f",color:"#7ecfa0",fontSize:"10px",letterSpacing:"2px",padding:"3px 10px",marginBottom:"9px",fontFamily:"Arial,sans-serif"},
+    h1:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+    sub:{color:"rgba(255,255,255,0.5)",fontSize:"12px",marginTop:"4px",fontFamily:"Arial,sans-serif"},
+    body:{padding:"30px 34px"},
+    prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"13px"},
+    h2:{color:"#1a3a5c",fontSize:"15px",marginBottom:"10px",fontWeight:"bold"},
+    inp:{width:"100%",padding:"12px 14px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+    lbl:{fontSize:"10px",color:"#999",fontFamily:"Arial,sans-serif",letterSpacing:"1px",marginBottom:"6px",display:"block"},
+    btn:{background:"linear-gradient(135deg,#1a3a5c,#2a5a8c)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    green:{background:"linear-gradient(135deg,#1e5c36,#2e7d4f)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+    out:{background:"transparent",color:"#1a3a5c",border:"2px solid #1a3a5c",padding:"10px 20px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    opt:{width:"100%",background:"#fafafa",border:"1.5px solid #e5e5e5",borderRadius:"2px",padding:"12px 15px",marginBottom:"8px",textAlign:"left",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",color:"#333",lineHeight:1.5,transition:"all 0.15s"},
+    bar:{height:"3px",background:"#eee",marginBottom:"22px",borderRadius:"2px"},
+    fill:{height:"100%",background:"#2e7d4f",borderRadius:"2px",transition:"width 0.3s"},
+  };
+
+  if (screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>MODULE 2 · STRATEGIC THINKING</div>
+        <h1 style={S.h1}>The CEO's Dilemma</h1>
+        <p style={S.sub}>Micro-Simulation · Strategic Management</p>
+      </div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome. Please enter your full name as you would like it to appear on your certificate of completion.</p>
+        <label style={S.lbl}>FULL NAME</label>
+        <input style={S.inp} type="text" placeholder="e.g., Marcus Oyelaran" value={nameInput}
+          onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} autoFocus />
+        <div style={{marginTop:"22px",textAlign:"right"}}>
+          <button style={S.btn} onClick={start}>Begin →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>OVERVIEW</div>
+        <h1 style={S.h1}>About This Simulation</h1>
+        <p style={S.sub}>Welcome, {studentName}</p>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>What You Will Do</h2>
+        <p style={S.prose}>Strategic thinking is the capacity to see complex, ambiguous situations clearly, frame them correctly, and make sound judgments under uncertainty. It is among the most demanding and most valued executive skills.</p>
+        <p style={S.prose}>In this simulation, you step into the role of interim CEO at Meridian Foods, a regional food company facing three simultaneous crises. You will work through four decision points, each testing a different dimension of strategic thinking: problem framing, prioritization, use of evidence, and long-view reasoning.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>Read each scenario carefully and select the response that reflects your best strategic judgment. After each choice, you will see a rationale explaining why it was strong, acceptable, or weak. Your overall score determines your performance rating. You may retake the simulation as many times as you wish.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.btn} onClick={()=>setScreen("simulation")}>Start →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="simulation") {
+    const stage = STAGES[stageIdx];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.hdr}>
+          <div style={S.badge}>DECISION {stageIdx+1} OF {STAGES.length}</div>
+          <h1 style={S.h1}>The CEO's Dilemma</h1>
+        </div>
+        <div style={S.body}>
+          <div style={S.bar}><div style={{...S.fill,width:`${(stageIdx/STAGES.length)*100}%`}}/></div>
+          <p style={{...S.prose,fontWeight:"bold",color:"#1a3a5c",fontSize:"14px",marginBottom:"18px"}}>{stage.prompt}</p>
+
+          {!showRationale ? (
+            <div>
+              {stage.choices.map((c,i)=>(
+                <button key={i} style={S.opt}
+                  onMouseEnter={e=>{e.currentTarget.style.background="#edf6f0";e.currentTarget.style.borderColor="#2e7d4f";}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="#fafafa";e.currentTarget.style.borderColor="#e5e5e5";}}
+                  onClick={()=>choose(i)}>{c.text}</button>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <div style={{background:selected!==null&&STAGES[stageIdx].choices[selected].score>=4?"#f0fbf4":"#fffaed",border:`1px solid ${selected!==null&&STAGES[stageIdx].choices[selected].score>=4?"#2e7d4f":"#e8c060"}`,borderRadius:"2px",padding:"16px 18px",marginBottom:"16px"}}>
+                <p style={{margin:"0 0 6px",fontSize:"11px",fontWeight:"bold",color:selected!==null&&STAGES[stageIdx].choices[selected].score>=4?"#1e5c36":"#7a5c00",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>
+                  {selected!==null&&STAGES[stageIdx].choices[selected].score>=4?"✓ STRONG CHOICE":"△ CONSIDER THIS"}
+                </p>
+                <p style={{margin:0,fontSize:"13px",color:"#444",lineHeight:1.6}}>{selected!==null&&STAGES[stageIdx].choices[selected].rationale}</p>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <button style={S.green} onClick={next}>
+                  {stageIdx+1<STAGES.length?"Next Decision →":"See Results →"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div></div>
+    );
+  }
+
+  if (screen==="results") {
+    const g = getGrade(score);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.hdr}>
+          <div style={S.badge}>YOUR RESULTS</div>
+          <h1 style={S.h1}>Simulation Complete</h1>
+          <p style={S.sub}>{studentName} · Score: {score}/{MAX_SCORE}</p>
+        </div>
+        <div style={S.body}>
+          <div style={{textAlign:"center",padding:"10px 0 20px"}}>
+            <div style={{fontSize:"36px",marginBottom:"6px"}}>
+              {score/MAX_SCORE>=0.85?"🏆":score/MAX_SCORE>=0.65?"📈":"📚"}
+            </div>
+            <div style={{fontSize:"20px",fontWeight:"bold",color:"#1a3a5c",marginBottom:"6px"}}>{g.label}</div>
+            <div style={{fontSize:"13px",color:"#666",maxWidth:"420px",margin:"0 auto",lineHeight:1.7}}>{g.desc}</div>
+          </div>
+          <div style={{background:"#f4f8ff",border:"1px solid #c8d8f0",borderRadius:"2px",padding:"14px 18px",marginBottom:"22px"}}>
+            <p style={{margin:"0 0 6px",fontSize:"10px",fontWeight:"bold",color:"#1a3a5c",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>DECISION BREAKDOWN</p>
+            {stageScores.map((s,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"#444",padding:"3px 0",borderBottom:i<stageScores.length-1?"1px solid #e0e8f5":"none"}}>
+                <span>Decision {i+1}</span>
+                <span style={{fontWeight:"bold",color:s>=4?"#2e7d4f":s>=3?"#b8860b":"#c0392b"}}>{s}/5</span>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between"}}>
+            <button style={S.out} onClick={restart}>Retake</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if (screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>LEARNING REFLECTION</div>
+        <h1 style={S.h1}>What You Have Learned</h1>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Strategic thinking is not about having the right answer — it is about asking the right questions first. The most consequential skill in this simulation was problem framing. How you define a challenge determines what solutions you can see. Leaders who frame problems narrowly solve the wrong problem well.</p>
+        <h2 style={S.h2}>In Your Professional Life</h2>
+        <p style={S.prose}>Whenever you face an organizational challenge, resist the instinct to jump to solutions. Spend the first portion of your time asking: what is actually going on here? Which pressures are related? What would we miss if we treated this as one problem rather than three? The leaders who are most valuable in a crisis are the ones who slow down just long enough to see the whole system before acting.</p>
+        <p style={S.prose}>The simulation also illustrated sequencing — doing the right things in the right order. Stabilizing the financial foundation before making competitive moves is not timidity; it is strategic discipline. Resources constrain options, and options make strategy possible.</p>
+        <h2 style={S.h2}>In Your Personal Life</h2>
+        <p style={S.prose}>The same discipline applies to personal decisions. Before reacting to a setback or opportunity, ask: what is the full picture here? What are the interdependencies? What is the right sequence? Strategic thinkers apply this pattern of reasoning well beyond the boardroom.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.green} onClick={()=>setScreen("certificate")}>Get My Certificate →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"760px"}}>
+      <div style={S.hdr}>
+        <div style={S.badge}>CERTIFICATE OF COMPLETION</div>
+        <h1 style={S.h1}>Congratulations, {studentName}</h1>
+        <p style={S.sub}>Download your certificate and save it to your records.</p>
+      </div>
+      <div style={{padding:"26px 34px"}}>
+        <canvas ref={canvasRef} width={700} height={480}
+          style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"16px"}}/>
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.green} onClick={dlPNG}>⬇ Download Image (PNG)</button>
+          <button style={S.btn} onClick={dlPDF}>⬇ Download PDF</button>
+          <button style={S.out} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"11px",color:"#bbb",marginTop:"14px",fontFamily:"Arial,sans-serif"}}>
+          Signed by{" "}
+          <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>
+            Professor Babu George
+          </a>{" "}· Code: {code}
+        </p>
+      </div>
+    </div></div>
+  );
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

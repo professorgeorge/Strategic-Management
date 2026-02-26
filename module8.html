@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 8: Strategic Partnerships · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() {
+  return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+const ROUNDS = [
+  {
+    id: "value_sharing",
+    title: "Revenue & Value Sharing",
+    icon: "💰",
+    context: "NorthStar Global proposes taking 60% of joint-venture revenue in exchange for distribution access across their 40-country network. You represent Crestline Brands, a strong regional firm with proprietary technology but limited international reach.",
+    options: [
+      { label: "Accept 40/60 split in NorthStar's favor", score: 1, feedback: "Too generous. You are surrendering most of the value of your proprietary technology. A 40/60 split leaves Crestline with insufficient return to justify the partnership risks." },
+      { label: "Counter-propose 50/50 split with a revenue floor protecting Crestline", score: 5, feedback: "Excellent. Equal sharing with a downside protection mechanism is strategically balanced. It signals partnership confidence while protecting your minimum return." },
+      { label: "Demand 55/45 split in Crestline's favor, citing technology contribution", score: 3, feedback: "Defensible but likely to create friction early. You may be right on the merits, but opening with a demand for majority share can signal low trust and slow deal momentum." },
+      { label: "Refuse to discuss revenue sharing until NorthStar commits to exclusivity first", score: 2, feedback: "Sequencing error. Demanding exclusivity before establishing value sharing inverts the normal negotiation order and may cause NorthStar to disengage early." },
+    ],
+  },
+  {
+    id: "exclusivity",
+    title: "Exclusivity Terms",
+    icon: "🔒",
+    context: "NorthStar wants exclusive rights to distribute Crestline's product in all markets they enter together. This would block Crestline from pursuing other global partners for 5 years.",
+    options: [
+      { label: "Grant full exclusivity across all markets for 5 years", score: 1, feedback: "Strategically dangerous. Full exclusivity for 5 years surrenders Crestline's future optionality entirely. If NorthStar underperforms, you have no alternative path." },
+      { label: "Grant exclusivity only in markets NorthStar actively launches within 18 months, with performance triggers", score: 5, feedback: "Strong. Performance-gated exclusivity aligns NorthStar's incentives, protects Crestline's options in markets NorthStar doesn't prioritize, and builds accountability into the partnership." },
+      { label: "Reject any exclusivity and offer a right of first refusal instead", score: 3, feedback: "Reasonable but may be a dealbreaker for NorthStar. Right of first refusal provides limited commitment and may not satisfy NorthStar's need for certainty in markets they are investing to enter." },
+      { label: "Agree to exclusivity in exchange for guaranteed minimum purchase volumes", score: 4, feedback: "Good trade. Tying exclusivity to guaranteed volumes protects Crestline's downside. The key risk is setting the volume guarantees at the right level — too low and you've given away exclusivity cheaply." },
+    ],
+  },
+  {
+    id: "governance",
+    title: "Joint Governance Structure",
+    icon: "⚖️",
+    context: "The partnership will require a joint steering committee. NorthStar proposes that they hold the casting vote on all commercial decisions given their larger scale.",
+    options: [
+      { label: "Accept NorthStar's casting vote — they have the larger network", score: 1, feedback: "Concedes strategic control. Giving casting vote on all commercial decisions to a partner means Crestline cannot protect its brand, technology, or market positioning in disputes." },
+      { label: "Propose equal representation with a defined escalation path to senior leadership for deadlocks", score: 5, feedback: "Best structure. Equal seats with a clear escalation mechanism prevents both deadlock paralysis and unilateral dominance. It treats both parties as genuine partners." },
+      { label: "Propose that NorthStar leads commercial decisions and Crestline leads product decisions", score: 4, feedback: "Reasonable domain split. This works if commercial and product decisions are genuinely separable, but in practice they often intersect, which can create governance gaps." },
+      { label: "Suggest an independent third-party chair for the steering committee", score: 2, feedback: "Unusual and slow. Independent chairs work in some JVs but add cost, complexity, and a layer of distance from the business realities both partners face day to day." },
+    ],
+  },
+  {
+    id: "ip",
+    title: "Intellectual Property",
+    icon: "🧠",
+    context: "NorthStar's legal team proposes that all innovations developed during the partnership become jointly owned IP, regardless of which party initiated or funded them.",
+    options: [
+      { label: "Accept joint ownership of all partnership-era IP", score: 1, feedback: "Highly risky. Crestline's proprietary technology is its core differentiator. Joint ownership of all new IP means NorthStar could eventually leverage Crestline's innovations independently." },
+      { label: "Counter: Crestline retains all pre-existing IP; jointly funded innovations become shared; independently funded innovations remain with the originating party", score: 5, feedback: "Precise and fair. This structure protects Crestline's existing technology base while creating a sensible framework for partnership-era innovations based on who funded and led them." },
+      { label: "Agree to joint IP but include a buyout clause allowing either party to acquire the other's share", score: 3, feedback: "The buyout clause adds optionality but does not solve the core problem. Crestline's pre-existing IP should not become joint property regardless of buyout rights." },
+      { label: "Refuse any IP sharing and license Crestline's technology to NorthStar instead", score: 3, feedback: "Defensible but limits integration depth. A licensing model makes partnership terms simpler but may prevent the deep collaboration that generates joint competitive advantage." },
+    ],
+  },
+  {
+    id: "exit",
+    title: "Exit Provisions",
+    icon: "🚪",
+    context: "NorthStar's draft agreement contains no exit clause. Their position is that both parties should commit fully with no planned exit path.",
+    options: [
+      { label: "Agree — a strong partnership should not plan for exit from day one", score: 1, feedback: "Naive. Every well-structured partnership includes exit provisions. The absence of a defined exit path creates enormous legal and operational risk if the partnership underperforms or the strategic fit changes." },
+      { label: "Insist on bilateral exit rights after year 3, with a 12-month wind-down period and IP reversion to originating party", score: 5, feedback: "Strong and standard. A three-year commitment respects NorthStar's investment horizon while protecting Crestline's long-term interests. IP reversion ensures Crestline retains its core assets on exit." },
+      { label: "Accept no formal exit clause but insist on an annual partnership review with defined performance metrics", score: 2, feedback: "Insufficient. Performance reviews help but they are not a substitute for defined exit rights. Without formal exit provisions, Crestline could find itself legally locked into a failing partnership." },
+      { label: "Propose a shorter exit window — exit rights available after 18 months", score: 3, feedback: "Too short. 18 months may not give the partnership enough time to generate results, and it signals low commitment to NorthStar. Three years is a more credible horizon for international market development." },
+    ],
+  },
+];
+
+function getGrade(score) {
+  if (score >= 22) return { label: "Master Negotiator", note: "You protected Crestline's interests across every dimension while maintaining a partnership-oriented approach." };
+  if (score >= 16) return { label: "Skilled Negotiator", note: "You made sound decisions on most terms with some trade-offs that slightly favor NorthStar." };
+  return { label: "Developing Negotiator", note: "You conceded significant value in several areas. Review the feedback on each round to sharpen your approach." };
+}
+
+function drawCertificate(canvas, studentName, grade, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#f5f8ff"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#2c3e7a"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#8e44ad"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#2c3e7a";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad = ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#2c3e7a"); grad.addColorStop(1,"#1a2550");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#b39ddb"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#2c3e7a"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#8e44ad"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#2c3e7a"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#8e44ad"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#2c3e7a"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 8: Strategic Partnerships",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,342);
+  ctx.strokeStyle="#8e44ad"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#2c3e7a"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#2c3e7a"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#2c3e7a"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#8e44ad"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#b39ddb"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 8",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#0d0d2b 0%,#1a1a5c 60%,#0d0d2b 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"700px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.5)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#2c3e7a,#1a2550)",padding:"28px 36px 22px",borderBottom:"3px solid #8e44ad"},
+  badge:{display:"inline-block",background:"rgba(142,68,173,0.2)",border:"1px solid #8e44ad",color:"#b39ddb",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#2c3e7a,#3d55aa)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnPurple:{background:"linear-gradient(135deg,#7d3c98,#9b59b6)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#2c3e7a",border:"2px solid #2c3e7a",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#2c3e7a",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [roundIdx, setRoundIdx] = useState(0);
+  const [picks, setPicks] = useState([]);
+  const [chosen, setChosen] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [totalScore, setTotalScore] = useState(0);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){ drawCertificate(canvasRef.current,studentName,getGrade(totalScore),completionCode,completionDate); try{localStorage.setItem('smcp_module_8',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){} } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+
+  function selectOption(idx) { if(!revealed){ setChosen(idx); setRevealed(true); } }
+
+  function handleNext() {
+    const round = ROUNDS[roundIdx];
+    const score = round.options[chosen].score;
+    const newScore = totalScore + score;
+    const newPicks = [...picks, { roundId: round.id, chosenIdx: chosen, score }];
+    setTotalScore(newScore);
+    setPicks(newPicks);
+    setChosen(null);
+    setRevealed(false);
+    if (roundIdx + 1 < ROUNDS.length) { setRoundIdx(roundIdx + 1); }
+    else { setScreen("results"); }
+  }
+
+  function restart() { setRoundIdx(0); setPicks([]); setChosen(null); setRevealed(false); setTotalScore(0); setScreen("simulation"); }
+
+  function downloadPNG() { const l=document.createElement("a"); l.download=`Certificate_Module8_${studentName.replace(/\s+/g,"_")}.png`; l.href=canvasRef.current.toDataURL("image/png"); l.click(); }
+  function downloadPDF() { const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 8 · STRATEGIC PARTNERSHIPS</div><h1 style={S.title}>The Partnership Table</h1><p style={S.sub}>A five-round strategic negotiation simulation</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to The Partnership Table. Please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 8 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}>You represent <strong>Crestline Brands</strong>, a mid-sized regional company with differentiated proprietary technology and strong brand equity in your home market. You are negotiating a strategic alliance with <strong>NorthStar Global</strong>, a multinational with distribution in 40 countries but weaker product innovation capability. Both companies want the deal — but both want it on favorable terms.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>You will work through five negotiation rounds, each covering a distinct dimension of the partnership: revenue sharing, exclusivity, governance, intellectual property, and exit provisions. In each round, select the negotiating position you believe best serves Crestline's long-term strategic interests. After you choose, you will receive immediate feedback explaining the reasoning behind the best approach. There are no hidden tricks — the goal is to develop your negotiation instincts.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Enter the Negotiation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="simulation") {
+    const round = ROUNDS[roundIdx];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}>
+          <div style={S.badge}>ROUND {roundIdx+1} OF {ROUNDS.length} · {round.icon} {round.title.toUpperCase()}</div>
+          <h1 style={S.title}>{round.title}</h1>
+        </div>
+        <div style={S.body}>
+          <div style={{background:"#f0f4ff",border:"1px solid #c5cae9",borderRadius:"2px",padding:"14px 18px",marginBottom:"20px"}}>
+            <p style={{margin:0,fontSize:"13px",fontWeight:"bold",color:"#2c3e7a",marginBottom:"6px",fontFamily:"Arial,sans-serif"}}>NEGOTIATION CONTEXT</p>
+            <p style={{margin:0,fontSize:"14px",color:"#444"}}>{round.context}</p>
+          </div>
+          <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"14px",letterSpacing:"0.5px"}}>SELECT CRESTLINE'S POSITION</p>
+          {round.options.map((opt,i)=>{
+            const isChosen = chosen===i;
+            const showFeedback = revealed && isChosen;
+            const best = revealed && opt.score===5 && i!==chosen;
+            return (
+              <div key={i} onClick={()=>selectOption(i)} style={{border:`2px solid ${isChosen?"#8e44ad":best?"#27ae60":"#ddd"}`,borderRadius:"2px",padding:"14px 18px",marginBottom:"10px",cursor:revealed?"default":"pointer",background:isChosen?"#f8f0ff":best?"#f0fff4":"#fafafa"}}>
+                <p style={{margin:0,fontSize:"14px",color:"#333"}}>{opt.label}</p>
+                {showFeedback && <div style={{marginTop:"10px",padding:"10px 14px",background:"#fff",border:"1px solid #e0e0e0",borderRadius:"2px"}}>
+                  <p style={{margin:0,fontSize:"13px",color:opt.score===5?"#1a6b3c":opt.score>=3?"#8a6d00":"#c0392b"}}><strong>{opt.score===5?"✓ Optimal":"⚡ Feedback"}:</strong> {opt.feedback}</p>
+                </div>}
+                {best && <p style={{margin:"6px 0 0",fontSize:"12px",color:"#1a6b3c",fontFamily:"Arial,sans-serif"}}>★ Optimal position</p>}
+              </div>
+            );
+          })}
+          {revealed && <div style={{textAlign:"right",marginTop:"16px"}}><button style={S.btn} onClick={handleNext}>{roundIdx+1<ROUNDS.length?"Next Round →":"See Results →"}</button></div>}
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="results") {
+    const grade = getGrade(totalScore);
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={{background:"linear-gradient(135deg,#2c3e7a,#1a2550)",padding:"28px 36px 22px",borderBottom:"3px solid #8e44ad"}}>
+          <div style={S.badge}>NEGOTIATION COMPLETE</div>
+          <h1 style={{color:"#fff",fontSize:"22px",margin:"8px 0 4px"}}>{grade.label}</h1>
+          <p style={{color:"rgba(255,255,255,0.7)",fontSize:"13px",margin:0}}>Total Score: {totalScore} / {ROUNDS.length * 5}</p>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>{grade.note}</p>
+          <h2 style={S.h2}>Round-by-Round Summary</h2>
+          {ROUNDS.map((r,i)=>{
+            const pick = picks[i];
+            if(!pick) return null;
+            const opt = r.options[pick.chosenIdx];
+            return (
+              <div key={r.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#f8f8f8",border:"1px solid #eee",borderRadius:"2px",marginBottom:"8px"}}>
+                <span style={{fontSize:"13px",color:"#333"}}>{r.icon} {r.title}</span>
+                <span style={{fontSize:"13px",fontWeight:"bold",color:pick.score===5?"#1a6b3c":pick.score>=3?"#8a6d00":"#c0392b"}}>{pick.score}/5 pts</span>
+              </div>
+            );
+          })}
+          <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"24px"}}>
+            <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+            <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 8 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Strategic partnerships are not about trust alone — they are about structuring incentives, protections, and accountability so that both parties behave as partners even when it would be convenient not to. The most durable alliances are built on well-crafted agreements, not on goodwill.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>In your career, you will encounter partnership opportunities in many forms: vendor contracts, co-development agreements, joint ventures, licensing deals, and distribution alliances. The frameworks from this simulation — value sharing, performance-gated exclusivity, IP reversion, and defined exit rights — apply across all of them. Knowing what to protect before you sit down at the table is the most important preparation you can do.</p>
+        <p style={S.prose}>Leaders who understand deal structure speak with more authority in negotiation rooms, protect their organizations more effectively, and are more credible partners themselves. These are skills that compound over a career.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>Negotiation principles from strategic partnerships translate directly into any situation involving shared commitment and unequal power — co-authoring projects, collaborative community initiatives, or personal agreements around shared resources and responsibilities. The instinct to define terms, protect optionality, and build in accountability is useful everywhere.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnPurple} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 8 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1><p style={S.sub}>Your certificate is ready for download.</p></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnPurple} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

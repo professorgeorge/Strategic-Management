@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0a1e36"/>
+  <rect x="32" y="32" width="448" height="448" rx="60" fill="none" stroke="#c9a227" stroke-width="12"/>
+  <!-- S letter mark -->
+  <text x="256" y="320" font-family="Georgia, serif" font-size="260" font-weight="700"
+        fill="#c9a227" text-anchor="middle" dominant-baseline="auto">S</text>
+  <!-- Thin gold baseline -->
+  <rect x="96" y="380" width="320" height="6" rx="3" fill="#c9a227" opacity="0.5"/>
+</svg>

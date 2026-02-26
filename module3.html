@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 3: Strategic Planning · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() {
+  return "M3-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+const COMPANY = {
+  name: "Crestline Logistics",
+  description: "A mid-size regional freight and last-mile delivery company with $280M in revenue, 1,400 employees, and operations across 12 states. Growth has plateaued over the past two years. The board has asked you, the newly appointed Chief Strategy Officer, to build a three-year strategic plan.",
+};
+
+const STAGES = [
+  {
+    id: "mission",
+    title: "Step 1: Clarify the Mission",
+    instruction: "A strong strategic plan begins with a clear articulation of organizational purpose. Select the mission statement that best reflects strategic clarity for Crestline Logistics.",
+    choices: [
+      { text: "To move freight efficiently and profitably across the eastern United States.", score: 2, rationale: "Too narrow and too operational. It focuses on geography and activity rather than value created or direction of growth. It also excludes current states outside the east." },
+      { text: "To be the most trusted partner for businesses that need reliable, time-sensitive freight and last-mile delivery — making supply chains faster, simpler, and more predictable.", score: 5, rationale: "Strong. This defines who the company serves, what it offers, and the value it creates. It is specific enough to guide decisions but broad enough to accommodate growth." },
+      { text: "To grow revenue by 20% over the next three years through expanded market presence.", score: 1, rationale: "This is a financial goal, not a mission. A mission defines purpose and value; financial targets belong in the planning stage, not the mission statement." },
+      { text: "To provide logistics services to companies of all sizes with a focus on customer satisfaction and on-time delivery.", score: 3, rationale: "Acceptable but generic. Most logistics companies could say this. A good mission statement creates distinction and guides trade-offs." },
+    ],
+  },
+  {
+    id: "environment",
+    title: "Step 2: Read the Environment",
+    instruction: "You have commissioned an environmental scan. Based on the results below, which is the most strategically significant finding that should shape your three-year plan?\n\nFindings: (A) E-commerce volumes are growing 18% annually, driving demand for last-mile delivery. (B) Fuel costs are volatile, rising 30% in two years. (C) Two regional competitors have been acquired by national players with deeper capital. (D) Regulatory changes are tightening driver qualification requirements.",
+    choices: [
+      { text: "The e-commerce growth trend — it represents the most significant demand opportunity for Crestline's last-mile capability.", score: 5, rationale: "Correct prioritization. Demand-side opportunities drive revenue and shape where investment should go. E-commerce growth aligns with Crestline's existing last-mile strength — this is a strategic opening, not just a market trend." },
+      { text: "Fuel cost volatility — it is the most immediate threat to Crestline's margins and requires immediate action.", score: 3, rationale: "A real concern, but cost management is operational, not strategic. Hedging fuel costs and improving fleet efficiency are execution tasks. The environmental scan should primarily surface strategic, not operational, priorities." },
+      { text: "Competitor consolidation — national players with deeper capital will reshape competitive dynamics in Crestline's regional markets.", score: 4, rationale: "Solid. This is a structural competitive threat with long-term implications. It is slightly less prioritizable than the demand opportunity because the right response to consolidation is to deepen differentiation — which the e-commerce trend helps define." },
+      { text: "Regulatory changes — driver qualification rules will tighten supply and raise labor costs across the industry.", score: 2, rationale: "A constraint worth monitoring, but it affects the whole industry equally. Threats that apply uniformly are less strategically decisive than asymmetric opportunities." },
+    ],
+  },
+  {
+    id: "goals",
+    title: "Step 3: Set Strategic Goals",
+    instruction: "You need to set three-year strategic goals for Crestline. Which set of goals is best structured to drive meaningful strategic progress?",
+    choices: [
+      { text: "Increase revenue by 25%, improve on-time delivery to 97%, and reduce operating costs by 10%.", score: 2, rationale: "These are financial and operational targets, not strategic goals. They tell the organization what to achieve numerically but not where to compete or how to win." },
+      { text: "Become the preferred last-mile partner for regional e-commerce retailers in our 12-state footprint; build a technology platform that gives customers real-time shipment visibility; and develop a talent pipeline that fills 80% of driver and dispatch roles internally.", score: 5, rationale: "Excellent. Each goal specifies a strategic position (who you serve), a capability (technology), and an organizational foundation (talent). Together they form a coherent and actionable direction." },
+      { text: "Expand into five new states, acquire one regional competitor, and launch a new service line within 18 months.", score: 3, rationale: "Bold but potentially overreaching. Expansion, acquisition, and new service launches simultaneously may exceed Crestline's bandwidth. Strategic goals should be ambitious and coherent, not a list of aggressive moves." },
+      { text: "Improve employee satisfaction scores, build a stronger brand, and enhance customer relationships.", score: 1, rationale: "Vague. None of these goals is specific enough to guide planning or resource allocation. 'Stronger brand' and 'better relationships' describe intentions, not strategic objectives." },
+    ],
+  },
+  {
+    id: "initiatives",
+    title: "Step 4: Prioritize Initiatives",
+    instruction: "Your team has proposed six potential strategic initiatives. You have capacity and budget for three. Which combination is most strategically coherent given Crestline's mission and goals?",
+    choices: [
+      { text: "Launch a dedicated e-commerce delivery service tier; implement a real-time shipment tracking platform; and build a regional driver training academy.", score: 5, rationale: "Highly coherent. Each initiative directly supports one of the three strategic goals. The e-commerce tier captures the demand opportunity, the platform builds the technology capability, and the academy addresses the talent pipeline. This combination also creates a defensible competitive position." },
+      { text: "Expand into three new states; acquire a small competitor; and redesign the company's website and brand identity.", score: 2, rationale: "Poorly aligned. Geographic expansion may dilute focus, the acquisition adds integration risk, and brand redesign is a marketing tactic, not a strategic initiative. None of these directly strengthens the e-commerce position or the talent foundation." },
+      { text: "Hire a Chief Technology Officer; renegotiate all carrier contracts; and launch a customer loyalty program.", score: 3, rationale: "Partially aligned. Hiring a CTO supports the technology goal, and contract renegotiation addresses cost pressure. But a loyalty program for freight customers is a weak fit for this business model and diverts focus." },
+      { text: "Implement a new ERP system; move headquarters to a more central location; and launch a sustainability initiative.", score: 1, rationale: "Internally focused and strategically disconnected from the goals. ERP implementation is an operational upgrade, relocation is disruptive without clear strategic rationale, and the sustainability initiative — while valuable — does not address the identified strategic priorities." },
+    ],
+  },
+];
+
+const MAX_SCORE = 20;
+
+function getGrade(score) {
+  const pct = (score / MAX_SCORE) * 100;
+  if (pct >= 85) return { label: "Strategic Planner", desc: "Your planning instincts are well-calibrated. You connected mission, environment, goals, and initiatives into a coherent strategic logic." };
+  if (pct >= 65) return { label: "Developing Planner", desc: "You made sound choices in several areas. Review the rationale for each decision to sharpen the logic that connects planning stages." };
+  return { label: "Planning Learner", desc: "Strategic planning requires connecting multiple levels of thinking. Revisit the feedback for each stage and retake the simulation." };
+}
+
+function drawCert(canvas, studentName, grade, code, date) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+
+  ctx.fillStyle = "#f5f7fc";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = "#4a6fa5";
+  ctx.lineWidth = 7;
+  ctx.strokeRect(16, 16, W - 32, H - 32);
+  ctx.strokeStyle = "#c9a84c";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+
+  [[38,38],[W-38,38],[38,H-38],[W-38,H-38]].forEach(([x,y]) => {
+    ctx.fillStyle = "#4a6fa5";
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+  });
+
+  const hg = ctx.createLinearGradient(0,44,0,118);
+  hg.addColorStop(0,"#1e3a6e"); hg.addColorStop(1,"#0f2040");
+  ctx.fillStyle = hg;
+  ctx.fillRect(28,44,W-56,78);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#a8c4e8";
+  ctx.font = "bold 13px Georgia";
+  ctx.fillText("MODULE 3  ·  STRATEGIC PLANNING", W/2, 74);
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  ctx.font = "11px Georgia";
+  ctx.fillText("Micro-Simulation  ·  Strategic Management", W/2, 96);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.font = "10px Georgia";
+  ctx.fillText("Build the Plan", W/2, 112);
+
+  ctx.fillStyle = "#1e3a6e";
+  ctx.font = "bold 26px Georgia";
+  ctx.fillText("Certificate of Completion", W/2, 158);
+
+  ctx.strokeStyle = "#4a6fa5";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(W/2-120,170); ctx.lineTo(W/2+120,170); ctx.stroke();
+
+  ctx.fillStyle = "#777";
+  ctx.font = "13px Georgia";
+  ctx.fillText("This certifies that", W/2, 200);
+
+  ctx.fillStyle = "#1e3a6e";
+  ctx.font = "bold 29px Georgia";
+  ctx.fillText(studentName, W/2, 242);
+
+  const nw = ctx.measureText(studentName).width;
+  ctx.strokeStyle = "#4a6fa5"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2-nw/2,250); ctx.lineTo(W/2+nw/2,250); ctx.stroke();
+
+  ctx.fillStyle = "#777";
+  ctx.font = "13px Georgia";
+  ctx.fillText("has successfully completed the micro-simulation and earned the rating:", W/2, 282);
+
+  ctx.fillStyle = "#1e3a6e";
+  ctx.font = "bold italic 18px Georgia";
+  ctx.fillText(grade.label, W/2, 315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+
+  ctx.strokeStyle = "#4a6fa5"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(70,340); ctx.lineTo(W-70,340); ctx.stroke();
+
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(90,382); ctx.lineTo(290,382); ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#1e3a6e"; ctx.font = "bold 13px Georgia";
+  ctx.fillText("Professor Babu George", 90, 398);
+  ctx.fillStyle = "#1565c0"; ctx.font = "12px Georgia";
+  ctx.fillText("linkedin.com/in/beingbabu", 90, 414);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Instructor · Strategic Management", 90, 429);
+
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(W-290,382); ctx.lineTo(W-90,382); ctx.stroke();
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Date of Completion", W-90, 398);
+  ctx.fillStyle = "#1e3a6e"; ctx.font = "bold 12px Georgia";
+  ctx.fillText(date, W-90, 414);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Completion Code: " + code, W-90, 432);
+
+  ctx.textAlign = "center";
+  ctx.beginPath(); ctx.arc(W/2,404,30,0,Math.PI*2);
+  ctx.fillStyle = "#1e3a6e"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,404,28,0,Math.PI*2);
+  ctx.strokeStyle = "#c9a84c"; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = "#c9a84c"; ctx.font = "bold 9px Georgia";
+  ctx.fillText("VERIFIED", W/2, 408);
+}
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [stageIdx, setStageIdx] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showRationale, setShowRationale] = useState(false);
+  const [stageScores, setStageScores] = useState([]);
+  const code = useRef(generateCode()).current;
+  const date = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (screen === "certificate" && canvasRef.current) {
+      drawCert(canvasRef.current, studentName, getGrade(score), code, date);
+      try{localStorage.setItem('smcp_module_3',JSON.stringify({name:studentName,code:code,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}
+    }
+  }, [screen]);
+
+  function start() { if (!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+  function choose(idx) { setSelected(idx); setShowRationale(true); }
+  function next() {
+    const s = STAGES[stageIdx].choices[selected].score;
+    setScore(score + s);
+    setStageScores([...stageScores, s]);
+    setSelected(null); setShowRationale(false);
+    if (stageIdx + 1 < STAGES.length) setStageIdx(stageIdx + 1);
+    else setScreen("results");
+  }
+  function restart() { setStageIdx(0); setScore(0); setSelected(null); setShowRationale(false); setStageScores([]); setScreen("simulation"); }
+  function dlPNG() { const a=document.createElement("a"); a.download=`Certificate_Module3_${studentName.replace(/\s+/g,"_")}.png`; a.href=canvasRef.current.toDataURL("image/png"); a.click(); }
+  function dlPDF() { const img=canvasRef.current.toDataURL("image/png"); const html=`<!DOCTYPE html><html><head><title>Certificate</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${img}"/><script>window.onload=()=>window.print();<\/script></body></html>`; window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank"); }
+
+  const grade = getGrade(score);
+
+  const S = {
+    page:{minHeight:"100vh",background:"linear-gradient(150deg,#0d1b36 0%,#1e3a6e 50%,#0d1b36 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"24px"},
+    card:{background:"#fff",borderRadius:"2px",maxWidth:"660px",width:"100%",boxShadow:"0 20px 55px rgba(0,0,0,0.5)",overflow:"hidden"},
+    hdr:{background:"linear-gradient(135deg,#1e3a6e,#0f2040)",padding:"26px 34px 20px",borderBottom:"3px solid #4a6fa5"},
+    badge:{display:"inline-block",background:"rgba(74,111,165,0.2)",border:"1px solid #4a6fa5",color:"#a8c4e8",fontSize:"10px",letterSpacing:"2px",padding:"3px 10px",marginBottom:"9px",fontFamily:"Arial,sans-serif"},
+    h1:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+    sub:{color:"rgba(255,255,255,0.5)",fontSize:"12px",marginTop:"4px",fontFamily:"Arial,sans-serif"},
+    body:{padding:"30px 34px"},
+    prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"13px"},
+    h2:{color:"#1e3a6e",fontSize:"15px",marginBottom:"10px",fontWeight:"bold"},
+    inp:{width:"100%",padding:"12px 14px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+    lbl:{fontSize:"10px",color:"#999",fontFamily:"Arial,sans-serif",letterSpacing:"1px",marginBottom:"6px",display:"block"},
+    btn:{background:"linear-gradient(135deg,#1e3a6e,#2a5090)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    blue:{background:"linear-gradient(135deg,#1e3a6e,#4a6fa5)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+    out:{background:"transparent",color:"#1e3a6e",border:"2px solid #1e3a6e",padding:"10px 20px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    opt:{width:"100%",background:"#fafafa",border:"1.5px solid #e5e5e5",borderRadius:"2px",padding:"12px 15px",marginBottom:"8px",textAlign:"left",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",color:"#333",lineHeight:1.5,transition:"all 0.15s"},
+    bar:{height:"3px",background:"#eee",marginBottom:"22px",borderRadius:"2px"},
+    fill:{height:"100%",background:"#4a6fa5",borderRadius:"2px",transition:"width 0.3s"},
+  };
+
+  if (screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>MODULE 3 · STRATEGIC PLANNING</div>
+        <h1 style={S.h1}>Build the Plan</h1>
+        <p style={S.sub}>Micro-Simulation · Strategic Management</p>
+      </div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome. Please enter your full name as you would like it to appear on your certificate of completion.</p>
+        <label style={S.lbl}>FULL NAME</label>
+        <input style={S.inp} type="text" placeholder="e.g., Sofia Petrov" value={nameInput}
+          onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} autoFocus />
+        <div style={{marginTop:"22px",textAlign:"right"}}>
+          <button style={S.btn} onClick={start}>Begin →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>OVERVIEW</div>
+        <h1 style={S.h1}>About This Simulation</h1>
+        <p style={S.sub}>Welcome, {studentName}</p>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}><strong>{COMPANY.name}:</strong> {COMPANY.description}</p>
+        <h2 style={S.h2}>What You Will Do</h2>
+        <p style={S.prose}>You will work through the four core stages of strategic planning: clarifying the mission, reading the environment, setting strategic goals, and prioritizing initiatives. At each stage, you will make a decision and receive immediate feedback on the quality of your reasoning.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>Read each decision carefully and select the strongest option. The choices test your ability to distinguish strategic thinking from operational thinking, and mission-aligned decisions from unfocused ones. You may retake the simulation as many times as you wish.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.btn} onClick={()=>setScreen("simulation")}>Start →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="simulation") {
+    const stage = STAGES[stageIdx];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.hdr}>
+          <div style={S.badge}>{stage.title}</div>
+          <h1 style={S.h1}>Build the Plan</h1>
+        </div>
+        <div style={S.body}>
+          <div style={S.bar}><div style={{...S.fill,width:`${(stageIdx/STAGES.length)*100}%`}}/></div>
+          <p style={{...S.prose,color:"#1e3a6e",fontWeight:"bold",fontSize:"14px",whiteSpace:"pre-line",marginBottom:"18px"}}>{stage.instruction}</p>
+          {!showRationale ? (
+            <div>
+              {stage.choices.map((c,i)=>(
+                <button key={i} style={S.opt}
+                  onMouseEnter={e=>{e.currentTarget.style.background="#edf2fb";e.currentTarget.style.borderColor="#4a6fa5";}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="#fafafa";e.currentTarget.style.borderColor="#e5e5e5";}}
+                  onClick={()=>choose(i)}>{c.text}</button>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <div style={{background:STAGES[stageIdx].choices[selected].score>=4?"#f0f8f4":"#fffaed",border:`1px solid ${STAGES[stageIdx].choices[selected].score>=4?"#4a9a6f":"#e8c060"}`,borderRadius:"2px",padding:"16px 18px",marginBottom:"16px"}}>
+                <p style={{margin:"0 0 6px",fontSize:"11px",fontWeight:"bold",color:STAGES[stageIdx].choices[selected].score>=4?"#1e5c36":"#7a5c00",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>
+                  {STAGES[stageIdx].choices[selected].score>=4?"✓ STRONG CHOICE":"△ CONSIDER THIS"}
+                </p>
+                <p style={{margin:0,fontSize:"13px",color:"#444",lineHeight:1.6}}>{STAGES[stageIdx].choices[selected].rationale}</p>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <button style={S.blue} onClick={next}>
+                  {stageIdx+1<STAGES.length?"Next Stage →":"See Results →"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div></div>
+    );
+  }
+
+  if (screen==="results") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>YOUR RESULTS</div>
+        <h1 style={S.h1}>Simulation Complete</h1>
+        <p style={S.sub}>{studentName} · Score: {score}/{MAX_SCORE}</p>
+      </div>
+      <div style={S.body}>
+        <div style={{textAlign:"center",padding:"10px 0 20px"}}>
+          <div style={{fontSize:"34px",marginBottom:"6px"}}>{score/MAX_SCORE>=0.85?"📋":"📝"}</div>
+          <div style={{fontSize:"20px",fontWeight:"bold",color:"#1e3a6e",marginBottom:"6px"}}>{grade.label}</div>
+          <div style={{fontSize:"13px",color:"#666",maxWidth:"420px",margin:"0 auto",lineHeight:1.7}}>{grade.desc}</div>
+        </div>
+        <div style={{background:"#f0f4fa",border:"1px solid #c0d0e8",borderRadius:"2px",padding:"14px 18px",marginBottom:"22px"}}>
+          <p style={{margin:"0 0 6px",fontSize:"10px",fontWeight:"bold",color:"#1e3a6e",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>STAGE BREAKDOWN</p>
+          {stageScores.map((s,i)=>(
+            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"#444",padding:"4px 0",borderBottom:i<stageScores.length-1?"1px solid #d0ddf0":"none"}}>
+              <span>{STAGES[i].title}</span>
+              <span style={{fontWeight:"bold",color:s>=4?"#2e7d4f":s>=3?"#b8860b":"#c0392b"}}>{s}/5</span>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:"12px",justifyContent:"space-between"}}>
+          <button style={S.out} onClick={restart}>Retake</button>
+          <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>LEARNING REFLECTION</div>
+        <h1 style={S.h1}>What You Have Learned</h1>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Strategic planning is not a document exercise — it is a discipline of alignment. The most common failure in organizational planning is that mission, goals, and initiatives are disconnected. Companies write inspiring mission statements that then guide nothing, or set bold goals that are funded with mismatched initiatives. This simulation tested whether you could maintain strategic coherence across all four stages.</p>
+        <h2 style={S.h2}>In Your Professional Life</h2>
+        <p style={S.prose}>When you participate in planning processes at work, you can add enormous value by asking alignment questions: Does this goal follow from what we said our mission is? Does this initiative actually serve that goal? The discipline of linking purpose to priorities to action is rarer in practice than most professionals realize, and it is often what separates high-performing organizations from ones that stay busy without making progress.</p>
+        <p style={S.prose}>You will also find that the ability to distinguish strategic thinking from operational thinking — to know the difference between "what we do" and "how we do it" — is a skill that earns credibility and influence in any organization.</p>
+        <h2 style={S.h2}>In Your Personal Life</h2>
+        <p style={S.prose}>The same four-stage logic applies to personal strategic planning: what matters to you (mission), what is changing in your context (environment scan), what you are trying to achieve in three years (goals), and what specific actions will get you there (initiatives). Most people jump straight to action without the alignment that makes action effective.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.blue} onClick={()=>setScreen("certificate")}>Get My Certificate →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"760px"}}>
+      <div style={S.hdr}>
+        <div style={S.badge}>CERTIFICATE OF COMPLETION</div>
+        <h1 style={S.h1}>Congratulations, {studentName}</h1>
+        <p style={S.sub}>Download your certificate and save it to your records.</p>
+      </div>
+      <div style={{padding:"26px 34px"}}>
+        <canvas ref={canvasRef} width={700} height={472}
+          style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"16px"}}/>
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.blue} onClick={dlPNG}>⬇ Download Image (PNG)</button>
+          <button style={S.btn} onClick={dlPDF}>⬇ Download PDF</button>
+          <button style={S.out} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"11px",color:"#bbb",marginTop:"14px",fontFamily:"Arial,sans-serif"}}>
+          Signed by{" "}<a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a>{" "}· Code: {code}
+        </p>
+      </div>
+    </div></div>
+  );
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

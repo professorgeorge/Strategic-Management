@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 14: Capstone Module · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+function generateCode() {
+  return "CAP-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+const DATE_STR = new Date().toLocaleDateString("en-US", {
+  year: "numeric", month: "long", day: "numeric",
+});
+
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+const C = {
+  navy:    "#0f2340",
+  navyMid: "#1a3a5c",
+  navyLt:  "#2a5a8c",
+  gold:    "#c9a227",
+  goldLt:  "#e2c060",
+  cream:   "#faf8f3",
+  offWhite:"#f2f0eb",
+  text:    "#1e1e2e",
+  muted:   "#5a5a72",
+  green:   "#1a6b3c",
+  amber:   "#8a6d00",
+  red:     "#8a1c1c",
+  border:  "#d8d4c8",
+};
+
+// ─── Scenario ─────────────────────────────────────────────────────────────────
+const COMPANY = {
+  name: "Halcyon Systems",
+  sector: "Enterprise Software (B2B SaaS)",
+  revenue: "$310M ARR",
+  employees: 1400,
+  context:
+    "Halcyon Systems provides cloud-based operations management software to mid-size manufacturers across North America. The company has grown steadily for a decade, but faces compounding strategic pressures: cloud-native competitors are eroding its mid-market position, an AI-driven product pivot is half-funded, two international expansion opportunities have emerged, and a recent customer satisfaction study revealed a service quality gap that is accelerating churn. The board has appointed you as Chief Strategy Officer and asked for a cohesive strategic response.",
+};
+
+// ─── Stages ───────────────────────────────────────────────────────────────────
+const STAGES = [
+  {
+    id: "analysis",
+    module: "Module 4 · Strategic Business Analysis",
+    title: "Diagnose the Situation",
+    icon: "🔍",
+    color: C.navyMid,
+    narrative:
+      "Before recommending anything, you conduct a structured strategic analysis of Halcyon. Your PESTEL scan highlights the rapid acceleration of AI adoption across manufacturing. Porter's Five Forces shows that buyer power has increased sharply as alternatives multiply. Your internal Value Chain analysis reveals that Halcyon's R&D productivity is high, but its customer success function is significantly under-resourced relative to peers.",
+    question:
+      "Based on this analysis, what is the most accurate characterisation of Halcyon's strategic position?",
+    choices: [
+      {
+        text: "Halcyon has a strong product but is losing the battle for customer retention due to a service quality deficit.",
+        score: 5,
+        feedback:
+          "Precise and evidence-grounded. High R&D productivity combined with an under-resourced customer success function is a classic pattern where product investment is not being protected by adequate post-sale support. This framing correctly connects internal evidence to the external churn signal.",
+      },
+      {
+        text: "Halcyon is fundamentally a technology laggard and must rebuild its entire product platform.",
+        score: 1,
+        feedback:
+          "Overstated. The analysis shows R&D productivity is high — the issue is not product capability but customer retention and competitive positioning. Diagnosing a rebuild when the evidence points to a service gap leads to the wrong prescription.",
+      },
+      {
+        text: "Halcyon faces too many simultaneous threats to address strategically; it should focus purely on financial stabilisation.",
+        score: 2,
+        feedback:
+          "Underambitious and analytically incomplete. Multiple pressures call for prioritised strategic action, not retreat. Purely financial stabilisation ignores the competitive dynamics that will continue to erode Halcyon's position.",
+      },
+      {
+        text: "The international expansion opportunities are the most important finding and should define the strategic agenda.",
+        score: 2,
+        feedback:
+          "Premature. International expansion before resolving a domestic service quality gap and a half-funded product pivot would stretch a 1,400-person organisation dangerously thin. Good analysis identifies sequence, not just opportunity.",
+      },
+    ],
+  },
+  {
+    id: "planning",
+    module: "Module 3 · Strategic Planning",
+    title: "Set the Strategic Direction",
+    icon: "🗺️",
+    color: "#1a4d3a",
+    narrative:
+      "With your diagnosis complete, you move into strategic planning. The CFO confirms Halcyon can fund two major initiatives over the next 18 months without accessing new capital. Three options are under consideration by the executive team.",
+    question:
+      "Which strategic planning choice best fits Halcyon's situation and resources?",
+    choices: [
+      {
+        text: "Invest fully in the AI product pivot. Being first with an AI-native platform is a winner-take-most opportunity that cannot wait.",
+        score: 2,
+        feedback:
+          "The logic is appealing but the sequencing is wrong. An AI-native product launched into a customer base that is already churning over service quality will accelerate departures, not reverse them. You cannot build on a leaking foundation.",
+      },
+      {
+        text: "Repair the customer success function first, then complete the AI pivot over the following 12 months — treating retention as the prerequisite for growth.",
+        score: 5,
+        feedback:
+          "Sound strategic sequencing. Stabilising the retention base protects the revenue that funds the product investment. This choice reflects the principle that implementation success depends on the organisational capability and trust you build before making bold external moves.",
+      },
+      {
+        text: "Pursue both international markets simultaneously with the AI product as the entry offering — growth solves most problems.",
+        score: 1,
+        feedback:
+          "This strategy asks the organisation to execute three demanding initiatives simultaneously with two initiatives worth of capital. It reflects optimism rather than analysis, and is likely to result in mediocre execution across all three fronts.",
+      },
+      {
+        text: "Commission a full strategic planning process involving all 1,400 employees before committing to any direction.",
+        score: 2,
+        feedback:
+          "Inclusive planning has real value, but at this scale and pace it becomes an obstacle. The board has appointed a CSO to provide direction. Broad involvement is appropriate at the implementation stage, not as a precondition for having a strategy at all.",
+      },
+    ],
+  },
+  {
+    id: "product",
+    module: "Module 6 · Product Strategy",
+    title: "Shape the Product Portfolio",
+    icon: "📦",
+    color: "#3d2a1a",
+    narrative:
+      "Halcyon's product portfolio contains four offerings. The flagship Operations Suite (mature, high-revenue, low growth) has funded the company for a decade. The AI Analytics Module (new, high potential, under-invested) is gaining early traction. The Legacy Reporting Tool (declining, low margin) was promised to customers in long-term contracts. A proposed Field Operations Companion (mobile product for shop-floor workers) is still in concept phase.",
+    question:
+      "Given your strategic plan, how should Halcyon manage this product portfolio over the next 18 months?",
+    choices: [
+      {
+        text: "Invest heavily across all four products to signal commitment to every customer segment.",
+        score: 1,
+        feedback:
+          "Spreading investment across four products, two of which are declining or unproven, dissipates the focus needed to execute well anywhere. Portfolio strategy is fundamentally about choosing where not to invest.",
+      },
+      {
+        text: "Retire the Legacy Reporting Tool immediately to free up resources.",
+        score: 2,
+        feedback:
+          "Directionally right but operationally dangerous. Customers with contractual commitments to that tool cannot simply be dropped. An abrupt retirement risks legal exposure and trust damage at the moment you most need customer goodwill.",
+      },
+      {
+        text: "Protect the Operations Suite (cash engine), accelerate AI Analytics (strategic bet), manage the Legacy Tool to contract expiry, and defer the Field Companion pending retention results.",
+        score: 5,
+        feedback:
+          "Disciplined portfolio management. This approach treats the product mix as a system: the cash engine funds the strategic bet, legacy commitments are honoured without over-investing in a declining product, and a premature launch of the fourth product is avoided. This reflects BCG matrix logic applied with contextual judgment.",
+      },
+      {
+        text: "Spin off the AI Analytics Module as a separate company to attract dedicated venture capital.",
+        score: 2,
+        feedback:
+          "Interesting structurally, but premature at this stage. A spin-off requires significant management bandwidth, creates integration complexity, and may fracture a product story that customers currently value as an integrated suite.",
+      },
+    ],
+  },
+  {
+    id: "implementation",
+    module: "Module 5 · Strategy Implementation",
+    title: "Execute the Plan",
+    icon: "⚙️",
+    color: "#2d1a4a",
+    narrative:
+      "Three months into your plan, the customer success rebuild is underway — you have hired eight new customer success managers and redesigned the onboarding process. Then two disruptions arrive at once: a key engineering VP resigns, taking institutional knowledge of the AI product's core architecture, and a major customer (representing 6% of ARR) signals it is evaluating a competitor at contract renewal.",
+    question:
+      "How do you respond to these simultaneous implementation disruptions?",
+    choices: [
+      {
+        text: "Pause the AI product investment until the engineering VP is replaced. Execution quality matters more than speed.",
+        score: 3,
+        feedback:
+          "A reasonable instinct, but too conservative. A full pause allows competitors to close the gap during a period when the market is moving fast. The better move is a structured continuation with interim knowledge capture and governance.",
+      },
+      {
+        text: "Personally take over the at-risk customer account, delay all other decisions until that renewal is secured.",
+        score: 2,
+        feedback:
+          "The at-risk account deserves senior attention, but a CSO redirecting all bandwidth to a single customer creates organisational paralysis. Strategic leaders delegate account escalation to capable commercial leaders while maintaining oversight.",
+      },
+      {
+        text: "Conduct an immediate knowledge-transfer sprint with the departing VP, assign an interim AI product lead, and deploy a senior executive to co-create a retention plan with the at-risk customer — addressing both in parallel.",
+        score: 5,
+        feedback:
+          "Effective implementation leadership. You protect institutional knowledge before it walks out the door, maintain strategic continuity with clear interim accountability, and treat the at-risk customer as a signal about the broader service quality issue — not just a single account to be managed.",
+      },
+      {
+        text: "Treat both disruptions as evidence that the strategy is wrong and bring new options back to the board.",
+        score: 1,
+        feedback:
+          "Premature escalation. Disruptions during implementation are normal, not diagnostic of strategic error. A strategy that is abandoned at the first implementation difficulty was never truly committed to. Good strategic leaders distinguish between a failed strategy and a bumpy execution.",
+      },
+    ],
+  },
+  {
+    id: "partnership",
+    module: "Module 8 · Strategic Partnerships",
+    title: "Evaluate a Partnership Opportunity",
+    icon: "🤝",
+    color: "#1a3d2d",
+    narrative:
+      "A global ERP vendor, Stratos Inc., approaches Halcyon with a partnership proposal. They want to bundle Halcyon's Operations Suite into their enterprise contracts in exchange for a revenue share and co-development commitment on the AI module. It would provide immediate distribution scale but require Halcyon to share proprietary AI architecture and accept pricing controls on bundled deals.",
+    question:
+      "How do you assess and respond to this partnership opportunity?",
+    choices: [
+      {
+        text: "Accept immediately. Distribution scale at this stage is worth almost any trade-off.",
+        score: 1,
+        feedback:
+          "Undisciplined. Sharing proprietary AI architecture with a much larger partner before your AI product is mature is a structurally dangerous concession. Once the architecture is shared, your differentiation is compromised and your negotiating leverage diminishes permanently.",
+      },
+      {
+        text: "Decline. Halcyon should protect its independence and build its own distribution.",
+        score: 2,
+        feedback:
+          "Independent distribution is a legitimate long-term ambition, but building it from scratch while managing a retention crisis and a product pivot is likely to overextend the organisation. A blanket refusal may leave value on the table.",
+      },
+      {
+        text: "Engage Stratos in structured negotiation — accept distribution and co-development on the AI module, but carve out core architectural IP, sunset the pricing control clause after 24 months, and insert a mutual exit clause. Sign only after legal review.",
+        score: 5,
+        feedback:
+          "Strategic partnership management. You capture the distribution value, advance the AI roadmap with a resourced co-development partner, and protect the long-term negotiating position by limiting IP exposure and building an exit mechanism. This reflects the principle that partnership value is determined by the terms, not by whether you partner.",
+      },
+      {
+        text: "Counter-propose that Halcyon acquires a minority stake in Stratos as a condition of the deal.",
+        score: 2,
+        feedback:
+          "Creative but structurally mismatched. A company of Halcyon's size acquiring equity in a global ERP vendor is unlikely to be welcomed, is capital-intensive, and introduces governance complexity that distracts from the core strategic agenda.",
+      },
+    ],
+  },
+  {
+    id: "global",
+    module: "Module 9 · Global Strategy",
+    title: "Consider International Expansion",
+    icon: "🌍",
+    color: "#1c3a52",
+    narrative:
+      "With the Stratos partnership in negotiation, the board revisits the two international opportunities that surfaced earlier: (A) Germany — a large, mature market with strong manufacturing sector demand, high regulatory complexity, and established local competitors; and (B) Mexico — a growing nearshoring market, lower regulatory barriers, significant price sensitivity, and underdeveloped SaaS adoption among manufacturers.",
+    question:
+      "Given Halcyon's current strategic position, what is the right international posture?",
+    choices: [
+      {
+        text: "Enter Germany first. The market is large and Halcyon's enterprise product is well-suited to mature manufacturing buyers.",
+        score: 3,
+        feedback:
+          "Germany offers genuine strategic fit, but it also demands localisation, regulatory compliance investment, and a local presence that is expensive to build from a standing start. Entering a complex market while managing a domestic retention recovery and a product pivot is a high resource demand.",
+      },
+      {
+        text: "Enter Mexico first as a learning market — lower barriers allow Halcyon to build international operational capability before tackling regulatory complexity.",
+        score: 4,
+        feedback:
+          "Sensible sequencing. Mexico provides an opportunity to develop international muscle — local partnerships, support infrastructure, contract structures — at lower cost and complexity before committing to the more demanding German market. This reflects staged internationalisation logic.",
+      },
+      {
+        text: "Use the Stratos partnership as the international entry vehicle — let them carry Halcyon into both markets as part of the bundle.",
+        score: 5,
+        feedback:
+          "Strategically elegant at this stage. If the Stratos partnership is structured well, it provides distribution in markets where Stratos already operates without requiring Halcyon to build independent infrastructure. This is a resource-efficient entry mode that converts a partnership into a market access lever.",
+      },
+      {
+        text: "Defer all international expansion for at least three years until the domestic strategy is fully stabilised.",
+        score: 2,
+        feedback:
+          "Overcautious. If the Stratos partnership includes international distribution, deferral means declining value that the partnership itself is already delivering. Strategy should be opportunistic within a disciplined framework, not sequentially rigid.",
+      },
+    ],
+  },
+  {
+    id: "technology",
+    module: "Module 10 & 11 · Technology and AI Strategy",
+    title: "Make the AI Investment Decision",
+    icon: "🤖",
+    color: "#0f2340",
+    narrative:
+      "The AI Analytics Module is Halcyon's most strategically important investment. The product team presents two development paths: Path 1 builds a proprietary AI model trained on Halcyon's unique dataset of 10 years of manufacturing operations data. Path 2 integrates a leading third-party AI foundation model (API-based) with a Halcyon-built application layer on top. Path 1 offers stronger long-term differentiation but is 18 months from market. Path 2 can reach customers in 6 months but creates dependency on a third-party provider.",
+    question:
+      "Which AI development path does Halcyon pursue, and why?",
+    choices: [
+      {
+        text: "Path 1 exclusively. Proprietary AI is the only durable source of competitive advantage in this space.",
+        score: 3,
+        feedback:
+          "Strategically sound in the long run, but 18 months is a long time when customers are churning and competitors are shipping. An exclusively proprietary path misses the 6-month window to stabilise at-risk accounts with an AI-enhanced product.",
+      },
+      {
+        text: "Path 2 exclusively. Speed to market matters more than differentiation at this stage.",
+        score: 3,
+        feedback:
+          "Reasonable for near-term retention but creates strategic risk. A third-party API dependency means Halcyon's pricing, reliability, and feature roadmap are partially controlled by another company — exactly the kind of structural weakness that creates long-term vulnerability.",
+      },
+      {
+        text: "Hybrid approach: launch Path 2 within 6 months to address immediate customer retention and competitive positioning, while funding the Path 1 proprietary model in parallel to deliver 18 months out — treating them as sequential moats, not alternatives.",
+        score: 5,
+        feedback:
+          "Technology strategy at its best. The hybrid path uses a third-party foundation to capture near-term value and stabilise customers while building the proprietary capability that will eventually make the product difficult to replicate. This is how most successful AI product companies have built defensible positions.",
+      },
+      {
+        text: "Pause AI investment entirely until the retention crisis is fully resolved. Distraction is the enemy of execution.",
+        score: 1,
+        feedback:
+          "The AI product is part of the retention solution, not separate from it. Halcyon is churning in part because customers perceive its roadmap as less competitive than AI-native alternatives. Pausing the investment that addresses that perception accelerates the problem.",
+      },
+    ],
+  },
+  {
+    id: "risk",
+    module: "Module 12 · Risk Management Strategy",
+    title: "Manage Strategic Risk",
+    icon: "⚠️",
+    color: "#3d1a1a",
+    narrative:
+      "Your strategy is now in motion. Risk management surfaces three significant threats: (1) the Stratos partnership could give a larger company visibility into Halcyon's customer relationships; (2) the AI Analytics module's training data includes customer operational data, raising potential privacy compliance questions in new international markets; (3) the customer success rebuild requires 14 new hires in a competitive talent market, and the plan stalls if fewer than 10 are in place within 60 days.",
+    question:
+      "Which risk mitigation approach reflects strong strategic risk management?",
+    choices: [
+      {
+        text: "Treat these as operational risks and delegate all three to the relevant functional heads without further executive involvement.",
+        score: 2,
+        feedback:
+          "Strategic risks need executive visibility, not just functional ownership. These three risks each have the potential to unwind core strategic choices — the partnership, the AI product, and the retention plan. Delegating without oversight is abdication, not empowerment.",
+      },
+      {
+        text: "For each risk, define the specific trigger that would require escalation, assign a named owner, and set a review cadence — without trying to eliminate the risks, which would mean abandoning the strategy.",
+        score: 5,
+        feedback:
+          "This is risk management as a strategic discipline rather than a compliance exercise. You are not trying to achieve zero risk — that would require zero action. You are defining acceptable risk tolerance, creating early-warning triggers, and maintaining the strategic momentum that the plan requires.",
+      },
+      {
+        text: "Pause the Stratos negotiation and the international expansion until a full risk audit is complete.",
+        score: 2,
+        feedback:
+          "Risk audits have value, but pausing live negotiations to conduct them signals indecision to the partner and delays value capture. Risk management should run in parallel with strategic action, not ahead of it.",
+      },
+      {
+        text: "Eliminate the highest risk by restructuring the Stratos deal to remove all customer data access provisions, even if it reduces the partnership's value.",
+        score: 3,
+        feedback:
+          "Protecting customer data is non-negotiable, but restructuring the entire deal without testing what Stratos will accept is pre-emptive concession. Negotiate protections first; restructure only if Stratos insists on terms that are genuinely unacceptable.",
+      },
+    ],
+  },
+  {
+    id: "futures",
+    module: "Module 13 · Futuristic Views on Strategy",
+    title: "Look to the Future",
+    icon: "🔭",
+    color: "#1a1a3d",
+    narrative:
+      "The board asks you to end your strategic review with a ten-year view. Two critical uncertainties dominate the horizon: (A) the pace of AI commoditisation — will AI capabilities remain differentiating, or will they become table stakes available to all competitors equally? And (B) the structure of the manufacturing sector — will mid-size manufacturers consolidate into fewer, larger entities (reducing Halcyon's addressable market count) or fragment further as nearshoring and reshoring creates more, smaller production sites?",
+    question:
+      "Which scenario-based strategic posture best positions Halcyon for the range of futures ahead?",
+    choices: [
+      {
+        text: "Plan only for the most likely future: AI commoditises and manufacturing consolidates. Build toward serving large enterprise manufacturers with a platform play.",
+        score: 2,
+        feedback:
+          "Planning for a single future is not scenario thinking — it is a forecast dressed as strategy. If the actual future differs from your assumed one, the organisation has no prepared response. Scenario planning's value lies in building robustness across multiple futures, not betting on one.",
+      },
+      {
+        text: "Identify the two or three strategic moves that remain sound across all four possible combinations of the two uncertainties — and build Halcyon's ten-year plan around those 'robust' moves.",
+        score: 5,
+        feedback:
+          "This is the core discipline of scenario planning applied correctly. Moves that are valuable whether AI commoditises or not, and whether manufacturing consolidates or fragments, are by definition strategically robust. They reduce the risk that a strategic plan becomes worthless when the environment shifts — which it always does.",
+      },
+      {
+        text: "Commission a futures research team to produce a single, consensus long-range forecast and plan against that.",
+        score: 2,
+        feedback:
+          "Consensus forecasts are comfortable and frequently wrong. The value of futures thinking is not accuracy — no one can accurately forecast a decade out. It is preparation for multiple possibilities, so that when reality reveals itself, the organisation has thought ahead of the moment.",
+      },
+      {
+        text: "Deprioritise futures thinking at this stage — the near-term strategy is what matters and long-range planning is speculative.",
+        score: 1,
+        feedback:
+          "Near-term and long-term thinking must coexist. The AI investment decision you made earlier, for example, already assumed something about where AI will be in five years. Strategy is always implicitly about the future; the question is whether those assumptions are surfaced and tested or left unexamined.",
+      },
+    ],
+  },
+];
+
+const MAX_SCORE = STAGES.length * 5;
+
+function getGrade(score) {
+  const pct = (score / MAX_SCORE) * 100;
+  if (pct >= 88) return { label: "Strategic Leader", tier: "Distinction", color: C.green, note: "Your decisions reflect integrated, long-view, and contextually precise strategic thinking across all domains." };
+  if (pct >= 72) return { label: "Strategic Manager", tier: "Merit", color: C.navyMid, note: "You demonstrate sound strategic judgment with selective areas for further development." };
+  if (pct >= 55) return { label: "Developing Strategist", tier: "Proficient", color: "#6b5500", note: "You show promising instincts. Further practice with integrative and long-range thinking will sharpen your edge." };
+  return { label: "Strategic Learner", tier: "Foundational", color: C.red, note: "This is a strong starting point. Revisit the modules where your choices diverged from best practice and retake the simulation." };
+}
+
+// ─── Certificate drawing ───────────────────────────────────────────────────────
+function drawCertificate(canvas, studentName, grade, score, completionCode) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // Background with subtle texture
+  ctx.fillStyle = "#f9f7f2";
+  ctx.fillRect(0, 0, W, H);
+
+  // Decorative background geometry
+  ctx.fillStyle = "rgba(201,162,39,0.04)";
+  ctx.beginPath();
+  ctx.moveTo(0, H); ctx.lineTo(W * 0.45, 0); ctx.lineTo(W, 0); ctx.lineTo(W, H);
+  ctx.closePath();
+  ctx.fill();
+
+  // Outer border
+  ctx.strokeStyle = C.gold;
+  ctx.lineWidth = 7;
+  ctx.strokeRect(16, 16, W - 32, H - 32);
+
+  // Inner border
+  ctx.strokeStyle = C.navy;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+
+  // Corners
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y]) => {
+    ctx.fillStyle = C.gold;
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = C.navy;
+    ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Header band
+  const hg = ctx.createLinearGradient(0, 48, 0, 132);
+  hg.addColorStop(0, C.navy); hg.addColorStop(1, "#081828");
+  ctx.fillStyle = hg;
+  ctx.fillRect(28, 48, W - 56, 88);
+
+  // Gold accent line under header
+  ctx.fillStyle = C.gold;
+  ctx.fillRect(28, 136, W - 56, 3);
+
+  // Header text
+  ctx.fillStyle = C.gold;
+  ctx.font = "bold 13px 'Georgia', serif";
+  ctx.textAlign = "center";
+  ctx.fillText("MBA STRATEGIC MANAGEMENT  ·  CAPSTONE MODULE", W/2, 78);
+
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "12px Georgia";
+  ctx.fillText("Strategic Management Certificate Program", W/2, 104);
+
+  ctx.fillStyle = C.goldLt;
+  ctx.font = "italic 11px Georgia";
+  ctx.fillText("Integrative Simulation Across All Strategic Domains", W/2, 124);
+
+  // Title
+  ctx.fillStyle = C.navy;
+  ctx.font = "bold 26px Georgia";
+  ctx.fillText("Certificate of Completion", W/2, 174);
+
+  // Ornamental lines flanking title
+  ctx.strokeStyle = C.gold; ctx.lineWidth = 1;
+  [[W/2-190, W/2-80],[W/2+80, W/2+190]].forEach(([a,b]) => {
+    ctx.beginPath(); ctx.moveTo(a, 178); ctx.lineTo(b, 178); ctx.stroke();
+  });
+
+  // Presented to
+  ctx.fillStyle = C.muted;
+  ctx.font = "13px Georgia";
+  ctx.fillText("This certifies that", W/2, 210);
+
+  // Name
+  ctx.fillStyle = C.navy;
+  ctx.font = "bold 34px Georgia";
+  ctx.fillText(studentName, W/2, 260);
+
+  const nw = ctx.measureText(studentName).width;
+  ctx.strokeStyle = C.gold; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(W/2-nw/2, 268); ctx.lineTo(W/2+nw/2, 268);
+  ctx.stroke();
+
+  // Module description
+  ctx.fillStyle = C.muted;
+  ctx.font = "13px Georgia";
+  ctx.fillText("has successfully completed all stages of the capstone micro-simulation for", W/2, 296);
+
+  ctx.fillStyle = C.navy;
+  ctx.font = "bold 16px Georgia";
+  ctx.fillText("Module 14: Capstone Module  ·  Strategic Management Integration", W/2, 322);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 344);
+
+  // Performance tier box
+  const bx = W/2-130, by = 338, bw = 260, bh = 36;
+  ctx.fillStyle = grade.color;
+  ctx.beginPath();
+  ctx.roundRect(bx, by, bw, bh, 3);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 13px Georgia";
+  ctx.fillText(`${grade.tier}  ·  ${grade.label}  ·  Score: ${score}/${MAX_SCORE}`, W/2, 361);
+
+  // Divider
+  ctx.strokeStyle = C.gold; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(70, 390); ctx.lineTo(W-70, 390);
+  ctx.stroke();
+
+  // Signature left
+  ctx.strokeStyle = "#bbb"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(95, 418); ctx.lineTo(305, 418); ctx.stroke();
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = C.navy; ctx.font = "bold 13px Georgia";
+  ctx.fillText("Professor Babu George", 95, 434);
+  ctx.fillStyle = "#1565c0"; ctx.font = "12px Georgia";
+  ctx.fillText("linkedin.com/in/beingbabu", 95, 450);
+  ctx.fillStyle = C.muted; ctx.font = "10px Georgia";
+  ctx.fillText("Instructor, MBA Strategic Management", 95, 464);
+
+  // Date and code right
+  ctx.textAlign = "right";
+  ctx.strokeStyle = "#bbb"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(W-305, 418); ctx.lineTo(W-95, 418); ctx.stroke();
+
+  ctx.fillStyle = C.muted; ctx.font = "10px Georgia";
+  ctx.fillText("Date of Completion", W-95, 430);
+  ctx.fillStyle = C.navy; ctx.font = "bold 12px Georgia";
+  ctx.fillText(DATE_STR, W-95, 446);
+  ctx.fillStyle = C.muted; ctx.font = "10px Georgia";
+  ctx.fillText("Completion Code", W-95, 460);
+  ctx.fillStyle = "#666"; ctx.font = "11px Georgia";
+  ctx.fillText(completionCode, W-95, 474);
+
+  // Seal
+  ctx.textAlign = "center";
+  ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.arc(W/2, 432, 38, 0, Math.PI*2);
+  ctx.fillStyle = C.navy; ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.arc(W/2, 432, 36, 0, Math.PI*2);
+  ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2, 432, 30, 0, Math.PI*2);
+  ctx.strokeStyle = C.goldLt; ctx.lineWidth = 0.8; ctx.stroke();
+  ctx.fillStyle = C.gold; ctx.font = "bold 10px Georgia";
+  ctx.fillText("FHSU", W/2, 428);
+  ctx.fillStyle = C.goldLt; ctx.font = "bold 8px Georgia";
+  ctx.fillText("CAPSTONE", W/2, 440);
+
+  // Footer
+  ctx.fillStyle = "#aaa"; ctx.font = "10px Georgia";
+  ctx.fillText("Strategic Management Certificate Program  ·  Module 14: Capstone", W/2, H-36);
+}
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const S = {
+  page: {
+    minHeight:"100vh",
+    background:`linear-gradient(150deg, ${C.navy} 0%, #0d1f36 40%, #091524 100%)`,
+    display:"flex", alignItems:"center", justifyContent:"center",
+    fontFamily:"Georgia, serif", padding:"24px",
+  },
+  card: {
+    background:"rgba(250,248,243,0.98)", borderRadius:"3px",
+    maxWidth:"720px", width:"100%",
+    boxShadow:"0 30px 80px rgba(0,0,0,0.5)",
+    overflow:"hidden",
+  },
+  header: (color=C.navyMid) => ({
+    background:`linear-gradient(135deg, ${color}, ${C.navy})`,
+    padding:"28px 36px 22px",
+    borderBottom:`3px solid ${C.gold}`,
+  }),
+  badge: {
+    display:"inline-block",
+    background:"rgba(201,162,39,0.18)",
+    border:`1px solid ${C.gold}`,
+    color:C.gold, fontSize:"10px", letterSpacing:"2px",
+    padding:"3px 10px", marginBottom:"10px",
+    fontFamily:"Arial, sans-serif",
+  },
+  h1: { color:"#fff", fontSize:"21px", margin:0, fontWeight:"normal", lineHeight:1.4 },
+  sub: { color:"rgba(255,255,255,0.55)", fontSize:"12px", marginTop:"5px", fontFamily:"Arial, sans-serif" },
+  body: { padding:"32px 36px" },
+  prose: { color:"#3a3a4a", fontSize:"14.5px", lineHeight:1.85, marginBottom:"14px" },
+  h2: { color:C.navy, fontSize:"16px", marginBottom:"12px", marginTop:"22px", letterSpacing:"0.2px" },
+  btn: (bg=C.navyMid, color="#fff") => ({
+    background:bg, color, border:"none",
+    padding:"12px 28px", fontSize:"14px",
+    fontFamily:"Georgia, serif", cursor:"pointer",
+    borderRadius:"2px", letterSpacing:"0.4px",
+  }),
+  btnGold: {
+    background:`linear-gradient(135deg, ${C.gold}, ${C.goldLt})`,
+    color:C.navy, border:"none",
+    padding:"13px 28px", fontSize:"14px",
+    fontFamily:"Georgia, serif", cursor:"pointer",
+    borderRadius:"2px", fontWeight:"bold",
+  },
+  btnOutline: {
+    background:"transparent", color:C.navy,
+    border:`2px solid ${C.navy}`,
+    padding:"11px 22px", fontSize:"13px",
+    fontFamily:"Georgia, serif", cursor:"pointer", borderRadius:"2px",
+  },
+  input: {
+    width:"100%", padding:"13px 15px",
+    fontSize:"15px", fontFamily:"Georgia, serif",
+    border:`2px solid ${C.border}`, borderRadius:"2px",
+    outline:"none", boxSizing:"border-box", color:C.text,
+  },
+  optionBtn: {
+    width:"100%", background:"#f7f5f0",
+    border:`1.5px solid ${C.border}`, borderRadius:"2px",
+    padding:"13px 17px", marginBottom:"9px",
+    textAlign:"left", fontSize:"13.5px",
+    fontFamily:"Georgia, serif", cursor:"pointer",
+    color:C.text, lineHeight:1.55, transition:"all 0.15s",
+  },
+  progress: { height:"4px", background:"#e8e4d8", marginBottom:"22px", borderRadius:"2px" },
+  pill: (bg) => ({
+    display:"inline-block", background:bg, color:"#fff",
+    fontSize:"11px", padding:"3px 10px", borderRadius:"2px",
+    fontFamily:"Arial, sans-serif", letterSpacing:"1px", marginBottom:"8px",
+  }),
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+function AppComponent() {
+  const [screen, setScreen]         = useState("welcome");
+  const [nameInput, setNameInput]   = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [stageIdx, setStageIdx]     = useState(0);
+  const [score, setScore]           = useState(0);
+  const [stageScores, setStageScores] = useState([]);
+  const [selected, setSelected]     = useState(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  const code = useRef(generateCode()).current;
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (screen === "certificate" && canvasRef.current) {
+      drawCertificate(canvasRef.current, studentName, getGrade(score), score, code);
+      try{localStorage.setItem('smcp_module_14',JSON.stringify({name:studentName,code:code,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}
+    }
+  }, [screen]);
+
+  function start() {
+    if (!nameInput.trim()) return;
+    setStudentName(nameInput.trim());
+    setScreen("overview");
+  }
+
+  function beginSim() {
+    setStageIdx(0); setScore(0); setStageScores([]);
+    setSelected(null); setShowFeedback(false);
+    setScreen("simulation");
+  }
+
+  function choose(idx) {
+    setSelected(idx); setShowFeedback(true);
+  }
+
+  function advance() {
+    const stage = STAGES[stageIdx];
+    const pts = stage.choices[selected].score;
+    const newScore = score + pts;
+    const newStageScores = [...stageScores, pts];
+    setScore(newScore);
+    setStageScores(newStageScores);
+    setSelected(null);
+    setShowFeedback(false);
+    if (stageIdx + 1 < STAGES.length) {
+      setStageIdx(stageIdx + 1);
+    } else {
+      setScreen("results");
+    }
+  }
+
+  function downloadPNG() {
+    const link = document.createElement("a");
+    link.download = `Certificate_Module14_${studentName.replace(/\s+/g,"-")}.png`;
+    link.href = canvasRef.current.toDataURL("image/png");
+    link.click();
+  }
+
+  function downloadPDF() {
+    const dataUrl = canvasRef.current.toDataURL("image/png");
+    const html = `<!DOCTYPE html><html><head><title>Certificate</title><style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;}
+      img{max-width:100%;height:auto;}
+      @media print{body{margin:0;}img{width:100%;page-break-inside:avoid;}}
+    </style></head><body><img src="${dataUrl}" onload="window.print()"/></body></html>`;
+    window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank");
+  }
+
+  // ── Screens ──────────────────────────────────────────────────────────────────
+
+  if (screen === "welcome") return (
+    <div style={S.page}>
+      <div style={S.card}>
+        <div style={S.header()}>
+          <div style={S.badge}>MODULE 14 · CAPSTONE</div>
+          <h1 style={S.h1}>The Strategy Board: Integrative Simulation</h1>
+          <p style={S.sub}>MBA Strategic Management</p>
+        </div>
+        <div style={S.body}>
+          <p style={S.prose}>
+            Welcome to the capstone micro-simulation. This final exercise draws on all fourteen modules of the course, placing you in a single strategic scenario that evolves across nine decision stages — each anchored in a distinct domain of strategic management.
+          </p>
+          <p style={S.prose}>
+            To begin, please enter your full name as you would like it to appear on your certificate of completion.
+          </p>
+          <label style={{fontSize:"11px",color:C.muted,fontFamily:"Arial,sans-serif",letterSpacing:"1px",marginBottom:"7px",display:"block"}}>FULL NAME</label>
+          <input
+            style={S.input}
+            placeholder="e.g., Jordan Mensah"
+            value={nameInput}
+            onChange={e=>setNameInput(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&start()}
+          />
+          <div style={{marginTop:"24px",textAlign:"right"}}>
+            <button style={S.btn()} onClick={start}>Begin Simulation →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (screen === "overview") return (
+    <div style={S.page}>
+      <div style={S.card}>
+        <div style={S.header()}>
+          <div style={S.badge}>OVERVIEW · MODULE 14</div>
+          <h1 style={S.h1}>About This Simulation</h1>
+          <p style={S.sub}>Welcome, {studentName}</p>
+        </div>
+        <div style={S.body}>
+          <h2 style={S.h2}>The Scenario</h2>
+          <p style={S.prose}>
+            You are the newly appointed Chief Strategy Officer at <strong>Halcyon Systems</strong>, a $310M ARR enterprise SaaS company serving the North American manufacturing sector. The company faces compounding strategic pressures across competitive position, product investment, customer retention, partnership opportunities, international expansion, technology choices, and risk exposure.
+          </p>
+          <p style={S.prose}>
+            The board expects you to navigate Halcyon through a complete strategic management cycle, making nine key decisions across the domains covered in this course.
+          </p>
+          <h2 style={S.h2}>How to Complete It</h2>
+          <p style={S.prose}>
+            Each stage presents the evolving situation, a strategic question, and four response options. Select the option that best reflects sound strategic judgment given the context. After each choice, you will receive a detailed rationale. You may retake the simulation unlimited times. When you are done, a reflection screen explains the key learning takeaways before your certificate is generated.
+          </p>
+          <div style={{background:"#f0f4f8",border:`1px solid ${C.border}`,padding:"14px 18px",borderRadius:"2px",marginBottom:"8px"}}>
+            <p style={{margin:0,fontSize:"13px",color:C.muted,fontFamily:"Arial,sans-serif"}}>
+              <strong style={{color:C.navy}}>Modules covered:</strong> Strategic Thinking · Strategic Planning · Business Analysis · Strategy Implementation · Product Strategy · Strategic Partnerships · Global Strategy · Technology Strategy · AI Strategy · Risk Management · Futuristic Views
+            </p>
+          </div>
+          <div style={{textAlign:"right",marginTop:"20px"}}>
+            <button style={S.btnGold} onClick={beginSim}>Start the Simulation →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (screen === "simulation") {
+    const stage = STAGES[stageIdx];
+    const pct = (stageIdx / STAGES.length) * 100;
+    return (
+      <div style={S.page}>
+        <div style={S.card}>
+          <div style={S.header(stage.color)}>
+            <div style={S.badge}>{stage.icon} {stage.module}</div>
+            <h1 style={S.h1}>{stage.title}</h1>
+            <p style={S.sub}>Stage {stageIdx+1} of {STAGES.length}  ·  {studentName}</p>
+          </div>
+          <div style={S.body}>
+            <div style={S.progress}>
+              <div style={{height:"100%",background:C.gold,borderRadius:"2px",width:pct+"%",transition:"width 0.3s"}}/>
+            </div>
+
+            {/* Company context (only on first stage) */}
+            {stageIdx === 0 && (
+              <div style={{background:"#f0f4f0",border:`1px solid #c0d8c0`,padding:"14px 18px",borderRadius:"2px",marginBottom:"18px"}}>
+                <p style={{margin:0,fontSize:"12px",fontWeight:"bold",color:"#2a5a3a",fontFamily:"Arial,sans-serif",marginBottom:"6px"}}>YOUR COMPANY</p>
+                <p style={{margin:0,fontSize:"13.5px",color:C.text,lineHeight:1.7}}>{COMPANY.context}</p>
+              </div>
+            )}
+
+            <p style={{...S.prose, background:"#f7f5ef", border:`1px solid ${C.border}`, padding:"13px 16px", borderRadius:"2px", marginBottom:"18px"}}>{stage.narrative}</p>
+
+            <p style={{...S.prose, fontWeight:"bold", color:C.navy, fontSize:"15px"}}>{stage.question}</p>
+
+            <div style={{marginTop:"14px"}}>
+              {stage.choices.map((ch, i) => {
+                let bg = "#f7f5f0", border = `1.5px solid ${C.border}`;
+                if (showFeedback && selected === i) {
+                  const s = ch.score;
+                  bg = s===5?"#eafbf0":s>=3?"#fff8e0":"#fdecea";
+                  border = s===5?"2px solid #27ae60":s>=3?"2px solid #f39c12":"2px solid #c0392b";
+                }
+                return (
+                  <button
+                    key={i}
+                    disabled={showFeedback}
+                    style={{...S.optionBtn, background:bg, border}}
+                    onMouseEnter={e=>{ if(!showFeedback){e.currentTarget.style.background="#eef2ff";e.currentTarget.style.borderColor=C.navyMid;}}}
+                    onMouseLeave={e=>{ if(!showFeedback){e.currentTarget.style.background="#f7f5f0";e.currentTarget.style.borderColor=C.border;}}}
+                    onClick={()=>choose(i)}
+                  >
+                    <span style={{display:"block"}}>{ch.text}</span>
+                    {showFeedback && selected===i && (
+                      <span style={{display:"block",marginTop:"8px",fontSize:"12.5px",color:C.text,fontStyle:"italic",borderTop:"1px solid rgba(0,0,0,0.08)",paddingTop:"8px"}}>
+                        {ch.feedback}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {showFeedback && (
+              <div style={{textAlign:"right",marginTop:"12px"}}>
+                <button style={S.btn()} onClick={advance}>
+                  {stageIdx+1 < STAGES.length ? "Next Stage →" : "View Results →"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === "results") {
+    const grade = getGrade(score);
+    return (
+      <div style={S.page}>
+        <div style={S.card}>
+          <div style={{background:`linear-gradient(135deg, ${grade.color}, #0a1828)`, padding:"28px 36px 22px", borderBottom:`3px solid ${C.gold}`}}>
+            <div style={S.badge}>YOUR RESULTS · MODULE 14</div>
+            <h1 style={S.h1}>{grade.tier}: {grade.label}</h1>
+            <p style={S.sub}>Score: {score} / {MAX_SCORE}  ·  {studentName}</p>
+          </div>
+          <div style={S.body}>
+            <p style={S.prose}>{grade.note}</p>
+
+            <h2 style={S.h2}>Stage-by-Stage Performance</h2>
+            <div style={{marginBottom:"22px"}}>
+              {STAGES.map((st, i) => {
+                const pts = stageScores[i];
+                const barColor = pts===5?C.green:pts>=3?C.gold:C.red;
+                return (
+                  <div key={i} style={{display:"flex",alignItems:"center",marginBottom:"8px",gap:"12px"}}>
+                    <span style={{fontSize:"12px",color:C.muted,width:"32px",textAlign:"right",flexShrink:0}}>{st.icon}</span>
+                    <span style={{fontSize:"12px",color:C.navy,flex:1,lineHeight:1.4}}>{st.title}</span>
+                    <div style={{width:"100px",height:"8px",background:"#e8e4d8",borderRadius:"2px",flexShrink:0}}>
+                      <div style={{width:`${(pts/5)*100}%`,height:"100%",background:barColor,borderRadius:"2px",transition:"width 0.5s"}}/>
+                    </div>
+                    <span style={{fontSize:"12px",color:barColor,fontWeight:"bold",width:"32px",flexShrink:0}}>{pts}/5</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{display:"flex",gap:"12px",justifyContent:"space-between"}}>
+              <button style={S.btnOutline} onClick={beginSim}>Retake Simulation</button>
+              <button style={S.btn()} onClick={()=>setScreen("reflection")}>Continue →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === "reflection") return (
+    <div style={S.page}>
+      <div style={S.card}>
+        <div style={S.header()}>
+          <div style={S.badge}>LEARNING REFLECTION · MODULE 14</div>
+          <h1 style={S.h1}>What You Have Learned and How to Use It</h1>
+        </div>
+        <div style={S.body}>
+          <h2 style={S.h2}>The Core Insight of the Capstone</h2>
+          <p style={S.prose}>
+            Strategic management is not a collection of separate frameworks applied in sequence. It is a discipline of integrated, simultaneous judgment. In this simulation, your choice in the analysis stage shaped what was available in planning; your planning choice determined what implementation demanded of you; your implementation decisions set the context for the partnership and technology choices that followed. This is how strategy actually works in practice — decisions are never isolated.
+          </p>
+
+          <h2 style={S.h2}>As a Professional</h2>
+          <p style={S.prose}>
+            Whether you work in a large corporation, a growth-stage business, a public organisation, or a family enterprise, the same integrative logic applies. The strategic leaders who consistently outperform are those who hold near-term execution and long-term positioning simultaneously, who treat analytical frameworks as lenses rather than checklists, and who understand that strategy lives or dies in implementation. This course has given you the vocabulary, the frameworks, and — through these simulations — the practised intuition to function as one of those leaders.
+          </p>
+
+          <h2 style={S.h2}>In Personal Life</h2>
+          <p style={S.prose}>
+            The same principles that make organisations strategic make individuals strategic. Understanding your own competitive position, making deliberate choices about where to invest your time and energy, building alliances, managing risk with clear triggers, and holding a long-range view of where you want to be — these are life skills as much as professional ones. The strategist's mindset is not something you leave at the office.
+          </p>
+
+          <div style={{background:"#f0f4f0",border:`1px solid #c0d8c0`,padding:"14px 18px",borderRadius:"2px",marginBottom:"24px"}}>
+            <p style={{margin:0,fontSize:"13.5px",color:"#2a5a3a",lineHeight:1.7}}>
+              <strong>A final note:</strong> The most important outcome of this course is not that you can recall frameworks, but that you have developed the habit of standing above the immediate pressure and asking: what is actually going on here, what are my real options, and what decision today will I be most glad I made in five years?
+            </p>
+          </div>
+
+          <div style={{textAlign:"right"}}>
+            <button style={S.btnGold} onClick={()=>setScreen("certificate")}>Download Your Certificate →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (screen === "certificate") {
+    const grade = getGrade(score);
+    return (
+      <div style={S.page}>
+        <div style={{...S.card, maxWidth:"820px"}}>
+          <div style={S.header()}>
+            <div style={S.badge}>CERTIFICATE OF COMPLETION · MODULE 14</div>
+            <h1 style={S.h1}>Congratulations, {studentName}</h1>
+            <p style={S.sub}>Download your certificate and save it to your records or share it as you wish.</p>
+          </div>
+          <div style={{padding:"28px 36px"}}>
+            <canvas
+              ref={canvasRef}
+              width={800}
+              height={540}
+              style={{width:"100%",border:`1px solid ${C.border}`,display:"block",marginBottom:"20px"}}
+            />
+            <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+              <button style={S.btnGold} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+              <button style={S.btn()} onClick={downloadPDF}>⬇ Download as PDF</button>
+              <button style={S.btnOutline} onClick={beginSim}>Retake Simulation</button>
+            </div>
+            <p style={{textAlign:"center",fontSize:"11px",color:"#999",marginTop:"14px",fontFamily:"Arial,sans-serif"}}>
+              Signed by{" "}
+              <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0",textDecoration:"none"}}>
+                Professor Babu George
+              </a>
+              {" "}· Performance: {grade.tier} · {grade.label} · Code: {code}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

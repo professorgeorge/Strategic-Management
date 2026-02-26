@@ -1,0 +1,33 @@
+{
+  "name": "Strategic Management Certificate Program",
+  "short_name": "StratMgmt",
+  "description": "14 interactive micro-simulations covering the complete landscape of strategic management, taught by Professor Babu George.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a1e36",
+  "theme_color": "#0a1e36",
+  "categories": ["education", "business"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "View Progress",
+      "url": "./index.html#progress",
+      "description": "Check your module completion progress"
+    }
+  ]
+}

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 7: Customer Service Strategy · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+function generateCode() {
+  return "STR-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+const JOURNEY_STAGES = [
+  {
+    id: "awareness",
+    label: "Awareness",
+    icon: "📣",
+    painPoint: "Customers struggle to find clear information about what the service includes. 34% of trial sign-ups say they felt misled by marketing.",
+    interventions: [
+      { id: "a1", text: "Redesign the pricing page with plain-language descriptions and an FAQ", impact: 8, cost: 2 },
+      { id: "a2", text: "Launch a 'What to Expect' onboarding video series", impact: 6, cost: 3 },
+      { id: "a3", text: "Add live chat on the marketing site", impact: 5, cost: 4 },
+    ],
+  },
+  {
+    id: "onboarding",
+    label: "Onboarding",
+    icon: "🚀",
+    painPoint: "28% of new subscribers cancel within the first 14 days, citing confusion about how to use the product.",
+    interventions: [
+      { id: "b1", text: "Build a guided, interactive product tour triggered on first login", impact: 9, cost: 4 },
+      { id: "b2", text: "Send a personalized onboarding email sequence over 7 days", impact: 7, cost: 2 },
+      { id: "b3", text: "Assign a success coach to accounts in the first 30 days", impact: 8, cost: 6 },
+    ],
+  },
+  {
+    id: "usage",
+    label: "Ongoing Use",
+    icon: "🔄",
+    painPoint: "Only 41% of subscribers use the product more than twice per week. Low engagement strongly predicts churn.",
+    interventions: [
+      { id: "c1", text: "Build a usage dashboard showing personal progress and milestones", impact: 7, cost: 3 },
+      { id: "c2", text: "Send proactive 'we noticed you haven't logged in' nudge emails", impact: 6, cost: 1 },
+      { id: "c3", text: "Create a community forum for peer support and use cases", impact: 8, cost: 5 },
+    ],
+  },
+  {
+    id: "support",
+    label: "Issue Resolution",
+    icon: "🛠️",
+    painPoint: "Average support ticket resolution is 3.2 days. 52% of churned customers cited a poor support experience as a factor.",
+    interventions: [
+      { id: "d1", text: "Build a self-service knowledge base covering the top 40 issues", impact: 8, cost: 3 },
+      { id: "d2", text: "Implement a ticket triage system to escalate high-churn-risk accounts", impact: 9, cost: 4 },
+      { id: "d3", text: "Offer callback scheduling instead of hold queues", impact: 6, cost: 3 },
+    ],
+  },
+  {
+    id: "renewal",
+    label: "Renewal",
+    icon: "🔁",
+    painPoint: "61% of non-renewals say they never spoke to anyone from the company before deciding to cancel.",
+    interventions: [
+      { id: "e1", text: "Trigger a personal outreach call 45 days before renewal for at-risk accounts", impact: 9, cost: 5 },
+      { id: "e2", text: "Send a renewal summary showing the customer's value received over the year", impact: 7, cost: 2 },
+      { id: "e3", text: "Offer a 'loyalty discount' automatically at the 12-month mark", impact: 6, cost: 3 },
+    ],
+  },
+];
+
+const BUDGET = 15;
+
+function calcScore(selections) {
+  return Object.values(selections).reduce((acc, intId) => {
+    for (const stage of JOURNEY_STAGES) {
+      const found = stage.interventions.find((i) => i.id === intId);
+      if (found) return acc + found.impact;
+    }
+    return acc;
+  }, 0);
+}
+
+function calcCost(selections) {
+  return Object.values(selections).reduce((acc, intId) => {
+    for (const stage of JOURNEY_STAGES) {
+      const found = stage.interventions.find((i) => i.id === intId);
+      if (found) return acc + found.cost;
+    }
+    return acc;
+  }, 0);
+}
+
+function getGrade(score) {
+  if (score >= 38) return { label: "Customer Experience Leader", sat: 91, churn: 6 };
+  if (score >= 30) return { label: "Effective Service Strategist", sat: 78, churn: 12 };
+  return { label: "Developing Service Designer", sat: 62, churn: 20 };
+}
+
+function drawCertificate(canvas, studentName, grade, completionCode, completionDate) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width; const H = canvas.height;
+  ctx.fillStyle = "#fdf8f4"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#c0392b"; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+  ctx.strokeStyle = "#1a3a5c"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  [[40,40],[W-40,40],[40,H-40],[W-40,H-40]].forEach(([x,y])=>{ctx.fillStyle="#c0392b";ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();});
+  const grad = ctx.createLinearGradient(0,50,0,128); grad.addColorStop(0,"#1a3a5c"); grad.addColorStop(1,"#0f2440");
+  ctx.fillStyle=grad; ctx.fillRect(30,50,W-60,78);
+  ctx.fillStyle="#f1948a"; ctx.font="bold 14px Georgia"; ctx.textAlign="center"; ctx.fillText("MBA STRATEGIC MANAGEMENT",W/2,82);
+  ctx.fillStyle="#fff"; ctx.font="12px Georgia"; ctx.fillText("Strategic Management Certificate Program",W/2,106);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 27px Georgia"; ctx.fillText("Certificate of Completion",W/2,162);
+  ctx.strokeStyle="#c0392b"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(W/2-140,174); ctx.lineTo(W/2+140,174); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("This certifies that",W/2,206);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 31px Georgia"; ctx.fillText(studentName,W/2,250);
+  const nw=ctx.measureText(studentName).width; ctx.strokeStyle="#c0392b"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(W/2-nw/2,258); ctx.lineTo(W/2+nw/2,258); ctx.stroke();
+  ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 7: Customer Service Strategy",W/2,315);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,342);
+  ctx.strokeStyle="#c0392b"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
+  ctx.textAlign="left"; ctx.fillStyle="#1a3a5c"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
+  ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Instructor, MBA Strategic Management",100,450);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(100,400); ctx.lineTo(310,400); ctx.stroke();
+  ctx.textAlign="right"; ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Date of Completion",W-100,404);
+  ctx.fillStyle="#1a3a5c"; ctx.font="bold 13px Georgia"; ctx.fillText(completionDate,W-100,422);
+  ctx.fillStyle="#555"; ctx.font="11px Georgia"; ctx.fillText("Completion Code",W-100,444);
+  ctx.fillStyle="#666"; ctx.font="12px Georgia"; ctx.fillText(completionCode,W-100,460);
+  ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
+  ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#1a3a5c"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#c0392b"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle="#f1948a"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 7",W/2,H-42);
+}
+
+const S = {
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#1a0a0a 0%,#3d1515 50%,#1a0a0a 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"20px"},
+  card:{background:"rgba(255,255,255,0.97)",borderRadius:"4px",maxWidth:"700px",width:"100%",boxShadow:"0 25px 60px rgba(0,0,0,0.5)",overflow:"hidden"},
+  header:{background:"linear-gradient(135deg,#1a3a5c,#0f2440)",padding:"28px 36px 22px",borderBottom:"3px solid #c0392b"},
+  badge:{display:"inline-block",background:"rgba(192,57,43,0.2)",border:"1px solid #c0392b",color:"#f1948a",fontSize:"11px",letterSpacing:"2px",padding:"4px 12px",marginBottom:"10px",fontFamily:"Arial,sans-serif"},
+  title:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+  sub:{color:"rgba(255,255,255,0.6)",fontSize:"12px",marginTop:"5px",fontFamily:"Arial,sans-serif"},
+  body:{padding:"32px 36px"},
+  btn:{background:"linear-gradient(135deg,#1a3a5c,#2a5a8c)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  btnRed:{background:"linear-gradient(135deg,#c0392b,#e74c3c)",color:"#fff",border:"none",padding:"13px 28px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+  btnOut:{background:"transparent",color:"#1a3a5c",border:"2px solid #1a3a5c",padding:"11px 22px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+  input:{width:"100%",padding:"13px 15px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+  prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"14px"},
+  h2:{color:"#1a3a5c",fontSize:"17px",marginBottom:"12px",fontWeight:"bold"},
+};
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [selections, setSelections] = useState({});
+  const [activeStage, setActiveStage] = useState(0);
+  const completionCode = useRef(generateCode()).current;
+  const completionDate = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(()=>{ if(screen==="certificate"&&canvasRef.current){ const g=getGrade(calcScore(selections)); drawCertificate(canvasRef.current,studentName,g,completionCode,completionDate); try{localStorage.setItem('smcp_module_7',JSON.stringify({name:studentName,code:completionCode,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){} } },[screen]);
+
+  function handleStart(){ if(!nameInput.trim()) return; setStudentName(nameInput.trim()); setScreen("overview"); }
+
+  function selectIntervention(stageId, intId) {
+    setSelections(prev => ({ ...prev, [stageId]: intId }));
+  }
+
+  function restart() { setSelections({}); setActiveStage(0); setScreen("simulation"); }
+
+  const allSelected = JOURNEY_STAGES.every(s => selections[s.id]);
+  const totalCost = calcCost(selections);
+  const overBudget = totalCost > BUDGET;
+  const score = calcScore(selections);
+  const grade = getGrade(score);
+
+  function downloadPNG() {
+    const link = document.createElement("a");
+    link.download = `Certificate_Module7_${studentName.replace(/\s+/g,"_")}.png`;
+    link.href = canvasRef.current.toDataURL("image/png"); link.click();
+  }
+  function downloadPDF() {
+    const html=`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${canvasRef.current.toDataURL("image/png")}"/><script>window.onload=()=>window.print()<\/script></body></html>`;
+    window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank");
+  }
+
+  if(screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 7 · CUSTOMER SERVICE STRATEGY</div>
+      <h1 style={S.title}>Journey Architect</h1><p style={S.sub}>Design a customer service strategy for a subscription business in trouble</p></div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome to the Journey Architect simulation. Before we begin, please enter your full name as it should appear on your certificate.</p>
+        <input style={S.input} placeholder="Your full name" value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleStart()} />
+        <div style={{textAlign:"right",marginTop:"24px"}}><button style={S.btn} onClick={handleStart}>Begin Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 7 · OVERVIEW</div><h1 style={S.title}>About This Simulation</h1><p style={S.sub}>Welcome, {studentName}</p></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Scenario</h2>
+        <p style={S.prose}><strong>Velo Health</strong> is a subscription wellness app with 85,000 paying subscribers. Annual churn is running at 24%, nearly double the industry benchmark. The CEO has tasked you with designing a customer service strategy that addresses the five stages of the customer journey, from initial awareness through renewal.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>For each journey stage, you will see a pain point and three possible service interventions. Select one intervention per stage. Each intervention has an impact score (how much it improves satisfaction and reduces churn) and a cost weight. You have a total budget of <strong>{BUDGET} points</strong> to allocate across all five stages. Make your choices wisely — high-impact interventions cost more.</p>
+        <p style={S.prose}>Once you have selected all five interventions, submit your strategy and receive your results. You may retake the simulation as many times as you like.</p>
+        <div style={{textAlign:"right"}}><button style={S.btn} onClick={()=>setScreen("simulation")}>Start Simulation →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="simulation") {
+    const stage = JOURNEY_STAGES[activeStage];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.header}>
+          <div style={S.badge}>JOURNEY STAGE {activeStage+1} OF 5</div>
+          <h1 style={S.title}>{stage.icon} {stage.label}</h1>
+          <p style={S.sub}>Budget used: {totalCost}/{BUDGET} pts {overBudget?"⚠️ Over budget":""}</p>
+        </div>
+        <div style={S.body}>
+          <div style={{background:"#fff3f3",border:"1px solid #f5c6cb",borderRadius:"2px",padding:"14px 18px",marginBottom:"20px"}}>
+            <p style={{margin:0,fontSize:"13px",fontWeight:"bold",color:"#c0392b",marginBottom:"6px",fontFamily:"Arial,sans-serif"}}>PAIN POINT IDENTIFIED</p>
+            <p style={{margin:0,fontSize:"14px",color:"#444"}}>{stage.painPoint}</p>
+          </div>
+          <p style={{fontSize:"13px",color:"#666",fontFamily:"Arial,sans-serif",marginBottom:"12px",letterSpacing:"0.5px"}}>SELECT YOUR INTERVENTION</p>
+          {stage.interventions.map(inv=>{
+            const selected = selections[stage.id] === inv.id;
+            return (
+              <div key={inv.id} onClick={()=>selectIntervention(stage.id,inv.id)} style={{border:`2px solid ${selected?"#c0392b":"#ddd"}`,borderRadius:"2px",padding:"14px 18px",marginBottom:"10px",cursor:"pointer",background:selected?"#fff8f8":"#fafafa",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:"14px",color:"#333",flex:1}}>{inv.text}</span>
+                <div style={{textAlign:"right",marginLeft:"16px",flexShrink:0}}>
+                  <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>Impact: {inv.impact}/10</div>
+                  <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif"}}>Cost: {inv.cost} pts</div>
+                </div>
+              </div>
+            );
+          })}
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:"20px"}}>
+            <button style={{...S.btnOut,opacity:activeStage===0?0.3:1}} disabled={activeStage===0} onClick={()=>setActiveStage(activeStage-1)}>← Previous</button>
+            <div style={{display:"flex",gap:"10px"}}>
+              {activeStage < 4 && <button style={S.btn} onClick={()=>setActiveStage(activeStage+1)}>Next Stage →</button>}
+              {activeStage===4 && allSelected && !overBudget && <button style={S.btnRed} onClick={()=>setScreen("results")}>Submit Strategy →</button>}
+            </div>
+          </div>
+          {overBudget && <p style={{color:"#c0392b",fontSize:"13px",marginTop:"12px",textAlign:"center"}}>You are over budget. Please revise your selections to stay within {BUDGET} points.</p>}
+          <div style={{display:"flex",gap:"6px",marginTop:"20px",justifyContent:"center"}}>
+            {JOURNEY_STAGES.map((s,i)=>(
+              <div key={s.id} onClick={()=>setActiveStage(i)} style={{width:"32px",height:"6px",borderRadius:"3px",cursor:"pointer",background:selections[s.id]?"#c0392b":i===activeStage?"#aaa":"#ddd"}} />
+            ))}
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if(screen==="results") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={{background:"linear-gradient(135deg,#1a3a5c,#0f2440)",padding:"28px 36px 22px",borderBottom:"3px solid #c0392b"}}>
+        <div style={S.badge}>YOUR STRATEGY RESULTS</div>
+        <h1 style={{color:"#fff",fontSize:"22px",margin:"8px 0 0"}}>{grade.label}</h1>
+      </div>
+      <div style={S.body}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"12px",marginBottom:"24px"}}>
+          {[{label:"Impact Score",val:`${score}/45`},{label:"Predicted CSAT",val:`${grade.sat}%`},{label:"Projected Churn",val:`${grade.churn}%`}].map(m=>(
+            <div key={m.label} style={{background:"#f8f8f8",border:"1px solid #eee",borderRadius:"2px",padding:"16px",textAlign:"center"}}>
+              <div style={{fontSize:"22px",fontWeight:"bold",color:"#1a3a5c"}}>{m.val}</div>
+              <div style={{fontSize:"11px",color:"#888",fontFamily:"Arial,sans-serif",marginTop:"4px"}}>{m.label}</div>
+            </div>
+          ))}
+        </div>
+        <h2 style={S.h2}>Your Choices Reviewed</h2>
+        {JOURNEY_STAGES.map(stage=>{
+          const sel = stage.interventions.find(i=>i.id===selections[stage.id]);
+          return sel ? (
+            <div key={stage.id} style={{borderLeft:"3px solid #c0392b",paddingLeft:"14px",marginBottom:"14px"}}>
+              <p style={{margin:0,fontSize:"13px",fontWeight:"bold",color:"#1a3a5c"}}>{stage.icon} {stage.label}</p>
+              <p style={{margin:"4px 0 0",fontSize:"13px",color:"#444"}}>{sel.text} <span style={{color:"#c0392b"}}>({sel.impact}/10 impact)</span></p>
+            </div>
+          ) : null;
+        })}
+        <div style={{display:"flex",gap:"12px",justifyContent:"space-between",marginTop:"20px"}}>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+          <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.header}><div style={S.badge}>MODULE 7 · LEARNING REFLECTION</div><h1 style={S.title}>What You've Learned</h1></div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Customer service strategy is not about resolving complaints — it is about designing a journey that prevents them. The most effective service organizations intervene proactively at each stage of the customer lifecycle, not reactively after dissatisfaction has already formed. This simulation put that principle into practice under budget constraint.</p>
+        <h2 style={S.h2}>Professional Application</h2>
+        <p style={S.prose}>In any role that touches customers — sales, operations, product, marketing — you will face decisions about where to invest scarce resources to improve experience. The journey mapping approach you practiced here gives you a structured way to identify the highest-leverage points, communicate them to leadership, and build a business case for service investment.</p>
+        <p style={S.prose}>Churn is one of the most expensive problems a business can face. Acquiring a new customer costs five to seven times more than retaining an existing one. A strategist who can design a service model that meaningfully moves retention metrics creates direct, measurable business value.</p>
+        <h2 style={S.h2}>Beyond the Office</h2>
+        <p style={S.prose}>Journey thinking applies to any relationship where you want someone to stay engaged — volunteer programs, community organizations, even personal relationships. Where does friction occur? Where do people disengage? Designing proactively for those moments is a human skill, not just a business one.</p>
+        <div style={{textAlign:"right"}}><button style={S.btnRed} onClick={()=>setScreen("certificate")}>Download Certificate →</button></div>
+      </div>
+    </div></div>
+  );
+
+  if(screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
+      <div style={S.header}><div style={S.badge}>MODULE 7 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1><p style={S.sub}>Your certificate is ready for download.</p></div>
+      <div style={{padding:"28px 36px"}}>
+        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.btnRed} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
+          <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>
+          <button style={S.btnOut} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"12px",color:"#999",marginTop:"16px",fontFamily:"Arial,sans-serif"}}>
+          Signed by <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>Professor Babu George</a> · Completion Code: {completionCode}
+        </p>
+      </div>
+    </div></div>
+  );
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>

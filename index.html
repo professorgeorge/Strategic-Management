@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Strategic Management Certificate Program</title>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="StratMgmt"/>
+  <link rel="apple-touch-icon" href="./icon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --navy:#0a1e36;--navy-m:#14305a;--gold:#c9a227;--gold-l:#e2c060;
+      --cream:#faf8f2;--border:rgba(201,162,39,0.25);--green:#1a6b3c;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--cream);min-height:100vh;}
+
+    /* ── Hero ── */
+    .hero{position:relative;overflow:hidden;padding:64px 24px 56px;text-align:center;background:linear-gradient(180deg,#050d1a 0%,var(--navy) 100%);}
+    .hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,162,39,0.08) 0%,transparent 70%),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(201,162,39,0.04) 80px);}
+    .eyebrow{display:inline-block;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;border:1px solid rgba(201,162,39,0.4);padding:5px 16px;margin-bottom:20px;font-weight:500;}
+    .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,50px);font-weight:700;line-height:1.15;color:#fff;margin-bottom:10px;}
+    .hero h1 span{color:var(--gold-l);}
+    .hero-sub{font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:28px;}
+    .hdivider{width:80px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;}
+    .hero-desc{max-width:620px;margin:0 auto;font-size:14.5px;line-height:1.8;color:rgba(255,255,255,0.65);}
+
+    /* ── Progress bar (hero) ── */
+    .progress-hero{max-width:480px;margin:28px auto 0;text-align:center;}
+    .prog-label{font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:8px;letter-spacing:0.5px;}
+    .prog-track{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+    .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:3px;transition:width 0.6s ease;}
+    .prog-count{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--gold);}
+    .prog-count span{font-size:14px;color:rgba(255,255,255,0.4);font-family:'Inter',sans-serif;font-weight:400;}
+
+    /* ── Install banner ── */
+    .install-banner{display:none;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.3);padding:12px 24px;text-align:center;font-size:13px;color:rgba(255,255,255,0.7);gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;}
+    .install-banner.visible{display:flex;}
+    .install-btn{background:var(--gold);color:var(--navy);border:none;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;border-radius:2px;font-family:'Inter',sans-serif;letter-spacing:0.5px;}
+    .dismiss-btn{background:transparent;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px;padding:0 4px;}
+
+    /* ── Prof strip ── */
+    .prof-strip{background:rgba(201,162,39,0.07);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 24px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;}
+    .prof-strip .lbl{font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-weight:500;}
+    .prof-strip .pname{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#fff;}
+    .prof-strip a{color:var(--gold-l);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:5px;transition:color 0.2s;}
+    .prof-strip a:hover{color:#fff;}
+    .dot{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:0.5;}
+
+    /* ── Progress persistence strip ── */
+    .persist-strip{background:rgba(26,107,60,0.12);border-bottom:1px solid rgba(26,107,60,0.25);padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center;}
+    .persist-strip p{font-size:12.5px;color:rgba(255,255,255,0.55);flex:1;min-width:200px;}
+    .persist-strip p strong{color:rgba(255,255,255,0.8);}
+    .persist-btn{background:rgba(26,107,60,0.35);border:1px solid rgba(26,107,60,0.6);color:#a8e6c0;padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;border-radius:2px;font-family:'Inter',sans-serif;white-space:nowrap;transition:background 0.2s;}
+    .persist-btn:hover{background:rgba(26,107,60,0.55);}
+    .persist-btn.warn{background:rgba(180,60,30,0.25);border-color:rgba(180,60,30,0.5);color:#ffb5a0;}
+    #importFile{display:none;}
+
+    /* ── How it works ── */
+    .how{max-width:860px;margin:48px auto 0;padding:0 24px;}
+    .how h2{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-l);margin-bottom:14px;font-weight:600;}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:48px;}
+    .step{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:16px 18px;}
+    .step-n{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--gold);opacity:0.8;line-height:1;margin-bottom:7px;}
+    .step p{font-size:12.5px;line-height:1.65;color:rgba(255,255,255,0.58);}
+
+    /* ── Module grid ── */
+    .grid-section{max-width:1080px;margin:0 auto;padding:0 24px 64px;}
+    .grid-lbl{font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;font-weight:500;margin-bottom:22px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:18px;}
+
+    .card{background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;text-decoration:none;display:block;color:inherit;position:relative;}
+    .card:hover{transform:translateY(-3px);border-color:rgba(201,162,39,0.5);box-shadow:0 10px 36px rgba(0,0,0,0.4);}
+    .card.done{border-color:rgba(26,107,60,0.5);background:rgba(26,107,60,0.07);}
+    .card.done:hover{border-color:rgba(26,107,60,0.8);}
+
+    /* Completion badge */
+    .check-badge{position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:50%;background:var(--green);display:none;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+    .card.done .check-badge{display:flex;}
+
+    .card-hdr{padding:18px 20px 13px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:flex-start;gap:12px;}
+    .card-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--gold);opacity:0.6;line-height:1;flex-shrink:0;min-width:34px;}
+    .card.done .card-num{opacity:0.9;color:var(--gold-l);}
+    .card-titles{flex:1;}
+    .card-mod{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:500;}
+    .card-sim{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:#fff;line-height:1.3;}
+    .card-body{padding:13px 20px 16px;}
+    .card-desc{font-size:12.5px;line-height:1.7;color:rgba(255,255,255,0.48);margin-bottom:12px;}
+    .card-cta{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;transition:gap 0.2s;}
+    .card.done .card-cta{color:#6ccea0;}
+    .card:hover .card-cta{gap:9px;}
+    .card-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+    .completed-on{font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;font-style:italic;}
+
+    /* Capstone */
+    .card.capstone{border-color:rgba(201,162,39,0.35);background:rgba(201,162,39,0.06);}
+    .card.capstone .card-num{opacity:1;font-size:40px;}
+    .cap-badge{display:inline-block;background:var(--gold);color:var(--navy);font-size:9px;font-weight:700;letter-spacing:2px;padding:2px 7px;margin-top:3px;text-transform:uppercase;}
+
+    /* ── Final Certificate ── */
+    .cert-section{max-width:860px;margin:0 auto 72px;padding:0 24px;}
+    .cert-box{background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.35);border-radius:4px;padding:38px;}
+    .cert-box h2{font-family:'Cormorant Garamond',serif;font-size:25px;color:#fff;font-weight:700;margin-bottom:7px;}
+    .cert-sub{font-size:13.5px;color:rgba(255,255,255,0.5);margin-bottom:26px;line-height:1.65;}
+    .cert-input-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+    .cert-input{flex:1;min-width:200px;background:rgba(255,255,255,0.06);border:1px solid rgba(201,162,39,0.4);color:#fff;font-family:'Cormorant Garamond',serif;font-size:18px;padding:11px 15px;border-radius:2px;outline:none;transition:border-color 0.2s;}
+    .cert-input:focus{border-color:var(--gold);}
+    .cert-input::placeholder{color:rgba(255,255,255,0.28);}
+    .cert-btn{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--navy);border:none;padding:12px 26px;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;cursor:pointer;border-radius:2px;white-space:nowrap;}
+    .cert-preview{margin-top:22px;display:none;}
+    .cert-preview canvas{width:100%;border:1px solid rgba(201,162,39,0.25);display:block;margin-bottom:14px;border-radius:2px;}
+    .cert-dl-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+    .dl-btn{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--navy);border:none;padding:11px 22px;font-size:13px;font-weight:600;cursor:pointer;border-radius:2px;font-family:'Inter',sans-serif;}
+    .dl-btn.outline{background:transparent;color:var(--gold-l);border:1px solid rgba(201,162,39,0.5);}
+    .honor-note{font-size:11.5px;color:rgba(255,255,255,0.3);margin-top:14px;text-align:center;line-height:1.6;}
+
+    /* Offline notice */
+    .offline-notice{display:none;background:rgba(180,80,20,0.2);border:1px solid rgba(200,100,40,0.4);padding:10px 20px;text-align:center;font-size:12px;color:rgba(255,200,150,0.9);}
+    .offline-notice.visible{display:block;}
+
+    /* ── Footer ── */
+    footer{text-align:center;padding:28px 24px;border-top:1px solid var(--border);font-size:12px;color:rgba(255,255,255,0.28);line-height:1.8;}
+    footer a{color:rgba(201,162,39,0.55);text-decoration:none;}
+    footer a:hover{color:var(--gold);}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a3a5c;color:#fff;padding:12px 24px;border-radius:3px;font-size:13px;border-left:3px solid var(--gold);box-shadow:0 8px 24px rgba(0,0,0,0.4);transition:transform 0.3s ease;z-index:1000;pointer-events:none;white-space:nowrap;}
+    .toast.visible{transform:translateX(-50%) translateY(0);}
+
+    @media(max-width:600px){
+      .hero{padding:44px 18px 40px;}
+      .grid{grid-template-columns:1fr;}
+      .cert-box{padding:22px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Offline notice -->
+<div class="offline-notice" id="offlineNotice">You are offline. Previously opened simulations are available from cache.</div>
+
+<!-- PWA install banner -->
+<div class="install-banner" id="installBanner">
+  <span>📲 Install this program as an app for offline access and quick return.</span>
+  <button class="install-btn" onclick="installPWA()">Install App</button>
+  <button class="dismiss-btn" onclick="dismissInstall()" title="Dismiss">×</button>
+</div>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="eyebrow">Certificate Program in Strategic Management</div>
+  <h1>Micro-Simulation<br><span>Learning Portal</span></h1>
+  <p class="hero-sub">14 Interactive Simulations · Module Certificates · Final Program Certificate</p>
+  <div class="hdivider"></div>
+  <p class="hero-desc">Each simulation places you inside a real strategic scenario and challenges you with decisions drawn from professional practice. Complete all 14 modules and claim your final Program Certificate. You may take as long as you need — your progress is saved automatically in this browser.</p>
+
+  <div class="progress-hero" id="progressHero">
+    <p class="prog-label" id="progLabel">Loading your progress…</p>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-count"><span id="progDone">0</span> <span>of 14 modules completed</span></div>
+  </div>
+</header>
+
+<!-- Professor strip -->
+<div class="prof-strip">
+  <span class="lbl">Program Instructor</span><span class="dot"></span>
+  <span class="pname">Professor Babu George</span><span class="dot"></span>
+  <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.27c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zm13.5 12.27h-3v-5.6c0-1.34-.03-3.07-1.87-3.07-1.87 0-2.16 1.46-2.16 2.97v5.7h-3v-11h2.88v1.5h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.59v6.47z"/></svg>
+    linkedin.com/in/beingbabu
+  </a>
+</div>
+
+<!-- Progress persistence strip -->
+<div class="persist-strip">
+  <p><strong>Your progress saves automatically</strong> in this browser. Use the buttons to back it up or move it to another device.</p>
+  <button class="persist-btn" onclick="exportProgress()" title="Download your progress as a file">⬇ Save Progress File</button>
+  <button class="persist-btn" onclick="document.getElementById('importFile').click()" title="Restore progress from a saved file">⬆ Restore Progress</button>
+  <button class="persist-btn warn" onclick="resetProgress()" title="Clear all saved progress">↺ Reset</button>
+  <input type="file" id="importFile" accept=".json" onchange="importProgress(event)"/>
+</div>
+
+<!-- How it works -->
+<section class="how">
+  <h2>How It Works</h2>
+  <div class="steps">
+    <div class="step"><div class="step-n">01</div><p>Click any module card to open its simulation. No login or installation required.</p></div>
+    <div class="step"><div class="step-n">02</div><p>Enter your name when prompted — it will appear on your certificate exactly as typed.</p></div>
+    <div class="step"><div class="step-n">03</div><p>Complete the simulation, review your learning reflection, and download your module certificate.</p></div>
+    <div class="step"><div class="step-n">04</div><p>Your completion is saved automatically here. Return any time — your progress persists across sessions.</p></div>
+    <div class="step"><div class="step-n">05</div><p>After all 14 modules, generate your final Program Certificate of Completion below.</p></div>
+  </div>
+</section>
+
+<!-- Module grid -->
+<main class="grid-section" id="moduleGrid">
+  <div class="grid-lbl">All 14 Modules</div>
+  <div class="grid">
+
+    <a class="card" id="card-1" href="module1.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">1</div><div class="card-icon">🧭</div><div class="card-titles"><div class="card-mod">Introductory Module</div><div class="card-sim">Strategic Self-Profile Assessment</div></div></div>
+      <div class="card-body"><p class="card-desc">Discover your dominant strategic thinking profile — Analyst, Visionary, Executor, or Integrator — through eight scenario-based questions.</p><span class="card-cta" id="cta-1">Open Simulation →</span><p class="completed-on" id="date-1"></p></div>
+    </a>
+
+    <a class="card" id="card-2" href="module2.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">2</div><div class="card-icon">⚔️</div><div class="card-titles"><div class="card-mod">Strategic Thinking</div><div class="card-sim">The CEO's Dilemma</div></div></div>
+      <div class="card-body"><p class="card-desc">A regional food company faces three simultaneous pressures. Work through problem framing, prioritisation, and long-view decision-making as interim CEO.</p><span class="card-cta" id="cta-2">Open Simulation →</span><p class="completed-on" id="date-2"></p></div>
+    </a>
+
+    <a class="card" id="card-3" href="module3.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">3</div><div class="card-icon">🗺️</div><div class="card-titles"><div class="card-mod">Strategic Planning</div><div class="card-sim">Build the Plan</div></div></div>
+      <div class="card-body"><p class="card-desc">Construct a three-year strategic plan — from mission clarity through goal-setting and initiative prioritisation, where early choices constrain later ones.</p><span class="card-cta" id="cta-3">Open Simulation →</span><p class="completed-on" id="date-3"></p></div>
+    </a>
+
+    <a class="card" id="card-4" href="module4.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">4</div><div class="card-icon">🔍</div><div class="card-titles"><div class="card-mod">Strategic Business Analysis</div><div class="card-sim">The Analyst's Toolkit</div></div></div>
+      <div class="card-body"><p class="card-desc">Apply SWOT, PESTEL, Porter's Five Forces, and Value Chain analysis to a detailed company case, drawing strategic implications from your findings.</p><span class="card-cta" id="cta-4">Open Simulation →</span><p class="completed-on" id="date-4"></p></div>
+    </a>
+
+    <a class="card" id="card-5" href="module5.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">5</div><div class="card-icon">⚙️</div><div class="card-titles"><div class="card-mod">Strategy Implementation</div><div class="card-sim">From Plan to Action</div></div></div>
+      <div class="card-body"><p class="card-desc">Allocate resources, sequence initiatives, and navigate two mid-course disruptions as you lead strategy implementation at a regional healthcare company.</p><span class="card-cta" id="cta-5">Open Simulation →</span><p class="completed-on" id="date-5"></p></div>
+    </a>
+
+    <a class="card" id="card-6" href="module6.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">6</div><div class="card-icon">📦</div><div class="card-titles"><div class="card-mod">Product Strategy</div><div class="card-sim">Portfolio Commander</div></div></div>
+      <div class="card-body"><p class="card-desc">Apply BCG Matrix and Ansoff Matrix logic to manage a five-product portfolio — deciding where to invest, where to harvest, and where to exit.</p><span class="card-cta" id="cta-6">Open Simulation →</span><p class="completed-on" id="date-6"></p></div>
+    </a>
+
+    <a class="card" id="card-7" href="module7.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">7</div><div class="card-icon">🛤️</div><div class="card-titles"><div class="card-mod">Customer Service Strategy</div><div class="card-sim">Journey Architect</div></div></div>
+      <div class="card-body"><p class="card-desc">Map and redesign the customer journey for a subscription business with high churn — selecting service interventions across five journey stages.</p><span class="card-cta" id="cta-7">Open Simulation →</span><p class="completed-on" id="date-7"></p></div>
+    </a>
+
+    <a class="card" id="card-8" href="module8.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">8</div><div class="card-icon">🤝</div><div class="card-titles"><div class="card-mod">Strategic Partnerships</div><div class="card-sim">The Partnership Table</div></div></div>
+      <div class="card-body"><p class="card-desc">Negotiate a strategic alliance across five rounds — balancing value sharing, IP protection, exclusivity, and exit terms with a larger global partner.</p><span class="card-cta" id="cta-8">Open Simulation →</span><p class="completed-on" id="date-8"></p></div>
+    </a>
+
+    <a class="card" id="card-9" href="module9.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">9</div><div class="card-icon">🌍</div><div class="card-titles"><div class="card-mod">Global Strategy</div><div class="card-sim">Market Entry Decision Room</div></div></div>
+      <div class="card-body"><p class="card-desc">Evaluate international markets using a weighted-criteria model, select an entry mode, and adapt your approach when a reality-check scenario unfolds.</p><span class="card-cta" id="cta-9">Open Simulation →</span><p class="completed-on" id="date-9"></p></div>
+    </a>
+
+    <a class="card" id="card-10" href="module10.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">10</div><div class="card-icon">💻</div><div class="card-titles"><div class="card-mod">Technology Strategy</div><div class="card-sim">The Digital Roadmap</div></div></div>
+      <div class="card-body"><p class="card-desc">Build a phased technology investment roadmap and revise it when two external shocks arrive — a competitor launch and a cybersecurity vulnerability.</p><span class="card-cta" id="cta-10">Open Simulation →</span><p class="completed-on" id="date-10"></p></div>
+    </a>
+
+    <a class="card" id="card-11" href="module11.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">11</div><div class="card-icon">🤖</div><div class="card-titles"><div class="card-mod">AI and Business Strategy</div><div class="card-sim">The AI Opportunity Scan</div></div></div>
+      <div class="card-body"><p class="card-desc">Identify, evaluate, and prioritise AI use cases by feasibility and strategic value — including a scenario testing ethical judgment alongside business logic.</p><span class="card-cta" id="cta-11">Open Simulation →</span><p class="completed-on" id="date-11"></p></div>
+    </a>
+
+    <a class="card" id="card-12" href="module12.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">12</div><div class="card-icon">⚠️</div><div class="card-titles"><div class="card-mod">Risk Management Strategy</div><div class="card-sim">The Risk War Room</div></div></div>
+      <div class="card-body"><p class="card-desc">Build a risk register mid-acquisition, assign mitigations within a budget, then watch two risks trigger to see how well your plan holds.</p><span class="card-cta" id="cta-12">Open Simulation →</span><p class="completed-on" id="date-12"></p></div>
+    </a>
+
+    <a class="card" id="card-13" href="module13.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">13</div><div class="card-icon">🔭</div><div class="card-titles"><div class="card-mod">Futuristic Views on Strategy</div><div class="card-sim">Scenario Architect 2040</div></div></div>
+      <div class="card-body"><p class="card-desc">Build four scenarios from two critical uncertainties, write their narratives, and identify strategic moves that remain sound across all futures.</p><span class="card-cta" id="cta-13">Open Simulation →</span><p class="completed-on" id="date-13"></p></div>
+    </a>
+
+    <a class="card capstone" id="card-14" href="module14.html" target="_blank">
+      <div class="check-badge">✓</div>
+      <div class="card-hdr"><div class="card-num">14</div><div class="card-icon">🏛️</div><div class="card-titles"><div class="card-mod">Capstone Module</div><div class="card-sim">The Strategy Board</div><div><span class="cap-badge">Integrative</span></div></div></div>
+      <div class="card-body"><p class="card-desc">Nine decisions. One company. A complete strategic management cycle — analysis, planning, implementation, partnerships, technology, risk, and futures. Choices chain together as they do in real organisations.</p><span class="card-cta" id="cta-14">Open Capstone →</span><p class="completed-on" id="date-14"></p></div>
+    </a>
+
+  </div>
+</main>
+
+<!-- Final Program Certificate -->
+<section class="cert-section" id="progress">
+  <div class="cert-box">
+    <h2>🎓 Final Program Certificate</h2>
+    <p class="cert-sub" id="certSubtext">Complete all 14 module simulations, then generate your Program Certificate of Completion here. Enter your name exactly as you would like it to appear, and download your certificate to keep, share on LinkedIn, or display however you wish.</p>
+    <div class="cert-input-row">
+      <input class="cert-input" id="certName" type="text" placeholder="Enter your full name…" maxlength="60"/>
+      <button class="cert-btn" onclick="generateCert()">Generate Certificate</button>
+    </div>
+    <div class="cert-preview" id="certPreview">
+      <canvas id="certCanvas" width="900" height="620"></canvas>
+      <div class="cert-dl-row">
+        <button class="dl-btn" onclick="downloadPNG()">⬇ Download as Image (PNG)</button>
+        <button class="dl-btn outline" onclick="downloadPDF()">⬇ Download as PDF</button>
+      </div>
+      <p class="honor-note">This certificate is issued on the honour of the recipient's self-declaration of completion. Signed by Professor Babu George with a unique verification code.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Certificate Program in Strategic Management · Professor Babu George</p>
+  <p style="margin-top:5px;"><a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer">linkedin.com/in/beingbabu</a> &nbsp;·&nbsp; All simulations run locally · Progress saved in your browser · No data collected</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Constants ────────────────────────────────────────────────────────────────
+const TOTAL = 14;
+const LS_KEY = n => `smcp_module_${n}`;
+const PROG_KEY = 'smcp_progress_backup';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), duration);
+}
+
+function fmtDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+  } catch(e) { return ''; }
+}
+
+// ─── Progress read / render ───────────────────────────────────────────────────
+function readProgress() {
+  const results = {};
+  for (let n = 1; n <= TOTAL; n++) {
+    try {
+      const raw = localStorage.getItem(LS_KEY(n));
+      if (raw) results[n] = JSON.parse(raw);
+    } catch(e) {}
+  }
+  return results;
+}
+
+function renderProgress() {
+  const prog = readProgress();
+  const done = Object.keys(prog).length;
+
+  // Hero bar
+  document.getElementById('progFill').style.width = `${(done/TOTAL)*100}%`;
+  document.getElementById('progDone').textContent = done;
+  document.getElementById('progLabel').textContent =
+    done === 0 ? 'No modules completed yet — start below.' :
+    done === TOTAL ? '🎉 All modules complete! Generate your Program Certificate below.' :
+    `${TOTAL - done} module${TOTAL-done===1?'':'s'} remaining.`;
+
+  // Cards
+  for (let n = 1; n <= TOTAL; n++) {
+    const card = document.getElementById(`card-${n}`);
+    const cta  = document.getElementById(`cta-${n}`);
+    const dateEl = document.getElementById(`date-${n}`);
+    if (!card) continue;
+
+    if (prog[n]) {
+      card.classList.add('done');
+      cta.textContent = '✓ Completed — Open Again →';
+      if (prog[n].completedAt) {
+        dateEl.textContent = 'Completed ' + fmtDate(prog[n].completedAt);
+      }
+    } else {
+      card.classList.remove('done');
+      cta.textContent = n === 14 ? 'Open Capstone →' : 'Open Simulation →';
+      dateEl.textContent = '';
+    }
+  }
+
+  // Pre-fill certificate name from most recent completed module
+  const names = Object.values(prog).map(p => p.name).filter(Boolean);
+  if (names.length > 0) {
+    const nameField = document.getElementById('certName');
+    if (!nameField.value) nameField.value = names[names.length - 1];
+  }
+
+  // Update cert subtext when all done
+  if (done === TOTAL) {
+    document.getElementById('certSubtext').textContent =
+      'You have completed all 14 modules. Enter your name below and generate your Program Certificate of Completion.';
+  }
+}
+
+// ─── Export / Import ──────────────────────────────────────────────────────────
+function exportProgress() {
+  const prog = readProgress();
+  if (Object.keys(prog).length === 0) {
+    showToast('No progress to save yet.');
+    return;
+  }
+  const payload = { version: 1, exported: new Date().toISOString(), modules: prog };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.download = 'smcp-progress.json';
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  showToast('Progress file downloaded.');
+}
+
+function importProgress(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const payload = JSON.parse(e.target.result);
+      const modules = payload.modules || payload; // support both formats
+      let imported = 0;
+      for (let n = 1; n <= TOTAL; n++) {
+        if (modules[n]) {
+          localStorage.setItem(LS_KEY(n), JSON.stringify(modules[n]));
+          imported++;
+        }
+      }
+      renderProgress();
+      showToast(`Progress restored: ${imported} module${imported===1?'':'s'} imported.`);
+    } catch(err) {
+      showToast('Could not read progress file — invalid format.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetProgress() {
+  if (!confirm('Clear all saved progress? This cannot be undone.')) return;
+  for (let n = 1; n <= TOTAL; n++) {
+    localStorage.removeItem(LS_KEY(n));
+  }
+  document.getElementById('certName').value = '';
+  renderProgress();
+  showToast('Progress cleared.');
+}
+
+// ─── Certificate drawing ──────────────────────────────────────────────────────
+let currentCode = '';
+
+function generateCode() {
+  return 'PROG-' + Math.random().toString(36).substring(2,9).toUpperCase();
+}
+
+function drawProgramCertificate(canvas, name, code) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  ctx.fillStyle = '#faf7f0'; ctx.fillRect(0,0,W,H);
+
+  // Diagonal texture
+  ctx.save(); ctx.globalAlpha = 0.022;
+  for (let i = -H; i < W+H; i += 28) {
+    ctx.strokeStyle='#8a6800';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+H,H);ctx.stroke();
+  }
+  ctx.restore();
+
+  // Borders
+  ctx.strokeStyle='#b8960c';ctx.lineWidth=8;ctx.strokeRect(14,14,W-28,H-28);
+  ctx.strokeStyle='#0f2340';ctx.lineWidth=2.5;ctx.strokeRect(26,26,W-52,H-52);
+
+  // Corners
+  [[42,42],[W-42,42],[42,H-42],[W-42,H-42]].forEach(([x,y])=>{
+    ctx.fillStyle='#b8960c';ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#faf7f0';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+  });
+
+  // Header band
+  const hg=ctx.createLinearGradient(0,42,0,152);
+  hg.addColorStop(0,'#0a1e36');hg.addColorStop(1,'#071428');
+  ctx.fillStyle=hg;ctx.fillRect(26,42,W-52,112);
+
+  // Gold accent bar
+  const ag=ctx.createLinearGradient(26,0,W-26,0);
+  ag.addColorStop(0,'#8a6800');ag.addColorStop(0.5,'#d4a820');ag.addColorStop(1,'#8a6800');
+  ctx.fillStyle=ag;ctx.fillRect(26,154,W-52,4);
+
+  ctx.textAlign='center';
+  ctx.fillStyle='#c9a227';ctx.font='bold 14px Georgia';
+  ctx.fillText('CERTIFICATE PROGRAM IN STRATEGIC MANAGEMENT',W/2,80);
+  ctx.fillStyle='rgba(255,255,255,0.82)';ctx.font='13px Georgia';
+  ctx.fillText('Taught by Professor Babu George  ·  linkedin.com/in/beingbabu',W/2,108);
+  ctx.fillStyle='rgba(201,162,39,0.55)';ctx.font='italic 11px Georgia';
+  ctx.fillText('Covering the Complete Landscape of Strategic Management',W/2,136);
+
+  ctx.fillStyle='#0f2340';ctx.font='bold 30px Georgia';ctx.fillText('Certificate of Completion',W/2,200);
+  ctx.strokeStyle='#c9a227';ctx.lineWidth=1.2;
+  [[W/2-230,W/2-112],[W/2+112,W/2+230]].forEach(([a,b])=>{
+    ctx.beginPath();ctx.moveTo(a,206);ctx.lineTo(b,206);ctx.stroke();
+  });
+
+  ctx.fillStyle='#6b6b80';ctx.font='italic 13px Georgia';ctx.fillText('This is to certify that',W/2,240);
+  ctx.fillStyle='#0f2340';ctx.font='bold 42px Georgia';ctx.fillText(name,W/2,302);
+
+  const nw=ctx.measureText(name).width;
+  ctx.strokeStyle='#c9a227';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(W/2-nw/2,312);ctx.lineTo(W/2+nw/2,312);ctx.stroke();
+
+  ctx.fillStyle='#555';ctx.font='14px Georgia';
+  ctx.fillText('has successfully completed all fourteen modules of the',W/2,348);
+  ctx.fillStyle='#0f2340';ctx.font='bold 19px Georgia';
+  ctx.fillText('Certificate Program in Strategic Management',W/2,378);
+  ctx.fillStyle='rgba(100,100,120,0.8)';ctx.font='italic 11px Georgia';
+  ctx.fillText('Strategic Thinking · Planning · Business Analysis · Implementation · Product · Customer Service · Partnerships',W/2,402);
+  ctx.fillText('Global Strategy · Technology · AI · Risk Management · Futuristic Views · Capstone',W/2,418);
+
+  ctx.strokeStyle='#c9a227';ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(60,438);ctx.lineTo(W-60,438);ctx.stroke();
+
+  // Signatures
+  ctx.strokeStyle='#ccc';ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(80,472);ctx.lineTo(320,472);ctx.stroke();
+  ctx.textAlign='left';
+  ctx.fillStyle='#0f2340';ctx.font='bold 14px Georgia';ctx.fillText('Professor Babu George',80,488);
+  ctx.fillStyle='#1565c0';ctx.font='13px Georgia';ctx.fillText('linkedin.com/in/beingbabu',80,505);
+  ctx.fillStyle='#888';ctx.font='11px Georgia';ctx.fillText('Program Instructor · Certificate Program in Strategic Management',80,520);
+
+  ctx.strokeStyle='#ccc';ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(W-320,472);ctx.lineTo(W-80,472);ctx.stroke();
+  ctx.textAlign='right';
+  ctx.fillStyle='#888';ctx.font='11px Georgia';ctx.fillText('Date of Issue',W-80,486);
+  ctx.fillStyle='#0f2340';ctx.font='bold 13px Georgia';
+  ctx.fillText(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),W-80,503);
+  ctx.fillStyle='#888';ctx.font='11px Georgia';ctx.fillText('Certificate Code',W-80,518);
+  ctx.fillStyle='#666';ctx.font='12px Georgia';ctx.fillText(code,W-80,533);
+
+  // Seal
+  ctx.textAlign='center';
+  ctx.shadowColor='rgba(0,0,0,0.25)';ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(W/2,500,44,0,Math.PI*2);ctx.fillStyle='#0f2340';ctx.fill();
+  ctx.shadowBlur=0;
+  [42,36,28].forEach((r,i)=>{
+    ctx.beginPath();ctx.arc(W/2,500,r,0,Math.PI*2);
+    ctx.strokeStyle=i===0?'#c9a227':i===1?'rgba(201,162,39,0.4)':'rgba(201,162,39,0.15)';
+    ctx.lineWidth=i===0?2:1;ctx.stroke();
+  });
+  ctx.fillStyle='#c9a227';ctx.font='bold 11px Georgia';ctx.fillText('PROGRAM',W/2,496);
+  ctx.fillStyle='#e2c060';ctx.font='bold 9px Georgia';ctx.fillText('COMPLETE',W/2,510);
+
+  ctx.fillStyle='#bbb';ctx.font='10px Georgia';
+  ctx.fillText('Certificate Program in Strategic Management  ·  Professor Babu George  ·  Verified',W/2,H-36);
+}
+
+function generateCert() {
+  const name = document.getElementById('certName').value.trim();
+  if (!name) { document.getElementById('certName').focus(); return; }
+  currentCode = generateCode();
+  const canvas = document.getElementById('certCanvas');
+  drawProgramCertificate(canvas, name, currentCode);
+  const preview = document.getElementById('certPreview');
+  preview.style.display = 'block';
+  preview.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function downloadPNG() {
+  const name = document.getElementById('certName').value.trim() || 'graduate';
+  const a = document.createElement('a');
+  a.download = 'Program_Certificate_Strategic_Management_' + name.replace(/\s+/g,'_') + '.png';
+  a.href = document.getElementById('certCanvas').toDataURL('image/png');
+  a.click();
+}
+
+function downloadPDF() {
+  const dataUrl = document.getElementById('certCanvas').toDataURL('image/png');
+  const html = `<!DOCTYPE html><html><head><title>Program Certificate</title>
+    <style>*{margin:0;padding:0;box-sizing:border-box;}body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;}img{max-width:100%;height:auto;}@media print{body{margin:0;}img{width:100%;page-break-inside:avoid;}}</style>
+    </head><body><img src="${dataUrl}" onload="window.print()"/></body></html>`;
+  window.open(URL.createObjectURL(new Blob([html],{type:'text/html'})),'_blank');
+}
+
+// ─── PWA: Service Worker registration ─────────────────────────────────────────
+let deferredPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', {scope: './'})
+      .then(reg => console.log('[SW] Registered, scope:', reg.scope))
+      .catch(err => console.warn('[SW] Registration failed:', err));
+  });
+}
+
+// Capture the install prompt
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show banner only if not previously dismissed
+  if (!localStorage.getItem('smcp_install_dismissed')) {
+    document.getElementById('installBanner').classList.add('visible');
+  }
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') {
+      showToast('App installed successfully!');
+    }
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.remove('visible');
+  });
+}
+
+function dismissInstall() {
+  document.getElementById('installBanner').classList.remove('visible');
+  localStorage.setItem('smcp_install_dismissed', '1');
+}
+
+// Offline / online detection
+window.addEventListener('offline', () => document.getElementById('offlineNotice').classList.add('visible'));
+window.addEventListener('online',  () => document.getElementById('offlineNotice').classList.remove('visible'));
+
+// ─── Listen for progress updates from module windows ─────────────────────────
+// When a child module tab saves to localStorage, BroadcastChannel re-renders
+// the portal if it's still open in another tab.
+try {
+  const bc = new BroadcastChannel('smcp_progress');
+  bc.onmessage = () => renderProgress();
+} catch(e) {
+  // BroadcastChannel not supported in all environments — graceful fallback
+  window.addEventListener('focus', renderProgress);
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+renderProgress();
+
+document.getElementById('certName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') generateCert();
+});
+</script>
+</body>
+</html>

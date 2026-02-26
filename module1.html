@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="theme-color" content="#0a1e36"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module 1: Introductory Module · MBA Strategic Management</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f2340; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+const PROFILES = {
+  Analyst: {
+    icon: "🔍",
+    color: "#1a3a5c",
+    description:
+      "You lead with data, frameworks, and evidence. You instinctively break problems into components before forming conclusions. In strategy, you are the person who ensures decisions rest on solid ground rather than intuition alone.",
+    strengths: ["Rigorous problem diagnosis", "Evidence-based decisions", "Risk identification"],
+    watch: "Avoid analysis paralysis. Strategy also demands action under uncertainty.",
+  },
+  Visionary: {
+    icon: "🔭",
+    color: "#2d1a5c",
+    description:
+      "You think in futures, possibilities, and patterns that others haven't yet noticed. You are drawn to the 'where are we going' question before the 'how do we get there' question. In strategy, you are the person who spots opportunity before the window opens.",
+    strengths: ["Long-horizon thinking", "Innovation orientation", "Inspiring direction"],
+    watch: "Ground your vision in operational feasibility. Great ideas need great execution.",
+  },
+  Executor: {
+    icon: "⚙️",
+    color: "#1a3d2b",
+    description:
+      "You think in plans, timelines, and accountability. You are uncomfortable with ambiguity and natural at translating intent into action. In strategy, you are the person who makes things actually happen.",
+    strengths: ["Implementation discipline", "Resource management", "Follow-through"],
+    watch: "Stay open to pivots. Sometimes the plan needs to change when the environment shifts.",
+  },
+  Integrator: {
+    icon: "🔗",
+    color: "#3d2a1a",
+    description:
+      "You read people, relationships, and organizational dynamics as easily as others read spreadsheets. You instinctively look for alignment before action. In strategy, you are the person who builds the coalitions that make strategy stick.",
+    strengths: ["Stakeholder alignment", "Cross-functional leadership", "Change management"],
+    watch: "Not every decision requires consensus. Sometimes speed matters more than buy-in.",
+  },
+};
+
+const QUESTIONS = [
+  {
+    text: "When faced with a major organizational decision, your first instinct is to:",
+    options: [
+      { label: "Gather data and analyze the situation thoroughly before forming a view", type: "Analyst" },
+      { label: "Ask 'what could this look like in five years?' and reason backwards", type: "Visionary" },
+      { label: "Identify the key tasks and who owns them", type: "Executor" },
+      { label: "Talk to the key stakeholders to understand their perspectives", type: "Integrator" },
+    ],
+  },
+  {
+    text: "A competitor launches a disruptive product in your market. You instinctively want to:",
+    options: [
+      { label: "Map their capabilities, pricing, and likely next moves", type: "Analyst" },
+      { label: "Reimagine your own product roadmap for the next three years", type: "Visionary" },
+      { label: "Build a rapid response plan with clear owners and deadlines", type: "Executor" },
+      { label: "Convene your leadership team and align on a shared response", type: "Integrator" },
+    ],
+  },
+  {
+    text: "Which phrase most resonates with how you think about strategy?",
+    options: [
+      { label: "'Strategy without evidence is just a guess.'", type: "Analyst" },
+      { label: "'The best strategy sees the future before others do.'", type: "Visionary" },
+      { label: "'A strategy not executed is just a slide deck.'", type: "Executor" },
+      { label: "'Strategy lives or dies with the people behind it.'", type: "Integrator" },
+    ],
+  },
+  {
+    text: "In a team strategy session, you are most likely the person who:",
+    options: [
+      { label: "Asks for the data behind the assumptions", type: "Analyst" },
+      { label: "Challenges the group to think beyond the current planning horizon", type: "Visionary" },
+      { label: "Keeps pushing toward concrete next steps and owners", type: "Executor" },
+      { label: "Checks that every voice in the room has been heard", type: "Integrator" },
+    ],
+  },
+  {
+    text: "When a strategic initiative is failing, you tend to:",
+    options: [
+      { label: "Diagnose root causes with a structured analytical framework", type: "Analyst" },
+      { label: "Question whether the original direction was right and explore alternatives", type: "Visionary" },
+      { label: "Reassign accountability and tighten the execution plan", type: "Executor" },
+      { label: "Have honest one-on-one conversations with the people involved", type: "Integrator" },
+    ],
+  },
+  {
+    text: "Which resource would you most want when tackling a strategic challenge?",
+    options: [
+      { label: "A robust dataset and time to analyze it", type: "Analyst" },
+      { label: "A blank whiteboard and a few hours to think freely", type: "Visionary" },
+      { label: "A clear project management tool and defined milestones", type: "Executor" },
+      { label: "Access to the key people across the organization", type: "Integrator" },
+    ],
+  },
+  {
+    text: "In your personal life, how do you typically approach big decisions?",
+    options: [
+      { label: "Research carefully and compare options systematically", type: "Analyst" },
+      { label: "Imagine where each path leads and choose the one with more possibility", type: "Visionary" },
+      { label: "Make a plan, set a timeline, and get moving", type: "Executor" },
+      { label: "Talk it through with people I trust before deciding", type: "Integrator" },
+    ],
+  },
+  {
+    text: "What do you believe is the most undervalued skill in most organizations?",
+    options: [
+      { label: "Intellectual rigor — most strategy is not grounded well enough in evidence", type: "Analyst" },
+      { label: "Long-term thinking — most organizations are too short-term focused", type: "Visionary" },
+      { label: "Execution discipline — most strategies fail in implementation, not design", type: "Executor" },
+      { label: "People alignment — most strategies underestimate the human factor", type: "Integrator" },
+    ],
+  },
+];
+
+function generateCode() {
+  return "M1-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+function drawCert(canvas, studentName, profileType, code, date) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+
+  ctx.fillStyle = "#faf8f3";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = "#c9a84c";
+  ctx.lineWidth = 7;
+  ctx.strokeRect(16, 16, W - 32, H - 32);
+  ctx.strokeStyle = "#1a3a5c";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+
+  [[38,38],[W-38,38],[38,H-38],[W-38,H-38]].forEach(([x,y]) => {
+    ctx.fillStyle = "#c9a84c";
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+  });
+
+  const hg = ctx.createLinearGradient(0,44,0,118);
+  hg.addColorStop(0,"#1a3a5c"); hg.addColorStop(1,"#0d2137");
+  ctx.fillStyle = hg;
+  ctx.fillRect(28,44,W-56,78);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#c9a84c";
+  ctx.font = "bold 13px Georgia";
+  ctx.fillText("MODULE 1  ·  INTRODUCTORY MODULE", W/2, 74);
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  ctx.font = "11px Georgia";
+  ctx.fillText("Micro-Simulation  ·  Strategic Management", W/2, 96);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.font = "10px Georgia";
+  ctx.fillText("Strategic Self-Profile Assessment", W/2, 112);
+
+  ctx.fillStyle = "#1a3a5c";
+  ctx.font = "bold 26px Georgia";
+  ctx.fillText("Certificate of Completion", W/2, 158);
+
+  ctx.strokeStyle = "#c9a84c";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(W/2-120,170); ctx.lineTo(W/2+120,170); ctx.stroke();
+
+  ctx.fillStyle = "#777";
+  ctx.font = "13px Georgia";
+  ctx.fillText("This certifies that", W/2, 200);
+
+  ctx.fillStyle = "#1a3a5c";
+  ctx.font = "bold 29px Georgia";
+  ctx.fillText(studentName, W/2, 242);
+
+  const nw = ctx.measureText(studentName).width;
+  ctx.strokeStyle = "#c9a84c"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2-nw/2,250); ctx.lineTo(W/2+nw/2,250); ctx.stroke();
+
+  ctx.fillStyle = "#777";
+  ctx.font = "13px Georgia";
+  ctx.fillText("has successfully completed the micro-simulation and", W/2, 278);
+  ctx.fillText("identified their dominant strategic thinking profile:", W/2, 297);
+
+  ctx.fillStyle = "#1a3a5c";
+  ctx.font = "bold italic 19px Georgia";
+  ctx.fillText(`The ${profileType}`, W/2, 328);
+  ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 350);
+
+  ctx.strokeStyle = "#c9a84c"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(70,352); ctx.lineTo(W-70,352); ctx.stroke();
+
+  // Left sig
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(90,390); ctx.lineTo(290,390); ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#1a3a5c"; ctx.font = "bold 13px Georgia";
+  ctx.fillText("Professor Babu George", 90, 406);
+  ctx.fillStyle = "#1565c0"; ctx.font = "12px Georgia";
+  ctx.fillText("linkedin.com/in/beingbabu", 90, 422);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Instructor · Strategic Management", 90, 437);
+
+  // Right date/code
+  ctx.strokeStyle = "#ccc"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(W-290,390); ctx.lineTo(W-90,390); ctx.stroke();
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Date of Completion", W-90, 406);
+  ctx.fillStyle = "#1a3a5c"; ctx.font = "bold 12px Georgia";
+  ctx.fillText(date, W-90, 422);
+  ctx.fillStyle = "#888"; ctx.font = "11px Georgia";
+  ctx.fillText("Completion Code: " + code, W-90, 440);
+
+  // Seal
+  ctx.textAlign = "center";
+  ctx.beginPath(); ctx.arc(W/2,412,30,0,Math.PI*2);
+  ctx.fillStyle = "#1a3a5c"; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2,412,28,0,Math.PI*2);
+  ctx.strokeStyle = "#c9a84c"; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = "#c9a84c"; ctx.font = "bold 9px Georgia";
+  ctx.fillText("VERIFIED", W/2, 416);
+}
+
+function AppComponent() {
+  const [screen, setScreen] = useState("welcome");
+  const [nameInput, setNameInput] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [currentQ, setCurrentQ] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [profileResult, setProfileResult] = useState(null);
+  const code = useRef(generateCode()).current;
+  const date = useRef(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})).current;
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (screen === "certificate" && canvasRef.current && profileResult) {
+      drawCert(canvasRef.current, studentName, profileResult, code, date);
+      try{localStorage.setItem('smcp_module_1',JSON.stringify({name:studentName,code:code,completedAt:new Date().toISOString()}));}catch(e){}try{new BroadcastChannel('smcp_progress').postMessage(1);}catch(e){}
+    }
+  }, [screen]);
+
+  function start() {
+    if (!nameInput.trim()) return;
+    setStudentName(nameInput.trim());
+    setScreen("overview");
+  }
+
+  function answer(type) {
+    const next = [...answers, type];
+    if (currentQ + 1 < QUESTIONS.length) {
+      setAnswers(next); setCurrentQ(currentQ + 1);
+    } else {
+      const counts = {Analyst:0,Visionary:0,Executor:0,Integrator:0};
+      next.forEach(t => counts[t]++);
+      const top = Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+      setProfileResult(top);
+      setAnswers([]); setCurrentQ(0);
+      setScreen("results");
+    }
+  }
+
+  function restart() {
+    setAnswers([]); setCurrentQ(0); setProfileResult(null); setScreen("simulation");
+  }
+
+  function dlPNG() {
+    const a = document.createElement("a");
+    a.download = `Certificate_Module1_${studentName.replace(/\s+/g,"_")}.png`;
+    a.href = canvasRef.current.toDataURL("image/png"); a.click();
+  }
+
+  function dlPDF() {
+    const img = canvasRef.current.toDataURL("image/png");
+    const html = `<!DOCTYPE html><html><head><title>Certificate</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;}@media print{body{margin:0;}}</style></head><body><img src="${img}"/><script>window.onload=()=>window.print();<\/script></body></html>`;
+    window.open(URL.createObjectURL(new Blob([html],{type:"text/html"})),"_blank");
+  }
+
+  const profile = profileResult ? PROFILES[profileResult] : null;
+
+  const S = {
+    page:{minHeight:"100vh",background:"linear-gradient(150deg,#071525 0%,#1a3a5c 55%,#0b1e33 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",padding:"24px"},
+    card:{background:"#fff",borderRadius:"2px",maxWidth:"640px",width:"100%",boxShadow:"0 20px 55px rgba(0,0,0,0.45)",overflow:"hidden"},
+    hdr:{background:"linear-gradient(135deg,#1a3a5c,#0d2137)",padding:"26px 34px 20px",borderBottom:"3px solid #c9a84c"},
+    badge:{display:"inline-block",background:"rgba(201,168,76,0.15)",border:"1px solid #c9a84c",color:"#c9a84c",fontSize:"10px",letterSpacing:"2px",padding:"3px 10px",marginBottom:"9px",fontFamily:"Arial,sans-serif"},
+    h1:{color:"#fff",fontSize:"20px",margin:0,fontWeight:"normal",lineHeight:1.4},
+    sub:{color:"rgba(255,255,255,0.5)",fontSize:"12px",marginTop:"4px",fontFamily:"Arial,sans-serif"},
+    body:{padding:"30px 34px"},
+    prose:{color:"#444",fontSize:"14px",lineHeight:1.8,marginBottom:"13px"},
+    h2:{color:"#1a3a5c",fontSize:"15px",marginBottom:"10px",fontWeight:"bold"},
+    inp:{width:"100%",padding:"12px 14px",fontSize:"15px",fontFamily:"Georgia,serif",border:"2px solid #ddd",borderRadius:"2px",outline:"none",boxSizing:"border-box"},
+    lbl:{fontSize:"10px",color:"#999",fontFamily:"Arial,sans-serif",letterSpacing:"1px",marginBottom:"6px",display:"block"},
+    btn:{background:"linear-gradient(135deg,#1a3a5c,#2a5a8c)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    gold:{background:"linear-gradient(135deg,#a8780a,#c9a84c)",color:"#fff",border:"none",padding:"12px 26px",fontSize:"14px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px",fontWeight:"bold"},
+    out:{background:"transparent",color:"#1a3a5c",border:"2px solid #1a3a5c",padding:"10px 20px",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",borderRadius:"2px"},
+    opt:{width:"100%",background:"#fafafa",border:"1.5px solid #e5e5e5",borderRadius:"2px",padding:"12px 15px",marginBottom:"8px",textAlign:"left",fontSize:"13px",fontFamily:"Georgia,serif",cursor:"pointer",color:"#333",lineHeight:1.5,transition:"all 0.15s"},
+    bar:{height:"3px",background:"#eee",marginBottom:"22px",borderRadius:"2px"},
+    fill:{height:"100%",background:"#c9a84c",borderRadius:"2px",transition:"width 0.3s"},
+  };
+
+  if (screen==="welcome") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>MODULE 1 · INTRODUCTORY</div>
+        <h1 style={S.h1}>Strategic Self-Profile Assessment</h1>
+        <p style={S.sub}>Micro-Simulation · Strategic Management</p>
+      </div>
+      <div style={S.body}>
+        <p style={S.prose}>Welcome. Before we begin, please enter your full name as you would like it to appear on your certificate of completion.</p>
+        <label style={S.lbl}>FULL NAME</label>
+        <input style={S.inp} type="text" placeholder="e.g., Jane Adeyemi" value={nameInput}
+          onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} autoFocus />
+        <div style={{marginTop:"22px",textAlign:"right"}}>
+          <button style={S.btn} onClick={start}>Begin →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="overview") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>OVERVIEW</div>
+        <h1 style={S.h1}>About This Simulation</h1>
+        <p style={S.sub}>Welcome, {studentName}</p>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>What You Will Do</h2>
+        <p style={S.prose}>Every strategist has a natural orientation — a default way of seeing problems, making decisions, and taking action. Understanding yours is the first step toward becoming a more intentional strategic leader.</p>
+        <p style={S.prose}>This simulation presents eight scenario-based questions. Based on your responses, it identifies your dominant strategic thinking profile: <strong>Analyst, Visionary, Executor,</strong> or <strong>Integrator.</strong> No profile is better than another; each reflects a genuinely valuable strategic orientation.</p>
+        <h2 style={S.h2}>How to Complete It</h2>
+        <p style={S.prose}>Select the response that most honestly reflects your natural instinct, not the one you think is theoretically "correct." There are no wrong answers. You may retake the simulation as many times as you like.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.btn} onClick={()=>setScreen("simulation")}>Start →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="simulation") {
+    const q = QUESTIONS[currentQ];
+    return (
+      <div style={S.page}><div style={S.card}>
+        <div style={S.hdr}>
+          <div style={S.badge}>QUESTION {currentQ+1} OF {QUESTIONS.length}</div>
+          <h1 style={S.h1}>Strategic Self-Profile Assessment</h1>
+        </div>
+        <div style={S.body}>
+          <div style={S.bar}><div style={{...S.fill,width:`${(currentQ/QUESTIONS.length)*100}%`}}/></div>
+          <p style={{...S.prose,fontWeight:"bold",color:"#1a3a5c",fontSize:"15px"}}>{q.text}</p>
+          <div style={{marginTop:"14px"}}>
+            {q.options.map((opt,i)=>(
+              <button key={i} style={S.opt}
+                onMouseEnter={e=>{e.currentTarget.style.background="#edf2fb";e.currentTarget.style.borderColor="#1a3a5c";}}
+                onMouseLeave={e=>{e.currentTarget.style.background="#fafafa";e.currentTarget.style.borderColor="#e5e5e5";}}
+                onClick={()=>answer(opt.type)}>{opt.label}</button>
+            ))}
+          </div>
+        </div>
+      </div></div>
+    );
+  }
+
+  if (screen==="results"&&profile) return (
+    <div style={S.page}><div style={S.card}>
+      <div style={{background:profile.color,padding:"26px 34px 20px",borderBottom:"3px solid #c9a84c"}}>
+        <div style={{...S.badge,borderColor:"#c9a84c",color:"#c9a84c"}}>YOUR STRATEGIC PROFILE</div>
+        <h1 style={{color:"#fff",fontSize:"22px",margin:"8px 0 0",fontWeight:"bold"}}>{profile.icon} The {profileResult}</h1>
+      </div>
+      <div style={S.body}>
+        <p style={S.prose}>{profile.description}</p>
+        <div style={{background:"#f2fbf5",border:"1px solid #b7e0c5",borderRadius:"2px",padding:"13px 17px",marginBottom:"14px"}}>
+          <p style={{margin:"0 0 7px",fontSize:"10px",fontWeight:"bold",color:"#2a6a40",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>CORE STRENGTHS</p>
+          {profile.strengths.map((s,i)=><p key={i} style={{margin:"3px 0",fontSize:"13px",color:"#333"}}>✓ {s}</p>)}
+        </div>
+        <div style={{background:"#fffaed",border:"1px solid #e8d070",borderRadius:"2px",padding:"13px 17px",marginBottom:"22px"}}>
+          <p style={{margin:"0 0 7px",fontSize:"10px",fontWeight:"bold",color:"#7a5c00",fontFamily:"Arial,sans-serif",letterSpacing:"1px"}}>WATCH POINT</p>
+          <p style={{margin:0,fontSize:"13px",color:"#555"}}>{profile.watch}</p>
+        </div>
+        <div style={{display:"flex",gap:"12px",justifyContent:"space-between"}}>
+          <button style={S.out} onClick={restart}>Retake</button>
+          <button style={S.btn} onClick={()=>setScreen("reflection")}>Continue →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="reflection") return (
+    <div style={S.page}><div style={S.card}>
+      <div style={S.hdr}>
+        <div style={S.badge}>LEARNING REFLECTION</div>
+        <h1 style={S.h1}>What You Have Learned</h1>
+      </div>
+      <div style={S.body}>
+        <h2 style={S.h2}>The Core Insight</h2>
+        <p style={S.prose}>Self-awareness is the foundation of strategic leadership. Before you can guide an organization through complexity, you need to understand how you instinctively see the world — and where your blind spots are. This simulation surfaced your dominant orientation so you can build on it deliberately.</p>
+        <h2 style={S.h2}>In Your Professional Life</h2>
+        <p style={S.prose}>Knowing your profile helps you build complementary teams. Effective leaders understand which orientations their team lacks and recruit or collaborate accordingly. This self-knowledge also informs career planning — which roles will energize you, where you will need to consciously compensate, and who makes the right thought partner for your decisions.</p>
+        <h2 style={S.h2}>In Your Personal Life</h2>
+        <p style={S.prose}>Your strategic profile does not stay at the office. Analysts over-research personal decisions. Visionaries dream more than they plan. Executors move fast and skip reflection. Integrators defer when independence would serve them better. Recognizing these patterns in daily life leads to sharper personal decisions as well.</p>
+        <div style={{textAlign:"right"}}>
+          <button style={S.gold} onClick={()=>setScreen("certificate")}>Get My Certificate →</button>
+        </div>
+      </div>
+    </div></div>
+  );
+
+  if (screen==="certificate") return (
+    <div style={S.page}><div style={{...S.card,maxWidth:"760px"}}>
+      <div style={S.hdr}>
+        <div style={S.badge}>CERTIFICATE OF COMPLETION</div>
+        <h1 style={S.h1}>Congratulations, {studentName}</h1>
+        <p style={S.sub}>Download your certificate and save it to your records.</p>
+      </div>
+      <div style={{padding:"26px 34px"}}>
+        <canvas ref={canvasRef} width={700} height={480}
+          style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"16px"}}/>
+        <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
+          <button style={S.gold} onClick={dlPNG}>⬇ Download Image (PNG)</button>
+          <button style={S.btn} onClick={dlPDF}>⬇ Download PDF</button>
+          <button style={S.out} onClick={restart}>Retake Simulation</button>
+        </div>
+        <p style={{textAlign:"center",fontSize:"11px",color:"#bbb",marginTop:"14px",fontFamily:"Arial,sans-serif"}}>
+          Signed by{" "}
+          <a href="https://www.linkedin.com/in/beingbabu/" target="_blank" rel="noreferrer" style={{color:"#1565c0"}}>
+            Professor Babu George
+          </a>{" "}· Code: {code}
+        </p>
+      </div>
+    </div></div>
+  );
+
+  return null;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AppComponent));
+  </script>
+</body>
+</html>
