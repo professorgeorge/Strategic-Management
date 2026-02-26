@@ -167,6 +167,7 @@ function drawCert(canvas, studentName, grade, code, date) {
   ctx.beginPath(); ctx.arc(W/2,412,28,0,Math.PI*2);
   ctx.strokeStyle = "#2e7d4f"; ctx.lineWidth = 1.5; ctx.stroke();
   ctx.fillStyle = "#7ecfa0"; ctx.font = "bold 9px Georgia";
+  ctx.fillStyle="rgba(120,120,130,0.7)";ctx.font="italic 9.5px Georgia";ctx.textAlign="center";ctx.fillText("This certificate is issued on the honor of the recipient\'s self-declaration of completion.",W/2,H-20);
   ctx.fillText("VERIFIED", W/2, 416);
 }
 
@@ -400,7 +401,7 @@ function AppComponent() {
         <p style={S.sub}>Download your certificate and save it to your records.</p>
       </div>
       <div style={{padding:"26px 34px"}}>
-        <canvas ref={canvasRef} width={700} height={480}
+        <canvas ref={canvasRef} width={700} height={510}
           style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"16px"}}/>
         <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
           <button style={S.green} onClick={dlPNG}>⬇ Download Image (PNG)</button>

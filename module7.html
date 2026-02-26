@@ -130,7 +130,7 @@ function drawCertificate(canvas, studentName, grade, completionCode, completionD
   ctx.fillStyle="#555"; ctx.font="13px Georgia"; ctx.fillText("has successfully completed the micro-simulation for",W/2,285);
   ctx.fillStyle="#1a3a5c"; ctx.font="bold 17px Georgia"; ctx.fillText("Module 7: Customer Service Strategy",W/2,315);
   ctx.fillStyle = "rgba(100,100,120,0.75)"; ctx.font = "italic 11px Georgia"; ctx.fillText("Issued in partial fulfillment of the Strategic Management Certificate Program", W/2, 337);
-  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,342);
+  ctx.fillStyle="#555"; ctx.font="italic 13px Georgia"; ctx.fillText(`Performance Rating: ${grade.label}`,W/2,362);
   ctx.strokeStyle="#c0392b"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(80,364); ctx.lineTo(W-80,364); ctx.stroke();
   ctx.textAlign="left"; ctx.fillStyle="#1a3a5c"; ctx.font="bold 13px Georgia"; ctx.fillText("Professor Babu George",100,416);
   ctx.fillStyle="#1565c0"; ctx.font="12px Georgia"; ctx.fillText("linkedin.com/in/beingbabu",100,434);
@@ -143,8 +143,8 @@ function drawCertificate(canvas, studentName, grade, completionCode, completionD
   ctx.strokeStyle="#aaa"; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(W-310,400); ctx.lineTo(W-100,400); ctx.stroke();
   ctx.textAlign="center"; ctx.beginPath(); ctx.arc(W/2,418,35,0,Math.PI*2); ctx.fillStyle="#1a3a5c"; ctx.fill();
   ctx.beginPath(); ctx.arc(W/2,418,33,0,Math.PI*2); ctx.strokeStyle="#c0392b"; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.fillStyle="#f1948a"; ctx.font="bold 10px Georgia"; ctx.fillText("FHSU",W/2,414); ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
-  ctx.fillStyle="#aaa"; ctx.font="10px Georgia"; ctx.fillText("Strategic Management Certificate Program  ·  Module 7",W/2,H-42);
+  ctx.fillStyle="#f1948a"; ctx.font="bold 10px Georgia"; ctx.font="8px Georgia"; ctx.fillText("VERIFIED",W/2,426);
+  ctx.fillStyle="#aaa";ctx.font="10px Georgia";ctx.fillText("Strategic Management Certificate Program  ·  Module 7",W/2,H-42);ctx.fillStyle="rgba(120,120,130,0.7)";ctx.font="italic 9.5px Georgia";ctx.textAlign="center";ctx.fillText("This certificate is issued on the honor of the recipient\'s self-declaration of completion.",W/2,H-20);
 }
 
 const S = {
@@ -323,7 +323,7 @@ function AppComponent() {
     <div style={S.page}><div style={{...S.card,maxWidth:"780px"}}>
       <div style={S.header}><div style={S.badge}>MODULE 7 · CERTIFICATE</div><h1 style={S.title}>Congratulations, {studentName}</h1><p style={S.sub}>Your certificate is ready for download.</p></div>
       <div style={{padding:"28px 36px"}}>
-        <canvas ref={canvasRef} width={760} height={520} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
+        <canvas ref={canvasRef} width={760} height={550} style={{width:"100%",border:"1px solid #eee",display:"block",marginBottom:"20px"}} />
         <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
           <button style={S.btnRed} onClick={downloadPNG}>⬇ Download as Image (PNG)</button>
           <button style={S.btn} onClick={downloadPDF}>⬇ Download as PDF</button>

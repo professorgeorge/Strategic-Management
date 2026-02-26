@@ -507,7 +507,7 @@ function drawCertificate(canvas, studentName, grade, score, completionCode) {
   ctx.fill();
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 13px Georgia";
-  ctx.fillText(`${grade.tier}  ·  ${grade.label}  ·  Score: ${score}/${MAX_SCORE}`, W/2, 361);
+  ctx.fillText(`${grade.tier}  ·  ${grade.label}  ·  Score: ${score}/${MAX_SCORE}`, W/2, 374);
 
   // Divider
   ctx.strokeStyle = C.gold; ctx.lineWidth = 1;
@@ -552,13 +552,13 @@ function drawCertificate(canvas, studentName, grade, score, completionCode) {
   ctx.beginPath(); ctx.arc(W/2, 432, 30, 0, Math.PI*2);
   ctx.strokeStyle = C.goldLt; ctx.lineWidth = 0.8; ctx.stroke();
   ctx.fillStyle = C.gold; ctx.font = "bold 10px Georgia";
-  ctx.fillText("FHSU", W/2, 428);
   ctx.fillStyle = C.goldLt; ctx.font = "bold 8px Georgia";
   ctx.fillText("CAPSTONE", W/2, 440);
 
   // Footer
   ctx.fillStyle = "#aaa"; ctx.font = "10px Georgia";
   ctx.fillText("Strategic Management Certificate Program  ·  Module 14: Capstone", W/2, H-36);
+  ctx.fillStyle="rgba(120,120,130,0.7)";ctx.font="italic 9.5px Georgia";ctx.textAlign="center";ctx.fillText("This certificate is issued on the honor of the recipient\'s self-declaration of completion.",W/2,H-20);
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -932,7 +932,7 @@ function AppComponent() {
             <canvas
               ref={canvasRef}
               width={800}
-              height={540}
+              height={575}
               style={{width:"100%",border:`1px solid ${C.border}`,display:"block",marginBottom:"20px"}}
             />
             <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
